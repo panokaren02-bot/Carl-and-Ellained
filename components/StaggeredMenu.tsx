@@ -21,6 +21,8 @@ export interface StaggeredMenuProps {
   openMenuButtonColor?: string;
   accentColor?: string;
   isFixed: boolean;
+  /** Link of the section currently on screen — highlighted in the menu */
+  activeLink?: string;
   changeMenuColorOnOpen?: boolean;
   onMenuOpen?: () => void;
   onMenuClose?: () => void;
@@ -45,6 +47,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   changeMenuColorOnOpen = true,
   accentColor = HERO_ACCENT,
   isFixed = false,
+  activeLink,
   onMenuOpen,
   onMenuClose
 }: StaggeredMenuProps) => {
@@ -412,7 +415,9 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                   <li className="sm-panel-itemWrap relative overflow-hidden leading-none" key={it.label + idx}>
                     <a
                       className="sm-panel-item relative font-semibold cursor-pointer leading-none tracking-[-2px] uppercase transition-[color] duration-150 ease-linear inline-block no-underline pr-[1.4em]"
-                      style={{ color: MENU_TEXT }}
+                      style={{ color: activeLink === it.link ? 'var(--sm-accent, var(--color-motif-accent))' : MENU_TEXT }}
+                      aria-current={activeLink === it.link ? 'location' : undefined}
+                      data-active={activeLink === it.link || undefined}
                       href={it.link}
                       onClick={(e) => handleItemClick(e, it.link)}
                       aria-label={it.ariaLabel}
@@ -512,6 +517,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
 @media (min-width: 1024px) { .sm-scope .sm-panel-item { font-size: 2.45rem; letter-spacing: -1.2px; } }
 .sm-scope .sm-panel-itemLabel { display: inline-block; will-change: transform; transform-origin: 50% 100%; }
 .sm-scope .sm-panel-item:hover { color: var(--sm-accent, var(--color-motif-accent)); }
+.sm-scope .sm-panel-item[data-active]::after { content: ''; position: absolute; right: 0.55em; top: 50%; width: 0.32em; height: 0.32em; border-radius: 9999px; background: var(--color-welcome-gold, var(--sm-accent)); transform: translateY(-50%); }
 @media (max-width: 1024px) { .sm-scope .staggered-menu-panel { width: 100%; left: 0; right: 0; } .sm-scope .staggered-menu-wrapper[data-open] .sm-logo-img { filter: invert(100%); } }
 @media (max-width: 640px) {
   .sm-scope .staggered-menu-header { padding: 1rem; }

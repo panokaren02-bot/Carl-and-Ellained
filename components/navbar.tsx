@@ -19,24 +19,34 @@ const cormorant = Cormorant_Garamond({
 
 const NAV_MONOGRAM = siteConfig.couple.monogram
 
-const navLinks = [
+// Same order as the sections in app/page.tsx. Links whose section isn't on the page
+// (e.g. commented out there) are hidden automatically.
+// wideOnly: shown in the desktop bar only on extra-wide screens (always in the phone menu).
+const navLinks: { href: string; label: string; wideOnly?: boolean }[] = [
   { href: "#home", label: "Home" },
-  { href: "#guest-list", label: "RSVP" },
-  { href: "#wedding-timeline", label: "Timeline" },
-  { href: "#details", label: "Details" },
-  { href: "#entourage", label: "Entourage" },
+  { href: "#welcome", label: "Welcome", wideOnly: true },
+  { href: "#love-story", label: "Our Story" },
+  { href: "#countdown", label: "Countdown", wideOnly: true },
   { href: "#gallery", label: "Gallery" },
   { href: "#messages", label: "Messages" },
+  { href: "#details", label: "Details" },
+  { href: "#wedding-timeline", label: "Timeline" },
+  { href: "#entourage", label: "Entourage" },
+  { href: "#guest-list", label: "RSVP" },
+  { href: "#guests", label: "Guests" },
   { href: "#faq", label: "FAQ" },
-  { href: "#registry", label: "Registry" },
-  { href: "#snap-share", label: "Snap Share" },
-  { href: "#see-you-there", label: "See You There" },
+  { href: "#registry", label: "Gifts" },
+  { href: "#playlist", label: "Playlist" },
+  { href: "#snap-share", label: "Snap & Share" },
+  { href: "#see-you-there", label: "See You There", wideOnly: true },
 ]
 
 export function Navbar() {
   const siteConfig = useSiteConfig()
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState("#home")
+  // Only links whose section exists on the page (sections mount after the loader)
+  const [visibleLinks, setVisibleLinks] = useState(navLinks)
 
   const rafIdRef = useRef<number | null>(null)
 
@@ -56,40 +66,60 @@ export function Navbar() {
     }
   }, [])
 
+  // Track which sections exist (they're lazy-loaded) and which one is on screen
   useEffect(() => {
     if (typeof window === "undefined") return
-    const sectionIds = navLinks.map(l => l.href.substring(1))
-    const elements = sectionIds
-      .map(id => document.getElementById(id))
-      .filter((el): el is HTMLElement => !!el)
 
-    if (elements.length === 0) return
-
-    const observer = new IntersectionObserver(
+    const intersection = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter(e => e.isIntersecting)
-          .sort((a, b) => (b.intersectionRatio - a.intersectionRatio))
-        if (visible.length > 0) {
-          const topMost = visible[0]
-          if (topMost.target && topMost.target.id) {
-            const newActive = `#${topMost.target.id}`
-            setActiveSection(prev => (prev === newActive ? prev : newActive))
-          }
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+        const topMost = visible[0]
+        if (topMost?.target.id) {
+          const newActive = `#${topMost.target.id}`
+          setActiveSection(prev => (prev === newActive ? prev : newActive))
         }
       },
-      {
-        root: null,
-        rootMargin: "-20% 0px -70% 0px",
-        threshold: [0, 0.1, 0.25, 0.5, 0.75, 1]
-      }
+      { root: null, rootMargin: "-20% 0px -70% 0px", threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] },
     )
 
-    elements.forEach(el => observer.observe(el))
-    return () => observer.disconnect()
+    const observed = new Set<Element>()
+    let frame: number | null = null
+
+    const sync = () => {
+      frame = null
+      const present = navLinks.filter(l => document.getElementById(l.href.substring(1)))
+      setVisibleLinks(prev =>
+        prev.length === present.length && prev.every((l, i) => l.href === present[i].href) ? prev : present,
+      )
+      present.forEach(l => {
+        const el = document.getElementById(l.href.substring(1))
+        if (el && !observed.has(el)) {
+          observed.add(el)
+          intersection.observe(el)
+        }
+      })
+    }
+
+    sync()
+    // Re-check whenever new sections mount
+    const mutations = new MutationObserver(() => {
+      if (frame == null) frame = window.requestAnimationFrame(sync)
+    })
+    mutations.observe(document.body, { childList: true, subtree: true })
+
+    return () => {
+      if (frame != null) cancelAnimationFrame(frame)
+      mutations.disconnect()
+      intersection.disconnect()
+    }
   }, [])
 
-  const menuItems = useMemo(() => navLinks.map((l) => ({ label: l.label, ariaLabel: `Go to ${l.label}`, link: l.href })), [])
+  const menuItems = useMemo(
+    () => visibleLinks.map((l) => ({ label: l.label, ariaLabel: `Go to ${l.label}`, link: l.href })),
+    [visibleLinks],
+  )
 
   const monogramSrc = siteConfig.couple.monogram || NAV_MONOGRAM
 
@@ -134,13 +164,13 @@ export function Navbar() {
           </Link>
 
           <div className="hidden xl:flex gap-0.5 items-center">
-            {navLinks.map((link) => {
+            {visibleLinks.map((link) => {
               const isActive = activeSection === link.href
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`whitespace-nowrap px-2 py-2 text-xs lg:px-2.5 lg:text-sm ${cormorant.className} font-medium rounded-lg transition-all duration-500 relative group ${
+                  className={`${link.wideOnly ? "hidden 2xl:inline-block" : ""} whitespace-nowrap px-2 py-2 text-xs lg:px-2.5 lg:text-sm ${cormorant.className} font-medium rounded-lg transition-all duration-500 relative group ${
                     isActive
                       ? "text-[var(--color-motif-deep)] bg-[var(--color-motif-soft)] backdrop-blur-md shadow-[0_6px_16px_color-mix(in_srgb,var(--color-welcome-navy)_14%,transparent)] border border-[color-mix(in_srgb,var(--color-motif-soft)_85%,white)]"
                       : "text-[var(--color-motif-soft)] hover:text-[var(--color-motif-soft)] hover:bg-white/14 hover:border hover:border-[color-mix(in_srgb,var(--color-motif-soft)_40%,transparent)] hover:shadow-[0_6px_14px_color-mix(in_srgb,var(--color-welcome-navy)_12%,transparent)] hover:scale-105 active:scale-95 bg-transparent border border-transparent"
@@ -180,6 +210,7 @@ export function Navbar() {
               ]}
               accentColor="var(--color-motif-accent)"
               isFixed={true}
+              activeLink={activeSection}
               onMenuOpen={() => {}}
               onMenuClose={() => {}}
             />
