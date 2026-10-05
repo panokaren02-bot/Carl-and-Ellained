@@ -52,7 +52,7 @@ const BackgroundMusic = () => {
       // Use an encoded URI to avoid issues with spaces/parentheses on some mobile browsers
       src={encodeURI(siteConfig.couple.backgroundMusic)}
       loop
-      preload="auto"
+      preload="none"
       // playsInline helps iOS treat this as inline media rather than requiring fullscreen behavior
       playsInline
       // Keep element non-visible; playback is initiated on first user interaction

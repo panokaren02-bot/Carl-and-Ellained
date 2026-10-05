@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next"
+import { canonicalSiteUrl } from "@/content/site"
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -13,6 +14,6 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
       },
     ],
-    sitemap: "https://adrean-and-brendel.weddinginvitationrsvp.com/sitemap.xml",
+    sitemap: `${canonicalSiteUrl}/sitemap.xml`,
   }
 }

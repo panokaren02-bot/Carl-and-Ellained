@@ -429,17 +429,17 @@ export default function DashboardPage() {
   // Login Screen
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FFF8F0] to-[#F5F5F0] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#FBFCF7] to-[#F4F5EA] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl p-8 shadow-xl border border-[#E5E7EB]">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#8B6F47] to-[#6B5335] rounded-2xl mb-4 shadow-lg">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#4F674D] to-[#304A34] rounded-2xl mb-4 shadow-lg">
                 <Lock className="h-8 w-8 text-white" />
               </div>
               <div className="mb-2">
-                <span className="font-serif text-sm text-[#A67C52]">♥</span>
-                <span className="font-serif text-2xl font-bold text-[#6B4423] mx-2">Wedding Invitation</span>
-                <span className="font-serif text-sm text-[#A67C52]">♥</span>
+                <span className="font-serif text-sm text-[#718566]">♥</span>
+                <span className="font-serif text-2xl font-bold text-[#304A34] mx-2">Wedding Invitation</span>
+                <span className="font-serif text-sm text-[#718566]">♥</span>
               </div>
               <h1 className="text-2xl font-bold text-[#111827] mb-2">
                 Admin Dashboard
@@ -458,7 +458,7 @@ export default function DashboardPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none transition-all"
                   placeholder="Enter password"
                   autoFocus
                 />
@@ -473,7 +473,7 @@ export default function DashboardPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#8B6F47] to-[#6B5335] hover:from-[#6B5335] hover:to-[#8B6F47] text-white py-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
+                className="w-full bg-gradient-to-r from-[#4F674D] to-[#304A34] hover:from-[#304A34] hover:to-[#4F674D] text-white py-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
               >
                 Access Dashboard
               </Button>
@@ -512,7 +512,7 @@ export default function DashboardPage() {
                 disabled={isLoading}
                 size="sm"
                 variant="outline"
-                className="border-[#E5E7EB] text-[#6B7280] hover:text-[#6B4423] hover:border-[#A67C52]"
+                className="border-[#E5E7EB] text-[#6B7280] hover:text-[#304A34] hover:border-[#718566]"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh Data

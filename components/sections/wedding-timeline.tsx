@@ -2,8 +2,7 @@
 
 import type React from "react"
 import { useSiteConfig } from "@/hooks/use-site-config"
-import type { SiteConfig } from "@/lib/site-config"
-import { sectionBackground } from "@/lib/section-background"
+import type { TimelineIconName } from "@/content/site"
 import { motion } from "motion/react"
 import { Cinzel } from "next/font/google"
 import localFont from "next/font/local"
@@ -29,22 +28,21 @@ const aboveTheBeyond = localFont({
 const CORNER_DECO_CLASS =
   "block h-auto w-auto max-w-[80px] sm:max-w-[120px] md:max-w-[170px] lg:max-w-[205px] xl:max-w-[245px] select-none"
 
-const IVORY = "#fffaf4"
-const GOLD = "var(--color-welcome-gold)"
-const NAVY = "var(--color-welcome-navy)"
-const SCRIPT = "var(--color-welcome-green)"
-const BODY = "var(--color-welcome-text)"
+// Light palette — the section has no background and sits on the sage Silk backdrop.
+const IVORY = "var(--color-motif-soft)"
+const CREAM = "var(--color-motif-cream)"
+const PALE = "var(--color-motif-silver)"
+const LINE = "color-mix(in srgb, var(--color-motif-soft) 70%, transparent)"
 const entryEase = [0.22, 1, 0.36, 1] as const
 
-const TIMELINE_SVG_STROKE = "#C4A265"
+// Forest-green halo keeps light text readable over the moving backdrop
+const titleShadow =
+  "0 1px 0 rgb(48 74 52 / 40%), 0 2px 10px rgb(48 74 52 / 35%), 0 8px 28px rgb(48 74 52 / 22%)"
+const textShadow = "0 1px 1px rgb(48 74 52 / 42%), 0 2px 10px rgb(48 74 52 / 28%)"
 
-const goldDividerStyle = {
-  background: "linear-gradient(to right, transparent, var(--color-welcome-gold), transparent)",
-} as const
-
-const goldDividerStyleLeft = {
-  background: "linear-gradient(to left, transparent, var(--color-welcome-gold), transparent)",
-} as const
+const lineRight = { background: `linear-gradient(to right, transparent, ${LINE})` } as const
+const lineLeft = { background: `linear-gradient(to left, transparent, ${LINE})` } as const
+const lineBoth = { background: `linear-gradient(to right, transparent, ${LINE}, transparent)` } as const
 
 type TimelineIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>
 
@@ -57,20 +55,46 @@ interface TimelineEvent {
   imageSrc?: string
 }
 
+function DecoImg({ src, className }: { src: string; className: string }) {
+  if (!src) return null
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} loading="lazy" decoding="async" alt="" aria-hidden="true" className={className} />
+  )
+}
+
+// The Seasons has no clean glyphs for symbols / digits — render only those
+// characters (e.g. "&", "-", "'", numbers) in Cinzel, keep letters in The Seasons.
+function SpecialCharFont({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/([^\p{L}\s]+)/u).map((part, i) =>
+        i % 2 === 1 ? (
+          <span key={i} className={`${cinzel.className} tracking-normal`}>
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  )
+}
+
 function OutsideDivider() {
   return (
-    <div className="flex items-center justify-center gap-1.5">
-      <span className="h-px w-6 sm:w-10" style={goldDividerStyle} />
-      <span className="h-0.5 w-0.5 rounded-full sm:h-1 sm:w-1" style={{ background: GOLD }} aria-hidden />
-      <span className="h-px w-6 sm:w-10" style={goldDividerStyleLeft} />
+    <div className="flex items-center justify-center gap-2">
+      <span className="h-px w-10 sm:w-16" style={lineRight} />
+      <span className="h-1.5 w-1.5 rotate-45" style={{ background: IVORY }} aria-hidden />
+      <span className="h-px w-10 sm:w-16" style={lineLeft} />
     </div>
   )
 }
 
 const timelineType = {
-  label: "text-[0.5625rem] sm:text-[0.6875rem] md:text-xs",
-  text: "text-[0.75rem] sm:text-[0.875rem] md:text-[0.9375rem]",
-  textRelaxed: "text-[0.75rem] sm:text-[0.875rem] md:text-[0.9375rem] leading-[1.55] sm:leading-[1.65]",
+  label: "text-[0.7rem] sm:text-[0.75rem] md:text-xs",
+  text: "text-[0.875rem] sm:text-[0.9375rem] md:text-[0.9375rem]",
+  textRelaxed: "text-[0.875rem] sm:text-[0.9375rem] md:text-[0.9375rem] leading-[1.55] sm:leading-[1.65]",
 } as const
 
 const timelineTitleSize = {
@@ -78,18 +102,18 @@ const timelineTitleSize = {
   script: "clamp(1.15rem, 5.8vw, 2.55rem)",
 } as const
 
-function TimelineKicker() {
+function TimelineKicker({ text }: { text: string }) {
   return (
     <p
       className={`${cinzel.className} mx-auto mt-4 max-w-[20rem] px-2 text-[0.6875rem] font-semibold leading-snug tracking-[0.12em] min-[400px]:max-w-none min-[400px]:text-[0.75rem] min-[400px]:tracking-[0.16em] sm:mt-6 sm:text-[0.875rem] sm:tracking-[0.2em] md:text-[0.9375rem] md:tracking-[0.22em]`}
-      style={{ color: GOLD }}
+      style={{ color: PALE, textShadow }}
     >
-      Join us as we tie the knot!
+      {text}
     </p>
   )
 }
 
-function TimelineTitle() {
+function TimelineTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <h2
       className="welcome-title-lockup relative mx-auto w-full max-w-full text-center"
@@ -100,132 +124,82 @@ function TimelineTitle() {
         } as React.CSSProperties
       }
     >
-      <span className="sr-only">Timeline — our wedding day</span>
+      <span className="sr-only">{title} — {subtitle}</span>
       <span
         aria-hidden
         className={`${theSeasons.className} block uppercase leading-[0.9] tracking-[0.04em] min-[400px]:tracking-[0.08em] sm:tracking-[0.12em] md:tracking-[0.14em]`}
         style={{
           fontSize: "var(--title-size)",
-          color: NAVY,
+          color: IVORY,
+          textShadow: titleShadow,
         }}
       >
-        Timeline
+        <SpecialCharFont text={title} />
       </span>
       <span
         aria-hidden
         className={`${aboveTheBeyond.className} relative z-10 mx-auto mt-1.5 block w-fit max-w-[min(100%,22rem)] px-1 leading-[0.88] sm:mt-2 sm:max-w-none sm:leading-[0.9]`}
         style={{
           fontSize: "var(--script-size)",
-          color: SCRIPT,
-          textShadow:
-            "0 1px 0 color-mix(in srgb, var(--color-welcome-bg) 95%, white), 0 0 10px color-mix(in srgb, var(--color-welcome-bg) 65%, white)",
+          color: CREAM,
+          textShadow: titleShadow,
         }}
       >
-        our wedding day
+        {subtitle}
       </span>
     </h2>
   )
 }
 
-function buildTimelineEvents(siteConfig: SiteConfig): TimelineEvent[] {
-  const ceremonyVenue = siteConfig.ceremony.location
-  const receptionVenue = siteConfig.reception.location
-
-  return [
-    {
-      time: "9:00 AM",
-      title: "Arrival at Church",
-      location: ceremonyVenue,
-      icon: ArrivalIcon,
-      imageSrc: "/weddingtimeline/arrival.png",
-    },
-    {
-      time: "9:30 AM",
-      title: "Wedding Ceremony",
-      location: ceremonyVenue,
-      icon: RingsIcon,
-      imageSrc: "/weddingtimeline/WeddingCeremony.png",
-    },
-    {
-      time: "11:30 AM",
-      title: "Departure at St. Benedict",
-      location: ceremonyVenue,
-      icon: DepartureIcon,
-      imageSrc: "/weddingtimeline/SendOff.png",
-    },
-    {
-      time: "12:00 noon",
-      title: "Cocktail Hour",
-      location: receptionVenue,
-      icon: CocktailIcon,
-      imageSrc: "/weddingtimeline/CockTailHour.png",
-    },
-    {
-      time: "1:30 PM",
-      title: "Reception Program Proper",
-      location: receptionVenue,
-      icon: FireworksIcon,
-      imageSrc: "/weddingtimeline/reception welcom.png",
-    },
-    {
-      time: "4:30 PM",
-      title: "After Party",
-      location: receptionVenue,
-      icon: DanceIcon,
-      imageSrc: "/weddingtimeline/dance.png",
-    },
-  ]
+const ICONS: Record<TimelineIconName, TimelineIcon> = {
+  arrival: ArrivalIcon,
+  rings: RingsIcon,
+  departure: DepartureIcon,
+  cocktail: CocktailIcon,
+  fireworks: FireworksIcon,
+  dance: DanceIcon,
 }
 
 export function WeddingTimeline() {
   const siteConfig = useSiteConfig()
-  const timelineEvents = buildTimelineEvents(siteConfig)
+  const content = siteConfig.weddingTimeline
+  const { decos } = content
+
+  const fillVenue = (text: string) =>
+    text
+      .split("{ceremony}").join(siteConfig.ceremony.location)
+      .split("{reception}").join(siteConfig.reception.location)
+
+  // show: false keeps an event in site.ts but leaves it off the page
+  const timelineEvents: TimelineEvent[] = content.events
+    .filter((event) => event && event.show !== false)
+    .map((event) => ({
+    time: event.time,
+    title: event.title,
+    description: event.description || undefined,
+    location: event.location ? fillVenue(event.location) : undefined,
+    icon: ICONS[event.icon] ?? RingsIcon,
+    imageSrc: event.image || undefined,
+  }))
 
   return (
-    <div
-      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full`}
-      style={{ background: sectionBackground }}
-    >
+    <div className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full bg-transparent`}>
     <section
       id="wedding-timeline"
       className="relative z-10 overflow-hidden py-10 sm:py-12 md:py-16 lg:py-20"
     >
-      {/* Corner decorations */}
+      {/* Corner decorations (optional, from site.ts) */}
       <div className="pointer-events-none absolute left-0 top-0 z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/decoration/top-left-corner.png"
-          alt=""
-          aria-hidden="true"
-          className={CORNER_DECO_CLASS}
-        />
+        <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
       </div>
       <div className="pointer-events-none absolute right-0 top-0 z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/decoration/top-right-corner.png"
-          alt=""
-          aria-hidden="true"
-          className={CORNER_DECO_CLASS}
-        />
+        <DecoImg src={decos.topRight} className={CORNER_DECO_CLASS} />
       </div>
       <div className="pointer-events-none absolute bottom-0 left-0 z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/decoration/deco/bottom-left.png"
-          alt=""
-          aria-hidden="true"
-          className={CORNER_DECO_CLASS}
-        />
+        <DecoImg src={decos.bottomLeft} className={CORNER_DECO_CLASS} />
       </div>
       <div className="pointer-events-none absolute bottom-0 right-0 z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/decoration/deco/bottom-right.png"
-          alt=""
-          aria-hidden="true"
-          className={CORNER_DECO_CLASS}
-        />
+        <DecoImg src={decos.bottomRight} className={CORNER_DECO_CLASS} />
       </div>
 
       {/* Header */}
@@ -234,19 +208,19 @@ export function WeddingTimeline() {
           <OutsideDivider />
         </div>
         <div className="mx-auto">
-          <TimelineKicker />
+          <TimelineKicker text={content.kicker} />
         </div>
         <div className="mx-auto mt-3 sm:mt-4 md:mt-5">
-          <TimelineTitle />
+          <TimelineTitle title={content.title} subtitle={content.subtitle} />
         </div>
         <p
           className={`font-goudy-italic mx-auto mt-4 max-w-xl px-2 sm:mt-5 md:mt-6 ${timelineType.textRelaxed}`}
-          style={{ color: BODY }}
+          style={{ color: IVORY, textShadow }}
         >
-          From the first arrival to the last farewell, here is how we will spend this day together.
+          {content.description}
         </p>
         <div className="mt-4 flex items-center justify-center sm:mt-5">
-          <span className="h-px w-16 sm:w-24 md:w-32" style={goldDividerStyle} />
+          <span className="h-px w-16 sm:w-24 md:w-32" style={lineBoth} />
         </div>
       </div>
 
@@ -258,10 +232,7 @@ export function WeddingTimeline() {
           whileInView={{ scaleY: 1, opacity: 1 }}
           viewport={{ once: true, amount: 0.12 }}
           transition={{ duration: 1.2, ease: entryEase }}
-          style={{
-            background:
-              "linear-gradient(to bottom, transparent, color-mix(in srgb, var(--color-welcome-gold) 72%, transparent), transparent)",
-          }}
+          style={{ background: `linear-gradient(to bottom, transparent, ${LINE}, transparent)` }}
         />
 
         <div className="space-y-7 sm:space-y-8 md:space-y-10 lg:space-y-12">
@@ -271,25 +242,29 @@ export function WeddingTimeline() {
         </div>
       </div>
 
-      <div className="relative z-20 mx-auto mt-8 max-w-xl px-3 text-center sm:mt-10 md:mt-12">
-        <div className="mb-5 flex items-center justify-center sm:mb-6">
-          <span className="h-px w-16 sm:w-24 md:w-32" style={goldDividerStyle} />
+      {content.quote ? (
+        <div className="relative z-20 mx-auto mt-8 max-w-xl px-3 text-center sm:mt-10 md:mt-12">
+          <div className="mb-5 flex items-center justify-center sm:mb-6">
+            <span className="h-px w-16 sm:w-24 md:w-32" style={lineBoth} />
+          </div>
+          <blockquote>
+            <p
+              className={`font-goudy-italic ${timelineType.textRelaxed} italic leading-relaxed`}
+              style={{ color: IVORY, textShadow }}
+            >
+              &ldquo;{content.quote}&rdquo;
+            </p>
+            {content.quoteCitation ? (
+              <footer
+                className={`font-goudy-italic mt-2 sm:mt-3 ${timelineType.label} not-italic tracking-wide`}
+                style={{ color: PALE, textShadow }}
+              >
+                — {content.quoteCitation}
+              </footer>
+            ) : null}
+          </blockquote>
         </div>
-        <blockquote>
-          <p
-            className={`font-goudy-italic ${timelineType.textRelaxed} italic leading-relaxed`}
-            style={{ color: BODY }}
-          >
-            &ldquo;At the right time, I, the Lord, will make it happen.&rdquo;
-          </p>
-          <footer
-            className={`font-goudy-italic mt-2 sm:mt-3 ${timelineType.label} not-italic tracking-wide`}
-            style={{ color: SCRIPT }}
-          >
-            — Isaiah 60:22
-          </footer>
-        </blockquote>
-      </div>
+      ) : null}
     </section>
     </div>
   )
@@ -318,10 +293,7 @@ function TimelineItem({ event, index }: { event: TimelineEvent; index: number })
             )}
             <div
               className="hidden h-px w-10 lg:block"
-              style={{
-                background:
-                  "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-welcome-gold) 55%, transparent))",
-              }}
+              style={lineRight}
             />
           </div>
         </div>
@@ -329,19 +301,19 @@ function TimelineItem({ event, index }: { event: TimelineEvent; index: number })
         <div className="relative flex items-center justify-center">
           <span
             className="absolute h-4 w-4 rounded-full"
-            style={{ background: "color-mix(in srgb, var(--color-welcome-gold) 22%, transparent)" }}
+            style={{ background: "color-mix(in srgb, var(--color-motif-soft) 28%, transparent)" }}
           />
-          <div className="relative h-2 w-2 rounded-full" style={{ background: GOLD }} />
+          <div
+            className="relative h-2 w-2 rounded-full"
+            style={{ background: IVORY, boxShadow: "0 0 8px rgb(48 74 52 / 35%)" }}
+          />
         </div>
 
         <div>
           <div className="flex items-center justify-start gap-4">
             <div
               className="hidden h-px w-10 lg:block"
-              style={{
-                background:
-                  "linear-gradient(to left, transparent, color-mix(in srgb, var(--color-welcome-gold) 55%, transparent))",
-              }}
+              style={lineLeft}
             />
             {isEven ? (
               <TimelineText event={event} align="left" />
@@ -352,20 +324,17 @@ function TimelineItem({ event, index }: { event: TimelineEvent; index: number })
         </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-4 sm:gap-x-6 md:hidden">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2.5 sm:gap-x-5 md:hidden">
         <div className={isEven ? "" : "text-right"}>
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center justify-end gap-2 sm:gap-3">
             {!isEven ? (
               <TimelineText event={event} align="right" />
             ) : (
               <IconMark Icon={Icon} imageSrc={event.imageSrc} mobile />
             )}
             <div
-              className="h-px w-6"
-              style={{
-                background:
-                  "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-welcome-gold) 55%, transparent))",
-              }}
+              className="h-px w-3 shrink-0 sm:w-6"
+              style={lineRight}
             />
           </div>
         </div>
@@ -373,19 +342,19 @@ function TimelineItem({ event, index }: { event: TimelineEvent; index: number })
         <div className="relative flex items-center justify-center">
           <span
             className="absolute h-4 w-4 rounded-full"
-            style={{ background: "color-mix(in srgb, var(--color-welcome-gold) 22%, transparent)" }}
+            style={{ background: "color-mix(in srgb, var(--color-motif-soft) 28%, transparent)" }}
           />
-          <div className="relative h-2 w-2 rounded-full" style={{ background: GOLD }} />
+          <div
+            className="relative h-2 w-2 rounded-full"
+            style={{ background: IVORY, boxShadow: "0 0 8px rgb(48 74 52 / 35%)" }}
+          />
         </div>
 
         <div>
-          <div className="flex items-center justify-start gap-3">
+          <div className="flex items-center justify-start gap-2 sm:gap-3">
             <div
-              className="h-px w-6"
-              style={{
-                background:
-                  "linear-gradient(to left, transparent, color-mix(in srgb, var(--color-welcome-gold) 55%, transparent))",
-              }}
+              className="h-px w-3 shrink-0 sm:w-6"
+              style={lineLeft}
             />
             {isEven ? (
               <TimelineText event={event} align="left" />
@@ -412,21 +381,21 @@ function TimelineText({
     <div className={`max-w-md ${textAlign} ${align === "right" ? "ml-auto" : "mr-auto"}`}>
       <p
         className={`${cinzel.className} ${timelineType.label} font-semibold tracking-[0.2em] uppercase`}
-        style={{ color: GOLD }}
+        style={{ color: PALE, textShadow }}
       >
         {event.time}
       </p>
       <p
-        className={`${theSeasons.className} mt-1 text-[0.95rem] leading-tight tracking-[0.04em] sm:text-[1.175rem]`}
-        style={{ color: NAVY }}
+        className={`${theSeasons.className} mt-1 text-[1.15rem] leading-tight tracking-[0.04em] sm:text-[1.25rem] md:text-[1.175rem]`}
+        style={{ color: IVORY, textShadow: titleShadow }}
       >
-        {event.title}
+        <SpecialCharFont text={event.title} />
       </p>
 
       {event.description && (
         <p
           className={`font-goudy-italic ${timelineType.textRelaxed} mt-1.5`}
-          style={{ color: BODY }}
+          style={{ color: CREAM, textShadow }}
         >
           {event.description}
         </p>
@@ -435,7 +404,7 @@ function TimelineText({
       {event.location && (
         <p
           className={`font-goudy-italic ${timelineType.text} mt-1.5 leading-relaxed`}
-          style={{ color: BODY }}
+          style={{ color: CREAM, textShadow }}
         >
           {event.location}
         </p>
@@ -458,12 +427,13 @@ function IconMark({
       <Image
         src={imageSrc}
         alt=""
-        width={96}
-        height={96}
+        width={160}
+        height={160}
         className={`${
-          mobile ? "h-16 w-16" : "h-18 w-18 lg:h-22 lg:w-22"
+          mobile ? "h-24 w-24 sm:h-28 sm:w-28" : "h-18 w-18 lg:h-22 lg:w-22"
         } object-contain`}
-        style={{ filter: "drop-shadow(0 2px 6px color-mix(in srgb, var(--color-welcome-gold) 28%, transparent))" }}
+        // Black line art → warm ivory, with a soft forest halo
+        style={{ filter: "brightness(0) invert(1) sepia(0.12) drop-shadow(0 2px 6px rgb(48 74 52 / 45%))" }}
       />
     )
   }
@@ -471,22 +441,21 @@ function IconMark({
   return (
     <div
       className={`${
-        mobile ? "h-14 w-14" : "h-16 w-16 lg:h-18 lg:w-18"
+        mobile ? "h-20 w-20 sm:h-24 sm:w-24" : "h-16 w-16 lg:h-18 lg:w-18"
       } flex items-center justify-center rounded-full border`}
       style={{
-        background: IVORY,
-        borderColor: "color-mix(in srgb, var(--color-welcome-gold) 38%, transparent)",
+        background: "color-mix(in srgb, var(--color-motif-soft) 14%, transparent)",
+        borderColor: LINE,
       }}
     >
       <Icon
-        className={`${mobile ? "h-7 w-7" : "h-8 w-8 lg:h-9 lg:w-9"}`}
-        style={{ color: GOLD }}
+        className={`${mobile ? "h-10 w-10" : "h-8 w-8 lg:h-9 lg:w-9"}`}
       />
     </div>
   )
 }
 
-const iconStroke = TIMELINE_SVG_STROKE
+const iconStroke = "#FBFCF7" // --color-motif-soft
 
 function ArrivalIcon(props: React.SVGProps<SVGSVGElement>) {
   return (

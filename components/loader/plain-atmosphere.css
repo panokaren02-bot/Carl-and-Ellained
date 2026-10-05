@@ -1,0 +1,164 @@
+/* Plain mode — frosted glass over soft motif color orbs (loader + envelope hero) */
+
+.invite-plain-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.invite-plain-atmosphere--fixed {
+  position: fixed;
+}
+
+.invite-plain-atmosphere__base {
+  position: absolute;
+  inset: 0;
+  background: var(--invite-plain-base, var(--color-welcome-bg));
+}
+
+.invite-plain-atmosphere__blobs {
+  position: absolute;
+  inset: -12%;
+  filter: blur(0.5px);
+}
+
+.invite-plain-atmosphere__blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.invite-plain-atmosphere__blob--1 {
+  width: min(78vw, 440px);
+  height: min(78vw, 440px);
+  left: -14%;
+  top: 6%;
+  background: color-mix(in srgb, var(--color-motif-blush) 82%, var(--color-motif-accent));
+  opacity: 0.62;
+  filter: blur(52px);
+  animation: invite-plain-blob-drift-a 26s ease-in-out infinite alternate;
+}
+
+.invite-plain-atmosphere__blob--2 {
+  width: min(68vw, 380px);
+  height: min(68vw, 380px);
+  right: -12%;
+  top: 22%;
+  background: color-mix(in srgb, var(--color-motif-yellow) 70%, var(--color-motif-silver));
+  opacity: 0.5;
+  filter: blur(48px);
+  animation: invite-plain-blob-drift-b 32s ease-in-out infinite alternate;
+}
+
+.invite-plain-atmosphere__blob--3 {
+  width: min(92vw, 520px);
+  height: min(92vw, 520px);
+  left: 18%;
+  bottom: -22%;
+  background: color-mix(in srgb, var(--color-motif-medium) 75%, var(--color-motif-cream));
+  opacity: 0.48;
+  filter: blur(56px);
+  animation: invite-plain-blob-drift-c 28s ease-in-out infinite alternate;
+}
+
+.invite-plain-atmosphere__blob--4 {
+  width: min(52vw, 300px);
+  height: min(52vw, 300px);
+  right: 8%;
+  bottom: 8%;
+  background: color-mix(in srgb, var(--color-motif-accent) 65%, var(--color-motif-deep));
+  opacity: 0.38;
+  filter: blur(44px);
+  animation: invite-plain-blob-drift-d 22s ease-in-out infinite alternate;
+}
+
+.invite-plain-atmosphere__blob--5 {
+  width: min(40vw, 220px);
+  height: min(40vw, 220px);
+  left: 42%;
+  top: 38%;
+  background: color-mix(in srgb, var(--color-motif-silver) 80%, white);
+  opacity: 0.45;
+  filter: blur(38px);
+  animation: invite-plain-blob-drift-e 20s ease-in-out infinite alternate;
+}
+
+.invite-plain-atmosphere__frost {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--color-motif-soft) 58%, transparent) 0%,
+      color-mix(in srgb, var(--color-motif-soft) 42%, transparent) 45%,
+      color-mix(in srgb, var(--color-welcome-bg-soft) 48%, transparent) 100%
+    );
+  backdrop-filter: blur(32px) saturate(1.12);
+  -webkit-backdrop-filter: blur(32px) saturate(1.12);
+}
+
+.invite-plain-atmosphere__frost::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 88% 72% at 50% 42%,
+    color-mix(in srgb, white 28%, transparent) 0%,
+    transparent 58%
+  );
+  opacity: 0.85;
+}
+
+.invite-plain-atmosphere__frost::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 100% 88% at 50% 50%,
+    transparent 52%,
+    color-mix(in srgb, var(--color-welcome-navy) 7%, transparent) 100%
+  );
+  pointer-events: none;
+}
+
+.invite-plain-atmosphere__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+}
+
+@keyframes invite-plain-blob-drift-a {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(6%, 4%, 0) scale(1.08); }
+}
+
+@keyframes invite-plain-blob-drift-b {
+  0% { transform: translate3d(0, 0, 0) scale(1.04); }
+  100% { transform: translate3d(-5%, 6%, 0) scale(1); }
+}
+
+@keyframes invite-plain-blob-drift-c {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(4%, -5%, 0) scale(1.06); }
+}
+
+@keyframes invite-plain-blob-drift-d {
+  0% { transform: translate3d(0, 0, 0) scale(1.02); }
+  100% { transform: translate3d(-4%, -3%, 0) scale(1); }
+}
+
+@keyframes invite-plain-blob-drift-e {
+  0% { transform: translate3d(-2%, 2%, 0) scale(1); }
+  100% { transform: translate3d(3%, -2%, 0) scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invite-plain-atmosphere__blob {
+    animation: none;
+  }
+}

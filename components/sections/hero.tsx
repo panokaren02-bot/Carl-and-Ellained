@@ -7,6 +7,9 @@ import localFont from "next/font/local"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { parseWeddingDate } from "@/lib/wedding-date"
 import { InvitePhotoBackdrop } from "@/components/loader/invite-photo-backdrop"
+import { PlainAtmosphere } from "@/components/loader/PlainAtmosphere"
+import { siteConfig as defaultSiteConfig } from "@/content/site"
+import "@/components/loader/loading-screen.css"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -25,8 +28,6 @@ const aboveTheBeyond = localFont({
   variable: "--font-above-beyond",
 })
 
-const IVORY = "#fffaf4"
-const CHAMPAGNE = "#E8D5A3"
 const entryEase = [0.22, 1, 0.36, 1] as const
 const heroTitleSize = {
   main: "clamp(3.35rem, min(16vw, 18cqi), 8.25rem)",
@@ -161,12 +162,12 @@ function CountdownUnit({
   return (
     <div className="flex min-w-[3rem] flex-1 flex-col items-center sm:min-w-[3.5rem]">
       <span
-        className={`${cinzel.className} text-[clamp(1.2rem,5.4vw,1.75rem)] font-semibold leading-none tabular-nums tracking-[0.04em] text-[#fffaf4]`}
+        className={`${cinzel.className} home-hero-countdown-value text-[clamp(1.2rem,5.4vw,1.75rem)] font-semibold leading-none tabular-nums tracking-[0.04em]`}
       >
         {display}
       </span>
       <span
-        className={`${cinzel.className} mt-1.5 text-[0.48rem] font-medium uppercase tracking-[0.16em] text-[#fffaf4]/80 sm:mt-2 sm:text-[0.54rem]`}
+        className={`${cinzel.className} home-hero-countdown-label mt-1.5 text-[0.48rem] font-medium uppercase tracking-[0.16em] sm:mt-2 sm:text-[0.54rem]`}
       >
         {label}
       </span>
@@ -176,12 +177,12 @@ function CountdownUnit({
 
 function HeroCountdown() {
   const timeLeft = useCeremonyCountdown()
-  const colonClass = `${cinzel.className} shrink-0 self-start px-0.5 text-[clamp(1.2rem,5.4vw,1.75rem)] font-semibold leading-none tabular-nums text-[#fffaf4] sm:px-1`
+  const colonClass = `${cinzel.className} home-hero-countdown-value shrink-0 self-start px-0.5 text-[clamp(1.2rem,5.4vw,1.75rem)] font-semibold leading-none tabular-nums sm:px-1`
 
   return (
     <div className="relative z-10 w-full px-4 py-4 sm:px-6 sm:py-5">
       <p
-        className={`${cinzel.className} text-center text-[0.58rem] font-semibold uppercase tracking-[0.22em] text-[#fffaf4] sm:text-[0.64rem] sm:tracking-[0.26em]`}
+        className={`${cinzel.className} home-hero-countdown-heading text-center text-[0.58rem] font-semibold uppercase tracking-[0.22em] sm:text-[0.64rem] sm:tracking-[0.26em]`}
       >
         Time left til we say I do
       </p>
@@ -210,6 +211,13 @@ function HeroCountdown() {
 
 export function Hero() {
   const siteConfig = useSiteConfig()
+  const loading = siteConfig.loadingScreen ?? defaultSiteConfig.loadingScreen
+  const isPlain = loading.display === "plain"
+  const plainTheme =
+    loading.plainTheme ?? defaultSiteConfig.loadingScreen.plainTheme
+  const cornerDecos =
+    loading.cornerDecos ?? defaultSiteConfig.loadingScreen.cornerDecos
+  const backgroundPhotos = loading.backgroundPhotos ?? []
   const reduceMotion = useReducedMotion()
   const [visible, setVisible] = useState(false)
 
@@ -248,19 +256,43 @@ export function Hero() {
   return (
     <section
       id="home"
-      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative -mt-12 flex min-h-[100dvh] w-full flex-col overflow-hidden sm:-mt-14 md:-mt-16`}
+      className={`${theSeasons.variable} ${aboveTheBeyond.variable} home-hero relative -mt-12 flex min-h-[100dvh] w-full flex-col overflow-hidden sm:-mt-14 md:-mt-16${isPlain ? " home-hero--plain" : " home-hero--photos"}`}
     >
-      <div className="invite-photo-backdrop-wrap invite-photo-backdrop-wrap--section" aria-hidden="true">
-        <InvitePhotoBackdrop className="invite-photo-backdrop--section" />
-      </div>
-      <div
-        className="pointer-events-none absolute inset-0 z-[1]"
-        aria-hidden="true"
-        style={{
-          background:
-            "linear-gradient(180deg, rgb(42 34 28 / 58%) 0%, rgb(42 34 28 / 36%) 22%, rgb(42 34 28 / 42%) 48%, rgb(42 34 28 / 48%) 72%, rgb(42 34 28 / 68%) 100%)",
-        }}
-      />
+      {isPlain ? (
+        <>
+          <PlainAtmosphere baseColor={plainTheme.background} />
+          <div className="home-hero-plain-corners" aria-hidden="true">
+            {(
+              [
+                { src: cornerDecos.topLeft, className: "left-0 top-0" },
+                { src: cornerDecos.topRight, className: "right-0 top-0" },
+                { src: cornerDecos.bottomLeft, className: "left-0 bottom-0" },
+                { src: cornerDecos.bottomRight, className: "right-0 bottom-0" },
+              ] as const
+            ).map(({ src, className }) => (
+              <img
+                key={src}
+                src={src}
+                alt=""
+                className={`home-hero-plain-corner-img absolute ${className}`}
+              />
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <div
+            className="invite-photo-backdrop-wrap invite-photo-backdrop-wrap--section"
+            aria-hidden="true"
+          >
+            <InvitePhotoBackdrop
+              className="invite-photo-backdrop--section"
+              photos={backgroundPhotos}
+            />
+          </div>
+          <div className="home-hero-photo-scrim pointer-events-none absolute inset-0 z-[1]" aria-hidden="true" />
+        </>
+      )}
 
       <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-5 pb-6 pt-[clamp(4.25rem,12vw,7rem)] text-center sm:px-8">
         <motion.h1
@@ -276,22 +308,13 @@ export function Hero() {
         >
           <span
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-[42%] h-[min(18rem,58vw)] w-[min(36rem,96%)] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              background:
-                "radial-gradient(ellipse at center, rgb(42 34 28 / 46%) 0%, rgb(42 34 28 / 18%) 46%, transparent 72%)",
-            }}
+            className="home-hero-title-glow pointer-events-none absolute left-1/2 top-[42%] h-[min(18rem,58vw)] w-[min(36rem,96%)] -translate-x-1/2 -translate-y-1/2 rounded-full"
           />
           <span className="sr-only">You&apos;re Invited!</span>
           <span
             aria-hidden
-            className={`${theSeasons.className} relative block uppercase leading-[0.78] tracking-[0.06em] min-[400px]:tracking-[0.09em] sm:tracking-[0.11em] md:tracking-[0.12em]`}
-            style={{
-              fontSize: "var(--hero-title-size)",
-              color: IVORY,
-              textShadow:
-                "0 1px 0 rgb(255 250 244 / 35%), 0 2px 18px rgb(42 34 28 / 55%), 0 12px 36px rgb(42 34 28 / 40%)",
-            }}
+            className={`${theSeasons.className} home-hero-title-main relative block uppercase leading-[0.78] tracking-[0.06em] min-[400px]:tracking-[0.09em] sm:tracking-[0.11em] md:tracking-[0.12em]`}
+            style={{ fontSize: "var(--hero-title-size)" }}
           >
             You
             <span
@@ -303,19 +326,15 @@ export function Hero() {
           </span>
           <span
             aria-hidden
-            className={`${aboveTheBeyond.className} relative z-10 mx-auto block w-fit max-w-full px-1 leading-[0.82] sm:leading-[0.84]`}
+            className={`${aboveTheBeyond.className} home-hero-title-script relative z-10 mx-auto block w-fit max-w-full px-1 leading-[0.82] sm:leading-[0.84]`}
             style={{
               marginTop: "var(--hero-script-overlap)",
               fontSize: "var(--hero-script-size)",
-              color: CHAMPAGNE,
-              textShadow:
-                "0 1px 0 rgb(255 250 244 / 28%), 0 4px 18px rgb(42 34 28 / 50%), 0 0 28px rgb(201 176 114 / 45%)",
             }}
           >
             Invited
             <span
-              className={`${cinzel.className} relative -top-[0.08em] ml-[0.05em] inline-block font-normal`}
-              style={{ color: CHAMPAGNE }}
+              className={`${cinzel.className} home-hero-title-script relative -top-[0.08em] ml-[0.05em] inline-block font-normal`}
             >
               !
             </span>
@@ -323,38 +342,28 @@ export function Hero() {
         </motion.h1>
 
         <motion.p
-          className={`${cinzel.className} mt-4 max-w-[22rem] text-[clamp(0.68rem,2.8vw,0.86rem)] font-medium uppercase leading-[1.7] tracking-[0.18em] text-[#fffaf4]/92 sm:mt-5 sm:max-w-none sm:tracking-[0.22em]`}
-          style={{ textShadow: "0 1px 12px rgb(42 34 28 / 40%)" }}
+          className={`${cinzel.className} home-hero-eyebrow mt-4 max-w-[22rem] text-[clamp(0.68rem,2.8vw,0.86rem)] font-medium uppercase leading-[1.7] tracking-[0.18em] sm:mt-5 sm:max-w-none sm:tracking-[0.22em]`}
           {...fadeUp(0.2)}
         >
           Save the date — we are getting married
         </motion.p>
 
         <motion.p
-          className={`${theSeasons.className} mt-4 text-[clamp(1.85rem,8.5vw,3.65rem)] font-normal leading-none tracking-[0.08em] text-[#fffaf4] sm:mt-5`}
-          style={{ textShadow: "0 2px 18px rgb(42 34 28 / 45%)" }}
+          className={`${theSeasons.className} home-hero-date mt-4 text-[clamp(1.85rem,8.5vw,3.65rem)] font-normal leading-none tracking-[0.08em] sm:mt-5`}
           {...fadeUp(0.28)}
         >
           {numericDate}
         </motion.p>
 
         <motion.p
-          className={`${cinzel.className} mt-4 text-[0.62rem] font-medium uppercase tracking-[0.18em] text-[#fffaf4]/88 sm:text-[0.7rem] sm:tracking-[0.2em]`}
-          style={{ textShadow: "0 1px 10px rgb(42 34 28 / 40%)" }}
+          className={`${cinzel.className} home-hero-meta mt-4 text-[0.62rem] font-medium uppercase tracking-[0.18em] sm:text-[0.7rem] sm:tracking-[0.2em]`}
           {...fadeUp(0.36)}
         >
           {ceremonyName} · {ceremonyTimePhrase}
         </motion.p>
       </div>
 
-      <motion.div
-        className="relative z-10 mt-auto w-full"
-        style={{
-          background:
-            "linear-gradient(180deg, transparent 0%, rgb(42 34 28 / 28%) 28%, color-mix(in srgb, var(--color-welcome-gold) 72%, #7a6340) 100%)",
-        }}
-        {...fadeUp(0.42)}
-      >
+      <motion.div className="home-hero-countdown-bar relative z-10 mt-auto w-full" {...fadeUp(0.42)}>
         <HeroCountdown />
       </motion.div>
     </section>

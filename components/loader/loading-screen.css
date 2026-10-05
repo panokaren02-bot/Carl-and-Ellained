@@ -11,16 +11,21 @@
 
 .loading-screen,
 .invite-photo-backdrop {
-  --ls-warm-base: var(--color-welcome-navy, #5e5144);
-  --ls-warm-mid: var(--color-motif-blush, #c99f91);
-  --ls-warm-glow: var(--color-welcome-gold, #b49a68);
-  /* Legacy aliases — warm linen palette (no sage/forest green) */
-  --ls-forest: var(--color-motif-cream, #e8ded0);
-  --ls-sage: var(--color-motif-blush, #c99f91);
-  --ls-mustard: var(--color-motif-yellow, #b49a68);
-  --ls-butter: #f0dfa8;
-  --ls-cream: var(--color-motif-soft, #f5f0e7);
-  --ls-ink: var(--color-welcome-text, #6b5c4d);
+  /* Champagne beige brown — aligned with app/globals.css motif + welcome tokens */
+  --ls-warm-base: var(--color-welcome-navy);
+  --ls-warm-mid: var(--color-motif-blush);
+  --ls-warm-glow: var(--color-welcome-gold);
+  --ls-forest: var(--color-motif-cream);
+  --ls-sage: var(--color-motif-blush);
+  --ls-mustard: var(--color-motif-yellow);
+  --ls-butter: var(--color-motif-silver);
+  --ls-cream: var(--color-motif-soft);
+  --ls-ink: var(--color-welcome-text);
+  --ls-shadow: var(--color-welcome-navy);
+  --ls-type-light: var(--color-motif-soft);
+  --ls-type-muted: color-mix(in srgb, var(--color-motif-soft) 92%, transparent);
+  --ls-surface-glass: color-mix(in srgb, var(--color-motif-soft) 18%, transparent);
+  --ls-border-light: color-mix(in srgb, var(--color-motif-soft) 45%, transparent);
 }
 
 .loading-screen {
@@ -109,11 +114,11 @@
   background:
     linear-gradient(
       180deg,
-      rgb(42 34 28 / 52%) 0%,
-      rgb(42 34 28 / 22%) 18%,
-      rgb(42 34 28 / 8%) 42%,
-      rgb(42 34 28 / 18%) 68%,
-      rgb(42 34 28 / 58%) 100%
+      color-mix(in srgb, var(--ls-shadow) 52%, transparent) 0%,
+      color-mix(in srgb, var(--ls-shadow) 22%, transparent) 18%,
+      color-mix(in srgb, var(--ls-shadow) 8%, transparent) 42%,
+      color-mix(in srgb, var(--ls-shadow) 18%, transparent) 68%,
+      color-mix(in srgb, var(--ls-shadow) 58%, transparent) 100%
     ),
     radial-gradient(
       ellipse 92% 52% at 50% 46%,
@@ -161,11 +166,11 @@
 
 /* Mediterranean invitation — ivory, champagne, blush (no green) */
 .loading-screen--invitation {
-  background: var(--color-motif-soft, #f5f0e7);
+  background: var(--color-welcome-bg);
 }
 
 .loading-screen--invitation .loading-screen__backdrop {
-  background-color: var(--color-motif-soft, #f5f0e7);
+  background-color: var(--color-welcome-bg);
 }
 
 .loading-screen.is-fading .loading-screen__save-date {
@@ -188,21 +193,21 @@
   background:
     linear-gradient(
       90deg,
-      rgb(42 34 28 / 42%) 0%,
-      rgb(42 34 28 / 18%) 14%,
-      rgb(42 34 28 / 12%) 50%,
-      rgb(42 34 28 / 18%) 86%,
-      rgb(42 34 28 / 42%) 100%
+      color-mix(in srgb, var(--ls-shadow) 42%, transparent) 0%,
+      color-mix(in srgb, var(--ls-shadow) 18%, transparent) 14%,
+      color-mix(in srgb, var(--ls-shadow) 12%, transparent) 50%,
+      color-mix(in srgb, var(--ls-shadow) 18%, transparent) 86%,
+      color-mix(in srgb, var(--ls-shadow) 42%, transparent) 100%
     ),
     linear-gradient(
       180deg,
-      rgb(42 34 28 / 62%) 0%,
-      rgb(42 34 28 / 48%) 12%,
-      rgb(42 34 28 / 52%) 32%,
-      rgb(42 34 28 / 58%) 48%,
-      rgb(42 34 28 / 54%) 62%,
-      rgb(42 34 28 / 46%) 78%,
-      rgb(42 34 28 / 68%) 100%
+      color-mix(in srgb, var(--ls-shadow) 62%, transparent) 0%,
+      color-mix(in srgb, var(--ls-shadow) 48%, transparent) 12%,
+      color-mix(in srgb, var(--ls-shadow) 52%, transparent) 32%,
+      color-mix(in srgb, var(--ls-shadow) 58%, transparent) 48%,
+      color-mix(in srgb, var(--ls-shadow) 54%, transparent) 62%,
+      color-mix(in srgb, var(--ls-shadow) 46%, transparent) 78%,
+      color-mix(in srgb, var(--ls-shadow) 68%, transparent) 100%
     );
 }
 
@@ -213,14 +218,15 @@
 }
 
 .loading-screen__std-headline {
+  margin: 0;
   font-family: var(--font-brittany);
-  color: #fffaf4;
+  color: var(--ls-type-light);
   font-size: clamp(2.8rem, 10vw, 5.5rem);
   line-height: 1.05;
   font-weight: 400;
   text-shadow:
-    0 1px 2px rgb(42 34 28 / 55%),
-    0 8px 22px rgb(42 34 28 / 45%);
+    0 1px 2px color-mix(in srgb, var(--ls-shadow) 55%, transparent),
+    0 8px 22px color-mix(in srgb, var(--ls-shadow) 45%, transparent);
 }
 
 .loading-screen__std-kicker {
@@ -228,44 +234,45 @@
   text-align: center;
   white-space: nowrap;
   font-family: var(--font-cinzel, "Cinzel", serif);
-  color: #fff8f0;
+  color: var(--ls-type-light);
   font-size: clamp(0.82rem, 3.8vw, 1.35rem);
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  text-shadow: 0 1px 10px rgb(42 34 28 / 55%);
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--ls-shadow) 55%, transparent);
 }
 
 .loading-screen__std-box {
-  border: 1px solid rgb(255 251 247 / 45%);
+  border: 1px solid color-mix(in srgb, var(--color-motif-soft) 45%, transparent);
   box-shadow:
-    0 0 0 1px rgb(255 251 247 / 18%),
-    0 16px 36px rgb(42 34 28 / 12%),
-    inset 0 1px 0 rgb(255 251 247 / 35%);
-  background: rgb(255 251 247 / 18%);
+    0 0 0 1px color-mix(in srgb, var(--color-motif-soft) 18%, transparent),
+    0 16px 36px color-mix(in srgb, var(--ls-shadow) 12%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-motif-soft) 35%, transparent);
+  background: color-mix(in srgb, var(--color-motif-soft) 18%, transparent);
   backdrop-filter: blur(6px);
 }
 
 .loading-screen__std-box-overlay {
   background: linear-gradient(
     180deg,
-    rgb(42 34 28 / 18%) 0%,
-    rgb(42 34 28 / 6%) 38%,
-    rgb(42 34 28 / 72%) 100%
+    color-mix(in srgb, var(--ls-shadow) 18%, transparent) 0%,
+    color-mix(in srgb, var(--ls-shadow) 6%, transparent) 38%,
+    color-mix(in srgb, var(--ls-shadow) 72%, transparent) 100%
   );
 }
 
 .loading-screen__std-box-num {
   font-family: var(--font-cinzel, "Cinzel", serif);
   font-weight: 500;
-  color: #fffaf4;
-  text-shadow: 0 1px 10px rgb(42 34 28 / 70%);
+  color: var(--ls-type-light);
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--ls-shadow) 70%, transparent);
 }
 
 .loading-screen__std-box-label {
   color: rgb(255 248 240 / 92%);
-  letter-spacing: 0.2em;
-  text-shadow: 0 1px 8px rgb(42 34 28 / 60%);
+  font-family: var(--font-cinzel, "Cinzel", serif);
+  letter-spacing: 0.24em;
+  text-shadow: 0 1px 8px color-mix(in srgb, var(--ls-shadow) 60%, transparent);
 }
 
 .loading-screen__std-eyebrow {
@@ -274,8 +281,8 @@
   font-weight: 500;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #fff8f0;
-  text-shadow: 0 1px 10px rgb(42 34 28 / 55%);
+  color: var(--ls-type-light);
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--ls-shadow) 55%, transparent);
 }
 
 .loading-screen__std-copy {
@@ -287,8 +294,8 @@
   font-style: italic;
   font-weight: 500;
   line-height: 1.35;
-  color: #fffaf4;
-  text-shadow: 0 1px 10px rgb(42 34 28 / 55%);
+  color: var(--ls-type-light);
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--ls-shadow) 55%, transparent);
 }
 
 .loading-screen__std-names-slot {
@@ -314,9 +321,9 @@
   pointer-events: none;
   background: radial-gradient(
     ellipse 72% 62% at 50% 50%,
-    rgb(42 34 28 / 58%) 0%,
-    rgb(42 34 28 / 32%) 42%,
-    rgb(42 34 28 / 10%) 68%,
+    color-mix(in srgb, var(--ls-shadow) 58%, transparent) 0%,
+    color-mix(in srgb, var(--ls-shadow) 32%, transparent) 42%,
+    color-mix(in srgb, var(--ls-shadow) 10%, transparent) 68%,
     transparent 82%
   );
 }
@@ -328,7 +335,12 @@
   width: min(88%, 24rem);
   aspect-ratio: 2161 / 728;
   margin: 0 auto;
-  background-color: #fffaf4;
+  background: linear-gradient(
+    118deg,
+    var(--couple-name-fill, var(--color-welcome-navy)) 0%,
+    var(--couple-name-fill-mid, var(--color-motif-deep)) 48%,
+    var(--couple-name-fill-accent, var(--color-welcome-heading)) 100%
+  );
   pointer-events: none;
   user-select: none;
   -webkit-mask-size: contain;
@@ -338,10 +350,15 @@
   -webkit-mask-position: center;
   mask-position: center;
   filter:
-    drop-shadow(0 0 1px rgb(255 250 244 / 80%))
-    drop-shadow(0 1px 1px rgb(42 34 28 / 90%))
-    drop-shadow(0 3px 8px rgb(42 34 28 / 70%))
-    drop-shadow(0 10px 28px rgb(42 34 28 / 45%));
+    drop-shadow(0 0 1px color-mix(in srgb, var(--color-motif-soft) 80%, transparent))
+    drop-shadow(0 1px 1px color-mix(in srgb, var(--ls-shadow) 90%, transparent))
+    drop-shadow(0 3px 8px color-mix(in srgb, var(--ls-shadow) 70%, transparent))
+    drop-shadow(0 10px 28px color-mix(in srgb, var(--ls-shadow) 45%, transparent));
+}
+
+/* Photos loader — ivory lockup on dark marquee scrim */
+.loading-screen--invitation:not(.loading-screen--plain) .loading-screen__std-names {
+  background: var(--couple-name-fill-soft, var(--color-motif-soft));
 }
 
 .loading-screen__std-rule {
@@ -352,7 +369,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgb(255 251 247 / 55%) 50%,
+    color-mix(in srgb, var(--color-motif-soft) 55%, transparent) 50%,
     transparent 100%
   );
 }
@@ -365,9 +382,9 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: rgb(255 248 240 / 70%);
+  background: color-mix(in srgb, var(--color-motif-soft) 70%, transparent);
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 2px rgb(255 251 247 / 25%);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-motif-soft) 25%, transparent);
 }
 
 .loading-screen__std-status {
@@ -377,8 +394,8 @@
   font-weight: 500;
   letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: #fff8f0;
-  text-shadow: 0 1px 10px rgb(42 34 28 / 55%);
+  color: var(--ls-type-light);
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--ls-shadow) 55%, transparent);
 }
 
 .loading-screen__std-track {
@@ -391,8 +408,11 @@
 
 .loading-screen__std-bar {
   height: 100%;
+  width: 100%;
   border-radius: 999px;
-  transition: width 0.3s ease-out;
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: ls-std-progress linear forwards;
   background: linear-gradient(
     90deg,
     color-mix(in srgb, var(--color-motif-yellow) 85%, white) 0%,
@@ -527,12 +547,15 @@
   display: block;
   width: 100%;
   aspect-ratio: 1672 / 940;
-  background-color: var(--ls-cream);
+  background: linear-gradient(
+    118deg,
+    var(--couple-name-fill, var(--color-welcome-navy)) 0%,
+    var(--couple-name-fill-mid, var(--color-motif-deep)) 48%,
+    var(--couple-name-fill-accent, var(--color-welcome-heading)) 100%
+  );
   pointer-events: none;
   user-select: none;
   filter: drop-shadow(0 4px 18px rgb(26 32 18 / 45%));
-  -webkit-mask-image: url("/Details/coupleName.png");
-  mask-image: url("/Details/coupleName.png");
   -webkit-mask-size: contain;
   mask-size: contain;
   -webkit-mask-repeat: no-repeat;
@@ -928,6 +951,604 @@
   z-index: 0;
 }
 
+/* Main site #home hero — plain vs photos (components/sections/hero.tsx) */
+.home-hero--plain .invite-plain-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.home-hero--plain .home-hero-plain-corners {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.home-hero--plain .home-hero-plain-corner-img {
+  display: block;
+  height: auto;
+  width: auto;
+  max-width: min(42vw, 165px);
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .home-hero--plain .home-hero-plain-corner-img {
+    max-width: 245px;
+  }
+}
+
+.home-hero--photos .home-hero-photo-scrim {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-welcome-navy) 58%, transparent) 0%,
+    color-mix(in srgb, var(--color-welcome-navy) 36%, transparent) 22%,
+    color-mix(in srgb, var(--color-welcome-navy) 42%, transparent) 48%,
+    color-mix(in srgb, var(--color-welcome-navy) 48%, transparent) 72%,
+    color-mix(in srgb, var(--color-welcome-navy) 68%, transparent) 100%
+  );
+}
+
+.home-hero--photos .home-hero-title-glow {
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--color-welcome-navy) 46%, transparent) 0%,
+    color-mix(in srgb, var(--color-welcome-navy) 18%, transparent) 46%,
+    transparent 72%
+  );
+}
+
+.home-hero--plain .home-hero-title-glow {
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--color-motif-silver) 55%, transparent) 0%,
+    color-mix(in srgb, var(--color-motif-medium) 22%, transparent) 48%,
+    transparent 72%
+  );
+}
+
+.home-hero--photos .home-hero-title-main {
+  color: var(--color-motif-soft);
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--color-motif-soft) 35%, transparent),
+    0 2px 18px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent),
+    0 12px 36px color-mix(in srgb, var(--color-welcome-navy) 40%, transparent);
+}
+
+.home-hero--photos .home-hero-title-script {
+  color: var(--color-welcome-gold);
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--color-motif-soft) 28%, transparent),
+    0 4px 18px color-mix(in srgb, var(--color-welcome-navy) 50%, transparent),
+    0 0 28px color-mix(in srgb, var(--color-welcome-gold) 45%, transparent);
+}
+
+.home-hero--plain .home-hero-title-main {
+  color: var(--color-welcome-navy);
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--color-motif-soft) 85%, transparent),
+    0 2px 14px color-mix(in srgb, var(--color-motif-medium) 35%, transparent);
+}
+
+.home-hero--plain .home-hero-title-script {
+  color: var(--color-welcome-heading);
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--color-motif-soft) 70%, transparent),
+    0 3px 16px color-mix(in srgb, var(--color-motif-accent) 28%, transparent);
+}
+
+.home-hero--photos .home-hero-eyebrow,
+.home-hero--photos .home-hero-date,
+.home-hero--photos .home-hero-meta,
+.home-hero--photos .home-hero-countdown-value,
+.home-hero--photos .home-hero-countdown-label,
+.home-hero--photos .home-hero-countdown-heading {
+  color: color-mix(in srgb, var(--color-motif-soft) 92%, transparent);
+  text-shadow: 0 1px 12px color-mix(in srgb, var(--color-welcome-navy) 40%, transparent);
+}
+
+.home-hero--photos .home-hero-countdown-label {
+  color: color-mix(in srgb, var(--color-motif-soft) 80%, transparent);
+}
+
+.home-hero--plain .home-hero-eyebrow,
+.home-hero--plain .home-hero-meta {
+  color: var(--color-welcome-text);
+  text-shadow: 0 1px 8px color-mix(in srgb, var(--color-motif-silver) 65%, transparent);
+}
+
+.home-hero--plain .home-hero-date {
+  color: var(--color-welcome-navy);
+  text-shadow: 0 2px 14px color-mix(in srgb, var(--color-motif-medium) 32%, transparent);
+}
+
+.home-hero--plain .home-hero-countdown-value,
+.home-hero--plain .home-hero-countdown-heading {
+  color: var(--color-welcome-navy);
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--color-motif-silver) 55%, transparent);
+}
+
+.home-hero--plain .home-hero-countdown-label {
+  color: var(--color-welcome-text-soft);
+  text-shadow: none;
+}
+
+.home-hero--photos .home-hero-countdown-bar {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-welcome-navy) 28%, transparent) 28%,
+    color-mix(in srgb, var(--color-welcome-gold) 72%, var(--color-motif-deep)) 100%
+  );
+}
+
+.home-hero--plain .home-hero-countdown-bar {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-motif-silver) 45%, transparent) 22%,
+    color-mix(in srgb, var(--color-welcome-bg-soft) 88%, var(--color-motif-medium)) 100%
+  );
+}
+
+/* Full-bleed section corners — couple-video, etc. (matches hero plain corners) */
+.invite-section-corners {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.invite-section-corner-img {
+  display: block;
+  height: auto;
+  width: auto;
+  max-width: min(42vw, 165px);
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .invite-section-corner-img {
+    max-width: 245px;
+  }
+}
+
+.invite-section-corner-img--animated {
+  opacity: 0;
+  animation: love-story-corner-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.invite-section-corner-img--tl {
+  animation-delay: 0.12s;
+  transform-origin: top left;
+}
+
+.invite-section-corner-img--tr {
+  animation-delay: 0.22s;
+  transform-origin: top right;
+}
+
+.invite-section-corner-img--bl {
+  animation-delay: 0.32s;
+  transform-origin: bottom left;
+}
+
+.invite-section-corner-img--br {
+  animation-delay: 0.42s;
+  transform-origin: bottom right;
+}
+
+@keyframes love-story-corner-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Love story — plain timeline chapters */
+.love-story-root {
+  position: relative;
+}
+
+.love-story-plain-track {
+  position: relative;
+}
+
+/* Plain: section band opposite the card (light card on sage band, dark card on linen band) */
+/* Sage bands feather into the linen above/below so there is no hard seam */
+.love-story-plain-track {
+  --ls-feather: clamp(110px, 18vw, 220px);
+}
+
+.love-story-plain-track--theme-light {
+  --ls-band: var(--color-welcome-green);
+  --ls-edge: var(--color-welcome-bg);
+  background: linear-gradient(
+    180deg,
+    var(--ls-edge) 0,
+    color-mix(in oklab, var(--ls-edge) 82%, var(--ls-band)) calc(var(--ls-feather) * 0.25),
+    color-mix(in oklab, var(--ls-edge) 45%, var(--ls-band)) calc(var(--ls-feather) * 0.55),
+    color-mix(in oklab, var(--ls-edge) 12%, var(--ls-band)) calc(var(--ls-feather) * 0.82),
+    var(--ls-band) var(--ls-feather),
+    var(--ls-band) calc(100% - var(--ls-feather)),
+    color-mix(in oklab, var(--ls-edge) 12%, var(--ls-band)) calc(100% - var(--ls-feather) * 0.82),
+    color-mix(in oklab, var(--ls-edge) 45%, var(--ls-band)) calc(100% - var(--ls-feather) * 0.55),
+    color-mix(in oklab, var(--ls-edge) 82%, var(--ls-band)) calc(100% - var(--ls-feather) * 0.25),
+    var(--ls-edge) 100%
+  );
+}
+
+/* Every band's glow orbs fade out before the band edge, so no clipped seam shows */
+.love-story-plain-track .story-plain-atmosphere {
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 var(--ls-feather),
+    #000 calc(100% - var(--ls-feather)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 var(--ls-feather),
+    #000 calc(100% - var(--ls-feather)),
+    transparent 100%
+  );
+}
+
+.love-story-plain-track--theme-dark {
+  background: var(--color-welcome-bg);
+}
+
+.love-story-plain-track {
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+/* Blur orbs behind plain chapters */
+.story-plain-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.story-plain-atmosphere__blobs {
+  position: absolute;
+  inset: -20%;
+}
+
+.story-plain-atmosphere__blob {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.story-plain-atmosphere__blob--a {
+  width: min(70vw, 320px);
+  height: min(70vw, 320px);
+  left: -8%;
+  top: 10%;
+  filter: blur(52px);
+  animation: story-plain-blob-a 24s ease-in-out infinite alternate;
+}
+
+.story-plain-atmosphere__blob--b {
+  width: min(58vw, 280px);
+  height: min(58vw, 280px);
+  right: -6%;
+  top: 28%;
+  filter: blur(48px);
+  animation: story-plain-blob-b 28s ease-in-out infinite alternate;
+}
+
+.story-plain-atmosphere__blob--c {
+  width: min(64vw, 300px);
+  height: min(64vw, 300px);
+  left: 28%;
+  bottom: -8%;
+  filter: blur(54px);
+  animation: story-plain-blob-c 26s ease-in-out infinite alternate;
+}
+
+.love-story-plain-track--theme-light .story-plain-atmosphere__blob--a {
+  background: color-mix(in srgb, var(--color-motif-soft) 70%, var(--color-motif-silver));
+  opacity: 0.55;
+}
+
+.love-story-plain-track--theme-light .story-plain-atmosphere__blob--b {
+  background: color-mix(in srgb, var(--color-motif-yellow) 65%, var(--color-motif-blush));
+  opacity: 0.45;
+}
+
+.love-story-plain-track--theme-light .story-plain-atmosphere__blob--c {
+  background: color-mix(in srgb, var(--color-motif-medium) 60%, var(--color-motif-accent));
+  opacity: 0.4;
+}
+
+.love-story-plain-track--theme-dark .story-plain-atmosphere__blob--a {
+  background: color-mix(in srgb, var(--color-motif-blush) 75%, var(--color-motif-silver));
+  opacity: 0.62;
+}
+
+.love-story-plain-track--theme-dark .story-plain-atmosphere__blob--b {
+  background: color-mix(in srgb, var(--color-motif-yellow) 55%, var(--color-motif-medium));
+  opacity: 0.5;
+}
+
+.love-story-plain-track--theme-dark .story-plain-atmosphere__blob--c {
+  background: color-mix(in srgb, var(--color-motif-accent) 50%, var(--color-motif-deep));
+  opacity: 0.35;
+}
+
+@keyframes story-plain-blob-a {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(5%, 4%, 0) scale(1.07); }
+}
+
+@keyframes story-plain-blob-b {
+  0% { transform: translate3d(0, 0, 0) scale(1.03); }
+  100% { transform: translate3d(-4%, 5%, 0) scale(1); }
+}
+
+@keyframes story-plain-blob-c {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(3%, -4%, 0) scale(1.06); }
+}
+
+.love-story-plain-track::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  /* Continuous thread through all chapters; only the very ends fade */
+  --ls-thread-top: color-mix(in srgb, var(--color-motif-medium) 50%, transparent);
+  --ls-thread-bottom: color-mix(in srgb, var(--color-motif-medium) 50%, transparent);
+  background: linear-gradient(
+    180deg,
+    var(--ls-thread-top) 0%,
+    color-mix(in srgb, var(--color-motif-accent) 45%, transparent) 50%,
+    var(--ls-thread-bottom) 100%
+  );
+  pointer-events: none;
+}
+
+.love-story-plain-track--first::before {
+  --ls-thread-top: transparent;
+}
+
+.love-story-plain-track--last::before {
+  --ls-thread-bottom: transparent;
+}
+
+.story-plain-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-motif-soft) 55%, transparent);
+  background: color-mix(in srgb, var(--color-welcome-bg) 42%, transparent);
+  backdrop-filter: blur(18px) saturate(1.12);
+  -webkit-backdrop-filter: blur(18px) saturate(1.12);
+  box-shadow:
+    0 8px 28px color-mix(in srgb, var(--color-motif-deep) 10%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-motif-soft) 65%, transparent);
+}
+
+.story-plain-card--dark {
+  border-color: color-mix(in srgb, var(--color-motif-soft) 28%, transparent);
+  background: color-mix(in srgb, var(--color-welcome-green) 38%, transparent);
+  backdrop-filter: blur(20px) saturate(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.08);
+  box-shadow:
+    0 10px 32px color-mix(in srgb, var(--color-welcome-navy) 22%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-motif-soft) 18%, transparent);
+}
+
+.story-plain-card__frost {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--color-motif-soft) 52%, transparent) 0%,
+    color-mix(in srgb, var(--color-motif-soft) 28%, transparent) 42%,
+    color-mix(in srgb, var(--color-welcome-bg-soft) 22%, transparent) 100%
+  );
+}
+
+.story-plain-card--dark .story-plain-card__frost {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--color-motif-soft) 14%, transparent) 0%,
+    color-mix(in srgb, var(--color-motif-accent) 12%, transparent) 48%,
+    color-mix(in srgb, var(--color-motif-deep) 18%, transparent) 100%
+  );
+}
+
+.story-plain-card__euc {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  height: auto;
+  z-index: 1;
+  opacity: 0.92;
+}
+
+.story-plain-card__euc--center {
+  left: 50%;
+  top: 0;
+  width: min(26vw, 92px);
+  max-width: 108px;
+  transform: translate(-50%, -48%);
+}
+
+.story-plain-card__euc--left {
+  left: 0;
+  top: 0;
+  width: min(30vw, 112px);
+  max-width: 130px;
+  transform: translate(-28%, -12%);
+}
+
+.story-plain-card__euc--right {
+  right: 0;
+  bottom: 0;
+  width: min(28vw, 108px);
+  max-width: 125px;
+  transform: translate(24%, 14%);
+}
+
+@media (min-width: 640px) {
+  .story-plain-card__euc--center {
+    width: min(22vw, 102px);
+    max-width: 118px;
+    transform: translate(-50%, -50%);
+  }
+
+  .story-plain-card__euc--left {
+    width: min(24vw, 138px);
+    max-width: 155px;
+    transform: translate(-32%, -14%);
+  }
+
+  .story-plain-card__euc--right {
+    width: min(22vw, 132px);
+    max-width: 148px;
+    transform: translate(28%, 16%);
+  }
+}
+
+.love-story-footer-euc {
+  display: block;
+  width: min(58vw, 220px);
+  max-width: 250px;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.95;
+}
+
+.story-plain-card__dot {
+  position: absolute;
+  left: 50%;
+  top: -0.35rem;
+  z-index: 5;
+  height: 0.55rem;
+  width: 0.55rem;
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  background: var(--color-motif-yellow);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-welcome-green) 85%, transparent);
+}
+
+.love-story-plain-track--theme-dark .story-plain-card__dot {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-welcome-bg) 92%, transparent);
+}
+
+.story-plain-chapter-label {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.22em;
+  color: var(--color-welcome-heading);
+}
+
+.story-plain-card--dark .story-plain-chapter-label {
+  color: color-mix(in srgb, var(--color-motif-soft) 88%, transparent);
+}
+
+.story-plain-chapter-line {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--color-motif-deep) 32%, transparent) 18%,
+    color-mix(in srgb, var(--color-motif-yellow) 55%, transparent) 50%,
+    color-mix(in srgb, var(--color-motif-deep) 32%, transparent) 82%,
+    transparent
+  );
+}
+
+.story-plain-chapter-line--dark {
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--color-motif-soft) 28%, transparent) 18%,
+    color-mix(in srgb, var(--color-motif-soft) 45%, transparent) 50%,
+    color-mix(in srgb, var(--color-motif-soft) 28%, transparent) 82%,
+    transparent
+  );
+}
+
+.story-plain-chapter-connector {
+  position: absolute;
+  left: 50%;
+  bottom: -2.25rem;
+  z-index: 3;
+  display: flex;
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.story-plain-chapter-connector__stem {
+  display: block;
+  width: 1px;
+  height: 2.25rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-motif-accent) 55%, transparent),
+    color-mix(in srgb, var(--color-motif-medium) 35%, transparent)
+  );
+}
+
+.story-plain-card {
+  margin-bottom: 2.25rem;
+}
+
+@media (max-width: 767px) {
+  .love-story-plain-track::before {
+    opacity: 0.35;
+  }
+
+  .story-plain-chapter-connector {
+    bottom: -1.75rem;
+  }
+
+  .story-plain-chapter-connector__stem {
+    height: 1.75rem;
+  }
+
+  .story-plain-card {
+    margin-bottom: 1.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invite-section-corner-img--animated {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .story-plain-atmosphere__blob {
+    animation: none;
+  }
+}
+
 .env-invite-screen .invite-photo-backdrop-wrap--envelope {
   position: absolute;
   inset: 0;
@@ -948,10 +1569,10 @@
   background:
     linear-gradient(
       180deg,
-      rgb(42 34 28 / 34%) 0%,
-      rgb(42 34 28 / 16%) 28%,
-      rgb(42 34 28 / 22%) 62%,
-      rgb(42 34 28 / 42%) 100%
+      color-mix(in srgb, var(--ls-shadow) 34%, transparent) 0%,
+      color-mix(in srgb, var(--ls-shadow) 16%, transparent) 28%,
+      color-mix(in srgb, var(--ls-shadow) 22%, transparent) 62%,
+      color-mix(in srgb, var(--ls-shadow) 42%, transparent) 100%
     );
 }
 
@@ -991,4 +1612,930 @@
   .loading-screen__backdrop {
     display: none;
   }
+}
+
+/* ---- Save-the-date refinements ---- */
+
+@keyframes ls-std-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes ls-std-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes ls-std-status-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ls-std-kenburns {
+  from {
+    transform: scale(1.04);
+  }
+  to {
+    transform: scale(1.14);
+  }
+}
+
+.ls-reveal {
+  opacity: 0;
+  animation: ls-std-reveal 1s cubic-bezier(0.22, 1, 0.36, 1) var(--ls-delay, 0ms) forwards;
+}
+
+.loading-screen__std-box-img {
+  transform: scale(1.04);
+  animation: ls-std-kenburns 12s ease-out forwards;
+}
+
+.loading-screen__std-box::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  z-index: 1;
+  border: 1px solid color-mix(in srgb, var(--color-motif-soft) 38%, transparent);
+  border-radius: calc(1rem - 4px);
+  pointer-events: none;
+}
+
+.loading-screen__std-status {
+  animation: ls-std-status-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.loading-screen__std-footer {
+  padding-bottom: max(1.25rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)));
+}
+
+.loading-screen__std-venue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  margin-bottom: 0.7rem;
+  text-align: center;
+}
+
+.loading-screen__std-venue-time {
+  font-family: var(--font-cinzel, "Cinzel", serif);
+  font-size: clamp(0.66rem, 2.9vw, 0.8rem);
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ls-type-light);
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--ls-shadow) 60%, transparent);
+}
+
+.loading-screen__std-venue-name {
+  font-family: "SortsMillGoudy", Georgia, "Times New Roman", serif;
+  font-size: clamp(0.9rem, 3.4vw, 1.08rem);
+  font-style: italic;
+  color: var(--ls-type-muted);
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--ls-shadow) 60%, transparent);
+}
+
+/* Short screens: tighten the stack so everything fits without scrolling */
+@media (max-height: 680px) {
+  .loading-screen__std-venue {
+    margin-bottom: 0.4rem;
+  }
+  .loading-screen__std-copy {
+    display: none;
+  }
+}
+
+.loading-screen.is-reduced-motion .ls-reveal,
+.loading-screen.is-reduced-motion .loading-screen__std-status {
+  opacity: 1;
+  animation: none;
+}
+
+.loading-screen.is-reduced-motion .loading-screen__std-box-img {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-reveal,
+  .loading-screen__std-status {
+    opacity: 1;
+    animation: none;
+  }
+  .loading-screen__std-box-img {
+    animation: none;
+  }
+}
+
+/* ---- Plain (no images) display — siteConfig.loadingScreen.display = "plain" ----
+   Silk: champagne fabric with slow-drifting light folds, fine grain, gold-foil date. */
+
+.loading-screen--plain {
+  --ls-plain-bg: var(--color-welcome-bg);
+  --ls-plain-ink: var(--color-welcome-text);
+  --ls-plain-accent: var(--color-welcome-gold);
+  --ls-silk-light: color-mix(in srgb, white 70%, var(--ls-plain-bg));
+  --ls-silk-shade: color-mix(in srgb, var(--color-welcome-heading) 12%, var(--ls-plain-bg));
+  --ls-gold-deep: color-mix(in srgb, var(--ls-plain-accent) 72%, var(--color-welcome-navy));
+  --ls-gold-light: color-mix(in srgb, var(--ls-plain-accent) 45%, var(--color-motif-soft));
+  background: transparent;
+  color: var(--ls-plain-ink);
+}
+
+.loading-screen--plain .invite-plain-atmosphere {
+  z-index: 0;
+}
+
+.loading-screen--plain .loading-screen__plain-corners {
+  z-index: 2;
+}
+
+.loading-screen--plain .loading-screen__plain-frame {
+  z-index: 2;
+}
+
+/* Couple illustration — soft watermark behind silk */
+.loading-screen__plain-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.loading-screen__plain-bg-image {
+  object-fit: contain;
+  object-position: center 72%;
+  opacity: 0.38;
+  transform: scale(1.02);
+  filter: saturate(0.92);
+}
+
+.loading-screen__plain-bg-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      var(--ls-plain-bg) 0%,
+      color-mix(in srgb, var(--ls-plain-bg) 55%, transparent) 18%,
+      transparent 42%,
+      color-mix(in srgb, var(--ls-plain-bg) 45%, transparent) 62%,
+      var(--ls-plain-bg) 100%
+    ),
+    radial-gradient(
+      ellipse 88% 72% at 50% 48%,
+      color-mix(in srgb, var(--ls-plain-bg) 62%, transparent),
+      var(--ls-plain-bg) 76%
+    );
+}
+
+/* Silk fabric layers (decorative, behind content) */
+.loading-screen__silk {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 45%, var(--ls-silk-light), transparent 70%),
+    radial-gradient(ellipse 120% 80% at 50% 120%, var(--ls-silk-shade), transparent 60%),
+    transparent;
+  opacity: 0.92;
+}
+
+/* Broad diagonal folds: alternating highlight / shadow bands, blurred into drapes */
+.loading-screen__silk-fold {
+  position: absolute;
+  inset: -40%;
+  filter: blur(28px);
+  will-change: transform;
+}
+
+.loading-screen__silk-fold--a {
+  background: linear-gradient(
+    118deg,
+    transparent 8%,
+    var(--ls-silk-shade) 18%,
+    var(--ls-silk-light) 28%,
+    transparent 36%,
+    var(--ls-silk-shade) 46%,
+    var(--ls-silk-light) 55%,
+    var(--ls-silk-shade) 66%,
+    transparent 74%,
+    var(--ls-silk-light) 84%,
+    transparent 94%
+  );
+  opacity: 0.85;
+  animation: ls-silk-drift-a 22s ease-in-out infinite alternate;
+}
+
+.loading-screen__silk-fold--b {
+  background: linear-gradient(
+    62deg,
+    transparent 14%,
+    var(--ls-silk-light) 26%,
+    transparent 38%,
+    var(--ls-silk-shade) 52%,
+    transparent 62%,
+    var(--ls-silk-light) 76%,
+    transparent 88%
+  );
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  animation: ls-silk-drift-b 28s ease-in-out infinite alternate;
+}
+
+/* Satin sheen: a narrow band of light gliding across the fabric */
+.loading-screen__silk-sheen {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgb(255 255 255 / 0%) 44%,
+    rgb(255 255 255 / 55%) 50%,
+    rgb(255 255 255 / 0%) 56%,
+    transparent 62%
+  );
+  background-size: 250% 100%;
+  filter: blur(14px);
+  mix-blend-mode: soft-light;
+  animation: ls-silk-sheen 9s ease-in-out infinite;
+}
+
+/* Fine woven grain so the surface reads as fabric, not a gradient */
+.loading-screen__silk-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.09;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3  0 0 0 0 0.24  0 0 0 0 0.18  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+@keyframes ls-silk-drift-a {
+  0% { transform: translate3d(-4%, -2%, 0) rotate(0deg) scale(1); }
+  100% { transform: translate3d(5%, 3%, 0) rotate(2deg) scale(1.06); }
+}
+
+@keyframes ls-silk-drift-b {
+  0% { transform: translate3d(4%, 2%, 0) rotate(0deg) scale(1.04); }
+  100% { transform: translate3d(-5%, -3%, 0) rotate(-2.5deg) scale(1); }
+}
+
+@keyframes ls-silk-sheen {
+  0% { background-position: 120% 0; }
+  60%, 100% { background-position: -40% 0; }
+}
+
+/* Viewport corner ornaments + inset gold double frame */
+.loading-screen__plain-corners {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.loading-screen__plain-corner-img {
+  display: block;
+  height: auto;
+  width: auto;
+  max-width: min(42vw, 165px);
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .loading-screen__plain-corner-img {
+    max-width: 245px;
+  }
+}
+
+@media (min-width: 768px) {
+  .loading-screen__plain-corner-img {
+    max-width: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .loading-screen__plain-corner-img {
+    max-width: 400px;
+  }
+}
+
+.loading-screen__plain-frame {
+  position: absolute;
+  inset: max(0.9rem, env(safe-area-inset-top, 0px)) 0.9rem max(0.9rem, env(safe-area-inset-bottom, 0px));
+  z-index: 2;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--ls-plain-accent) 50%, transparent);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, white 35%, transparent);
+}
+
+.loading-screen__plain-frame::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid color-mix(in srgb, var(--ls-plain-accent) 28%, transparent);
+}
+
+.loading-screen--plain .loading-screen__std-headline {
+  margin-top: clamp(2.25rem, 9vw, 3.75rem);
+  color: var(--ls-gold-deep);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 60%);
+}
+
+.loading-screen--plain .loading-screen__std-kicker,
+.loading-screen--plain .loading-screen__std-eyebrow,
+.loading-screen--plain .loading-screen__std-venue-time,
+.loading-screen--plain .loading-screen__std-status {
+  color: var(--ls-plain-ink);
+  text-shadow: none;
+}
+
+.loading-screen--plain .loading-screen__std-copy,
+.loading-screen--plain .loading-screen__std-venue-name {
+  color: color-mix(in srgb, var(--ls-plain-ink) 82%, transparent);
+  text-shadow: none;
+}
+
+.loading-screen--plain .loading-screen__std-names-slot::before {
+  display: none;
+}
+
+.loading-screen--plain .loading-screen__std-names {
+  background: linear-gradient(
+    118deg,
+    var(--couple-name-fill, var(--color-welcome-navy)) 0%,
+    var(--couple-name-fill-mid, var(--color-motif-deep)) 46%,
+    var(--couple-name-fill-accent, var(--color-welcome-heading)) 100%
+  );
+  filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--ls-plain-ink) 14%, transparent));
+}
+
+/* ---- Engraved date line: WEEKDAY / Month | 17 | 2026 ---- */
+
+.ls-silk-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.ls-silk-date__weekday,
+.ls-silk-date__side,
+.ls-silk-date__day {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ls-silk-date .is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.ls-silk-date__weekday {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-cinzel, "Cinzel", serif);
+  font-size: clamp(0.62rem, 2.6vw, 0.78rem);
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--ls-gold-deep);
+}
+
+.ls-silk-date__weekday::before,
+.ls-silk-date__weekday::after {
+  content: "";
+  width: clamp(1.75rem, 8vw, 3rem);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ls-plain-accent));
+}
+
+.ls-silk-date__weekday::after {
+  background: linear-gradient(90deg, var(--ls-plain-accent), transparent);
+}
+
+.ls-silk-date__row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: min(100%, 24rem);
+}
+
+/* Month and year: small caps between hairlines */
+.ls-silk-date__side {
+  justify-self: stretch;
+  padding: 0.45rem 0;
+  border-block: 1px solid color-mix(in srgb, var(--ls-plain-accent) 55%, transparent);
+  text-align: center;
+  font-family: var(--font-cinzel, "Cinzel", serif);
+  font-size: clamp(0.7rem, 3vw, 0.92rem);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ls-plain-ink);
+}
+
+/* Day: large gold-foil numeral with a gliding glint */
+.ls-silk-date__day {
+  padding: 0 clamp(0.9rem, 4.5vw, 1.6rem);
+  font-family: var(--font-cinzel, "Cinzel", serif);
+  font-size: clamp(3.4rem, 17vw, 5.4rem);
+  font-weight: 500;
+  line-height: 1;
+  background: linear-gradient(
+    100deg,
+    var(--ls-gold-deep) 0%,
+    var(--ls-plain-accent) 22%,
+    var(--ls-gold-light) 38%,
+    var(--color-motif-soft) 46%,
+    var(--ls-gold-light) 54%,
+    var(--ls-plain-accent) 70%,
+    var(--ls-gold-deep) 100%
+  );
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 70%)) drop-shadow(0 6px 14px color-mix(in srgb, var(--ls-plain-ink) 14%, transparent));
+}
+
+.ls-silk-date__day.is-visible {
+  animation: ls-gold-glint 6s ease-in-out 0.8s infinite;
+}
+
+@keyframes ls-gold-glint {
+  0% { background-position: 100% 0; }
+  45%, 100% { background-position: 0% 0; }
+}
+
+@media (max-height: 680px) {
+  .ls-silk-date__day {
+    font-size: clamp(2.8rem, 13vw, 4rem);
+  }
+}
+
+.loading-screen--plain .loading-screen__std-rule {
+  background: linear-gradient(90deg, transparent, var(--ls-plain-accent), transparent);
+}
+
+.loading-screen--plain .loading-screen__std-rule::after {
+  background: var(--ls-plain-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ls-plain-accent) 20%, transparent);
+}
+
+.loading-screen--plain .loading-screen__std-track {
+  background: color-mix(in srgb, var(--ls-plain-accent) 22%, transparent);
+  box-shadow: none;
+}
+
+.loading-screen--plain .loading-screen__std-bar {
+  background: linear-gradient(90deg, var(--ls-gold-deep), var(--ls-gold-light), var(--ls-plain-accent));
+  box-shadow: none;
+}
+
+/* Reduced motion: still fabric, no glint */
+.loading-screen--plain.is-reduced-motion .loading-screen__silk-fold,
+.loading-screen--plain.is-reduced-motion .loading-screen__silk-sheen,
+.loading-screen--plain.is-reduced-motion .ls-silk-date__day {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen__silk-fold,
+  .loading-screen__silk-sheen,
+  .ls-silk-date__day.is-visible {
+    animation: none;
+  }
+  .ls-silk-date__weekday,
+  .ls-silk-date__side,
+  .ls-silk-date__day {
+    transition: none;
+  }
+}
+
+
+/* ==========================================================================
+   Plain mode — "wedding invitation" card
+   Linen backdrop in the sage motif, an arched paper card with a fine inner
+   frame, eucalyptus ornament and classic invitation wording.
+   ========================================================================== */
+
+/* Linen backdrop: calmer, greener orbs + warm paper base */
+.loading-screen--plain .invite-plain-atmosphere__base {
+  background:
+    radial-gradient(120% 80% at 50% 0%, var(--color-motif-silver) 0%, transparent 60%),
+    linear-gradient(180deg, var(--color-motif-cream) 0%, var(--color-welcome-bg-soft) 45%, var(--color-motif-silver) 100%);
+}
+
+.loading-screen--plain .invite-plain-atmosphere__blob {
+  opacity: 0.32;
+}
+
+.loading-screen--plain .invite-plain-atmosphere__frost {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-motif-soft) 40%, transparent) 0%,
+    color-mix(in srgb, var(--color-motif-cream) 30%, transparent) 100%
+  );
+}
+
+/* The viewport double frame is replaced by the card's own frame */
+.loading-screen--plain .loading-screen__plain-frame {
+  display: none;
+}
+
+.loading-screen--plain .loading-screen__plain-corner-img {
+  opacity: 0.9;
+}
+
+/* Arched invitation card */
+.loading-screen--plain .loading-screen__save-date {
+  --ls-card-w: min(92vw, 29rem);
+  flex: 0 1 auto;
+  width: var(--ls-card-w);
+  height: min(
+    calc(100dvh - max(1.6rem, env(safe-area-inset-top, 0px)) - max(1.6rem, env(safe-area-inset-bottom, 0px))),
+    50rem
+  );
+  margin: auto;
+  padding: 0 0.25rem;
+  border-radius: calc(var(--ls-card-w) / 2) calc(var(--ls-card-w) / 2) 1.75rem 1.75rem;
+  background:
+    radial-gradient(90% 45% at 50% 0%, color-mix(in srgb, white 70%, transparent) 0%, transparent 70%),
+    linear-gradient(180deg, var(--color-motif-soft) 0%, var(--color-welcome-bg-soft) 55%, var(--color-motif-cream) 100%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 80%) inset,
+    0 0 0 1px color-mix(in srgb, var(--color-motif-medium) 45%, transparent),
+    0 30px 60px -30px color-mix(in srgb, var(--color-welcome-navy) 50%, transparent),
+    0 10px 24px -14px color-mix(in srgb, var(--color-welcome-navy) 30%, transparent);
+}
+
+/* Fine inner frame that follows the arch */
+.loading-screen--plain .loading-screen__save-date::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  pointer-events: none;
+  border-radius: calc(var(--ls-card-w) / 2 - 9px) calc(var(--ls-card-w) / 2 - 9px) calc(1.75rem - 6px) calc(1.75rem - 6px);
+  border: 1px solid color-mix(in srgb, var(--color-motif-medium) 60%, transparent);
+}
+
+.loading-screen--plain .loading-screen__save-date::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  pointer-events: none;
+  border-radius: calc(var(--ls-card-w) / 2 - 14px) calc(var(--ls-card-w) / 2 - 14px) calc(1.75rem - 10px) calc(1.75rem - 10px);
+  border: 1px solid color-mix(in srgb, var(--color-motif-medium) 28%, transparent);
+}
+
+.loading-screen--plain .loading-screen__save-date > * {
+  position: relative;
+  z-index: 1;
+}
+
+.loading-screen--plain .loading-screen__save-date header {
+  padding-top: clamp(2.4rem, 9vh, 3.6rem);
+}
+
+.loading-screen__plain-ornament {
+  display: block;
+  width: clamp(5.5rem, 26vw, 7.5rem);
+  height: auto;
+  margin: 0 auto 0.4rem;
+  user-select: none;
+}
+
+/* Typography in the motif */
+.loading-screen--plain .loading-screen__std-headline {
+  margin-top: 0;
+  color: var(--color-welcome-navy);
+  font-size: clamp(2.4rem, 11vw, 4rem);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 70%);
+}
+
+.loading-screen--plain .loading-screen__std-kicker {
+  margin-top: 0.5rem;
+  font-size: clamp(0.62rem, 2.8vw, 0.82rem);
+  letter-spacing: 0.3em;
+  color: var(--color-motif-accent);
+}
+
+.loading-screen__plain-line {
+  margin: 0;
+  padding: 0 1.5rem;
+  text-align: center;
+  font-family: "SortsMillGoudy", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: clamp(0.85rem, 3.4vw, 1rem);
+  line-height: 1.35;
+  color: var(--color-welcome-text-soft);
+}
+
+.loading-screen--plain .loading-screen__std-names-slot {
+  padding-top: 0.1rem;
+  padding-bottom: 0.2rem;
+}
+
+.loading-screen--plain .loading-screen__std-names {
+  width: min(84%, 21rem);
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 70%));
+}
+
+.loading-screen--plain .ls-silk-date {
+  padding-top: 0.6rem;
+}
+
+.loading-screen--plain .loading-screen__std-footer {
+  padding-left: 1.75rem;
+  padding-right: 1.75rem;
+  padding-bottom: clamp(1.4rem, 4vh, 2.25rem);
+}
+
+.loading-screen--plain .loading-screen__std-venue {
+  margin-bottom: 0.5rem;
+}
+
+.loading-screen--plain .loading-screen__std-venue-time {
+  color: var(--color-motif-accent);
+}
+
+.loading-screen--plain .loading-screen__std-venue-name {
+  color: var(--color-welcome-text);
+}
+
+.loading-screen--plain .loading-screen__std-eyebrow {
+  color: var(--color-motif-accent);
+}
+
+.loading-screen--plain .loading-screen__std-copy {
+  color: var(--color-welcome-text-soft);
+  font-size: clamp(0.85rem, 3.2vw, 1.02rem);
+}
+
+.loading-screen--plain .loading-screen__std-status {
+  color: var(--color-welcome-text-soft);
+}
+
+.loading-screen--plain .loading-screen__std-rule {
+  background: linear-gradient(90deg, transparent, var(--color-motif-medium), transparent);
+}
+
+.loading-screen--plain .loading-screen__std-rule::after {
+  display: none;
+}
+
+.loading-screen--plain .loading-screen__std-track {
+  background: color-mix(in srgb, var(--color-motif-medium) 30%, transparent);
+}
+
+.loading-screen--plain .loading-screen__std-bar {
+  background: linear-gradient(90deg, var(--color-motif-medium), var(--color-motif-accent), var(--color-motif-deep));
+}
+
+/* Short screens: drop the secondary copy so the card never overflows */
+@media (max-height: 720px) {
+  .loading-screen--plain .loading-screen__std-copy,
+  .loading-screen--plain .loading-screen__std-eyebrow {
+    display: none;
+  }
+  .loading-screen__plain-ornament {
+    width: clamp(4.5rem, 20vw, 6rem);
+    margin-bottom: 0.2rem;
+  }
+}
+
+@media (max-height: 620px) {
+  .loading-screen--plain .loading-screen__plain-line {
+    display: none;
+  }
+}
+
+
+/* ---- Plain mode: centred loading text + refined progress ---- */
+
+.loading-screen--plain .loading-screen__std-footer {
+  text-align: center;
+}
+
+.loading-screen--plain .loading-screen__std-rule {
+  width: 4.5rem;
+  margin: 0.7rem auto 0.75rem;
+}
+
+.loading-screen--plain .loading-screen__std-status {
+  width: 100%;
+  margin: 0 auto 0.6rem;
+  text-align: center;
+  font-size: clamp(0.56rem, 2.4vw, 0.66rem);
+  letter-spacing: 0.3em;
+  /* balance trailing letter-spacing so the line is truly centred */
+  padding-left: 0.3em;
+  color: var(--color-motif-accent);
+}
+
+.loading-screen--plain [role="progressbar"] {
+  display: flex;
+  justify-content: center;
+  width: min(68%, 15rem);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.loading-screen--plain .loading-screen__std-track {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  overflow: visible;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-motif-medium) 35%, transparent);
+}
+
+.loading-screen--plain .loading-screen__std-bar {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--color-motif-medium), var(--color-motif-accent) 60%, var(--color-motif-deep));
+}
+
+/* Light sheen sliding along the filled bar */
+.loading-screen--plain .loading-screen__std-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 75%) 50%, transparent 100%);
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  animation: ls-plain-sheen 1.8s ease-in-out infinite;
+}
+
+/* Glowing point riding the leading edge of the bar */
+.ls-plain-progress-glow {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: var(--color-motif-deep);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--color-motif-soft) 85%, transparent),
+    0 0 12px 2px color-mix(in srgb, var(--color-motif-accent) 55%, transparent);
+  animation: ls-plain-glow-travel linear forwards;
+}
+
+@keyframes ls-plain-sheen {
+  0% { background-position: -40% 0; }
+  100% { background-position: 140% 0; }
+}
+
+@keyframes ls-plain-glow-travel {
+  from { left: 0%; }
+  to { left: 100%; }
+}
+
+/* ---- Plain mode: background + entrance animation ---- */
+
+/* Card rises softly into place */
+.loading-screen--plain .loading-screen__save-date {
+  /* backwards fill: holds the start frame before it plays, then releases so the fade-out still works */
+  animation: ls-plain-card-in 1.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes ls-plain-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Slow breathing light behind the card */
+.ls-plain-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 42% at 50% 46%, color-mix(in srgb, white 70%, transparent) 0%, transparent 70%),
+    radial-gradient(80% 60% at 50% 110%, color-mix(in srgb, var(--color-motif-medium) 35%, transparent) 0%, transparent 70%);
+  animation: ls-plain-breathe 9s ease-in-out infinite alternate;
+}
+
+@keyframes ls-plain-breathe {
+  from { opacity: 0.7; transform: scale(1); }
+  to { opacity: 1; transform: scale(1.06); }
+}
+
+/* Pollen-like motes drifting upward */
+.ls-plain-motes {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ls-plain-mote {
+  position: absolute;
+  bottom: -12px;
+  left: var(--x);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-motif-soft) 95%, transparent) 0%, color-mix(in srgb, var(--color-motif-medium) 70%, transparent) 70%);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-motif-soft) 80%, transparent);
+  opacity: 0;
+  animation: ls-plain-mote-rise var(--dur) linear var(--delay) infinite;
+}
+
+@keyframes ls-plain-mote-rise {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  12% { opacity: 0.85; }
+  80% { opacity: 0.6; }
+  100% { transform: translate3d(var(--drift), -105vh, 0); opacity: 0; }
+}
+
+/* Corner foliage sways gently */
+.loading-screen--plain .loading-screen__plain-corner-slot {
+  animation: ls-plain-sway 7s ease-in-out infinite alternate;
+}
+
+.loading-screen--plain .loading-screen__plain-corner-slot.left-0.top-0 { transform-origin: top left; }
+.loading-screen--plain .loading-screen__plain-corner-slot.right-0.top-0 { transform-origin: top right; animation-delay: -2s; }
+.loading-screen--plain .loading-screen__plain-corner-slot.left-0.bottom-0 { transform-origin: bottom left; animation-delay: -4s; }
+.loading-screen--plain .loading-screen__plain-corner-slot.right-0.bottom-0 { transform-origin: bottom right; animation-delay: -6s; }
+
+@keyframes ls-plain-sway {
+  from { transform: rotate(0deg) scale(1); }
+  to { transform: rotate(1.6deg) scale(1.02); }
+}
+
+/* Reduced motion: keep everything still */
+.loading-screen--plain.is-reduced-motion .ls-plain-progress-glow {
+  display: none;
+}
+
+.loading-screen--plain.is-reduced-motion .loading-screen__save-date,
+.loading-screen--plain.is-reduced-motion .ls-plain-glow,
+.loading-screen--plain.is-reduced-motion .loading-screen__plain-corner-slot,
+.loading-screen--plain.is-reduced-motion .loading-screen__std-bar::after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen--plain .loading-screen__save-date,
+  .ls-plain-glow,
+  .ls-plain-mote,
+  .loading-screen--plain .loading-screen__plain-corner-slot,
+  .loading-screen--plain .loading-screen__std-bar::after {
+    animation: none;
+  }
+}
+
+/* Plain mode: darker day numeral (deep forest → deep sage) with a subtle glint */
+.loading-screen--plain .ls-silk-date__day {
+  background: linear-gradient(
+    100deg,
+    var(--color-welcome-navy) 0%,
+    var(--color-motif-deep) 30%,
+    var(--color-motif-accent) 44%,
+    color-mix(in srgb, var(--color-motif-medium) 70%, var(--color-motif-soft)) 50%,
+    var(--color-motif-accent) 56%,
+    var(--color-motif-deep) 70%,
+    var(--color-welcome-navy) 100%
+  );
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 70%)) drop-shadow(0 6px 14px color-mix(in srgb, var(--color-welcome-navy) 18%, transparent));
 }

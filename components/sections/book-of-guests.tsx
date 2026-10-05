@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { RefreshCw } from "lucide-react"
+import { RefreshCw, Users, Armchair, Crown } from "lucide-react"
+import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react"
 import localFont from "next/font/local"
 import { Cinzel } from "next/font/google"
 import { useSiteConfig } from "@/hooks/use-site-config"
@@ -25,77 +26,98 @@ const aboveTheBeyond = localFont({
   variable: "--font-above-beyond",
 })
 
-const C = {
-  forest: "#5d6f47",
-  sage: "#949981",
-  mustard: "#eec853",
-  butter: "#f4dd97",
-  cream: "#f7f3e9",
-} as const
-
-const creamWash = `
-  radial-gradient(920px 520px at 50% 8%, color-mix(in srgb, ${C.butter} 35%, transparent) 0%, transparent 55%),
-  radial-gradient(640px 420px at 12% 88%, color-mix(in srgb, ${C.sage} 16%, transparent) 0%, transparent 58%),
-  radial-gradient(560px 380px at 92% 78%, color-mix(in srgb, ${C.mustard} 14%, transparent) 0%, transparent 55%),
-  linear-gradient(180deg, ${C.cream} 0%, #faf7ef 48%, ${C.cream} 100%)
-`
-
-const IVORY = "#fffaf4"
-const GOLD = "var(--color-welcome-gold)"
+// Palette lives in globals.css → motif / welcome tokens.
+const IVORY = "var(--color-motif-soft)"
+const PAPER = "var(--color-welcome-bg-soft)"
 const NAVY = "var(--color-welcome-navy)"
 const BODY = "var(--color-welcome-text)"
-const NAV_GOLD =
-  "linear-gradient(180deg, #E8D5A3 0%, #CDB072 52%, #C4A265 100%)"
-const GOLD_BORDER = "color-mix(in srgb, var(--color-welcome-gold) 38%, transparent)"
-const GOLD_BORDER_SOFT = "color-mix(in srgb, var(--color-welcome-gold) 22%, transparent)"
+const ACCENT = "var(--color-motif-accent)"
+const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 55%, transparent)"
+const DEEP_GRADIENT =
+  "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)"
+const SAGE_GRADIENT = "linear-gradient(145deg, var(--color-motif-medium) 0%, var(--color-motif-accent) 100%)"
+
+const sectionBg = `
+  radial-gradient(820px 460px at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 75%, transparent) 0%, transparent 65%),
+  radial-gradient(560px 380px at 0% 60%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
+  radial-gradient(560px 380px at 100% 85%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
+  linear-gradient(180deg, var(--color-motif-cream) 0%, var(--color-welcome-bg-soft) 50%, var(--color-motif-cream) 100%)
+`.trim()
 
 const palette = {
   body: BODY,
   heading: NAVY,
-  label: GOLD,
-  accent: GOLD,
+  label: ACCENT,
+  accent: ACCENT,
 } as const
 
 const cardStyle = {
-  background: "var(--color-welcome-bg)",
-  borderColor: "color-mix(in srgb, var(--color-motif-deep) 14%, transparent)",
-  borderWidth: "1px",
-  borderStyle: "solid",
+  background: `linear-gradient(180deg, ${PAPER} 0%, var(--color-motif-cream) 100%)`,
   boxShadow:
-    "0 8px 28px color-mix(in srgb, var(--color-motif-deep) 7%, transparent), inset 0 1px 0 color-mix(in srgb, white 70%, transparent)",
-} as const
-
-const ambientGlowStyle = {
-  background:
-    "linear-gradient(135deg, color-mix(in srgb, var(--color-motif-deep) 18%, transparent) 0%, color-mix(in srgb, var(--color-welcome-green) 12%, transparent) 48%, color-mix(in srgb, var(--color-motif-deep) 10%, transparent) 100%)",
+    "0 22px 48px -26px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
 } as const
 
 const dividerLineStyle = {
-  background:
-    "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-motif-deep) 38%, transparent), transparent)",
+  background: "linear-gradient(to right, transparent, var(--color-motif-medium), transparent)",
 } as const
 
 const CORNER_DECO_CLASS =
-  "block h-auto w-auto max-w-[120px] sm:max-w-[180px] md:max-w-[260px] lg:max-w-[320px] xl:max-w-[380px] select-none"
+  "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
 
 const refreshButtonStyle = {
-  borderColor: "color-mix(in srgb, var(--color-motif-deep) 14%, transparent)",
-  backgroundColor: "var(--color-welcome-bg-soft)",
-  boxShadow:
-    "0 4px 14px color-mix(in srgb, var(--color-motif-deep) 10%, transparent), inset 0 1px 0 color-mix(in srgb, white 70%, transparent)",
+  borderColor: HAIRLINE,
+  backgroundColor: IVORY,
+  boxShadow: "0 4px 14px -4px color-mix(in srgb, var(--color-welcome-navy) 30%, transparent)",
 } as const
 
 const chipPrimaryStyle = {
   color: NAVY,
-  borderColor: GOLD_BORDER,
-  backgroundColor: "color-mix(in srgb, var(--color-welcome-gold) 12%, white)",
+  borderColor: "color-mix(in srgb, var(--color-motif-accent) 45%, transparent)",
+  backgroundColor: "color-mix(in srgb, var(--color-motif-silver) 70%, var(--color-motif-soft))",
 } as const
 
 const chipSecondaryStyle = {
   color: NAVY,
-  borderColor: GOLD_BORDER_SOFT,
-  backgroundColor: "color-mix(in srgb, var(--color-welcome-gold) 8%, white)",
+  borderColor: HAIRLINE,
+  backgroundColor: IVORY,
 } as const
+
+const ease = [0.22, 1, 0.36, 1] as const
+
+const revealVariants: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease } },
+}
+
+const listVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1 } },
+  exit: { transition: { staggerChildren: 0.05, staggerDirection: -1 } },
+}
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 22, scale: 0.97, filter: "blur(4px)" },
+  show: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", transition: { duration: 0.6, ease } },
+  exit: { opacity: 0, y: -14, scale: 0.98, filter: "blur(3px)", transition: { duration: 0.35, ease } },
+}
+
+function DecoImg({ src, className }: { src: string; className: string }) {
+  if (!src) return null
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} loading="lazy" decoding="async" alt="" aria-hidden="true" className={className} />
+  )
+}
+
+function DiamondDivider() {
+  return (
+    <div className="flex items-center justify-center gap-2" aria-hidden>
+      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-medium))" }} />
+      <span className="h-1.5 w-1.5 rotate-45" style={{ background: ACCENT }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-medium))" }} />
+    </div>
+  )
+}
 
 const ct = {
   label: sectionType.label,
@@ -106,7 +128,7 @@ const ct = {
   meta: sectionType.label,
 } as const
 
-function BookOfGuestsTitle() {
+function BookOfGuestsTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <h2
       className="welcome-title-lockup relative mx-auto w-full max-w-full text-center"
@@ -124,19 +146,19 @@ function BookOfGuestsTitle() {
           color: "var(--color-welcome-navy)",
         }}
       >
-        Book of Guests
+        {title}
       </span>
       <span
         aria-hidden
         className={`${aboveTheBeyond.className} mx-auto block w-fit max-w-full px-1 leading-[0.88] sm:leading-[0.9] mt-2 sm:mt-2.5 md:mt-3`}
         style={{
           fontSize: "var(--script-size)",
-          color: "var(--color-welcome-green)",
+          color: "var(--color-welcome-script)",
         }}
       >
-        celebrating with us
+        {subtitle}
       </span>
-      <span className="sr-only">celebrating with us</span>
+      <span className="sr-only">{subtitle}</span>
     </h2>
   )
 }
@@ -158,20 +180,30 @@ interface Guest {
   updatedAt?: string
 }
 
-const CARDS_PER_VIEW = 4
-
 export function BookOfGuests() {
   const siteConfig = useSiteConfig()
+  const copy = siteConfig.bookOfGuests
+  const { decos } = copy
+  const CARDS_PER_VIEW = Math.max(1, copy.cardsPerView || 4)
+  const reduceMotion = useReducedMotion()
   const [totalGuests, setTotalGuests] = useState(0)
   const [rsvpCount, setRsvpCount] = useState(0)
   const [confirmedGuests, setConfirmedGuests] = useState<Guest[]>([])
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
-  const [previousTotal, setPreviousTotal] = useState(0)
   const [showIncrease, setShowIncrease] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const [justEntered, setJustEntered] = useState(false)
+  // Cards whose full companion list is open
+  const [expandedCompanions, setExpandedCompanions] = useState<Set<string>>(new Set())
+  const COMPANION_PREVIEW = 4
+
+  const toggleCompanions = (id: string) =>
+    setExpandedCompanions((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
 
   // Helper function to get initials from name
   const getInitials = (name: string): string => {
@@ -220,7 +252,6 @@ export function BookOfGuests() {
       
       // Show increase animation if count went up
       if (totalGuestCount > totalGuests && totalGuests > 0) {
-        setPreviousTotal(totalGuests)
         setShowIncrease(true)
         setTimeout(() => setShowIncrease(false), 2000)
       }
@@ -274,401 +305,428 @@ export function BookOfGuests() {
     }
   }, [totalGuests])
 
-  // Auto-rotate carousel every 5 seconds when more than 4 guests
+  // Auto-rotate carousel every 5 seconds when there are more guests than fit
   useEffect(() => {
     if (confirmedGuests.length <= CARDS_PER_VIEW) return
     const interval = setInterval(() => {
-      setIsTransitioning(true)
-      setTimeout(() => {
-        setCurrentIndex((prev) => {
-          const next = prev + CARDS_PER_VIEW
-          return next >= confirmedGuests.length ? 0 : next
-        })
-        setIsTransitioning(false)
-        setJustEntered(true)
-        setTimeout(() => setJustEntered(false), 1100)
-      }, 600)
+      setCurrentIndex((prev) => {
+        const next = prev + CARDS_PER_VIEW
+        return next >= confirmedGuests.length ? 0 : next
+      })
     }, 5000)
     return () => clearInterval(interval)
-  }, [confirmedGuests.length])
+  }, [confirmedGuests.length, CARDS_PER_VIEW])
+
+  const initial = reduceMotion ? false : "hidden"
 
   return (
     <div
       id="guests"
-      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative isolate z-10 overflow-hidden pt-8 pb-8 sm:pt-10 sm:pb-10 md:pt-12 md:pb-12 lg:pt-14 lg:pb-14`}
-      style={{ background: creamWash }}
+      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative isolate z-10 overflow-hidden pt-12 pb-10 sm:pt-14 sm:pb-12 md:pt-16 md:pb-14 lg:pt-20 lg:pb-16`}
+      style={{ background: sectionBg }}
     >
-      {/* Corner decorations */}
+      {/* Corner decorations (from site.ts) */}
       <div className="pointer-events-none absolute left-0 top-0 z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/decoration/left-top-corner.png"
-          alt=""
-          aria-hidden="true"
-          className={CORNER_DECO_CLASS}
-        />
+        <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
       </div>
       <div className="pointer-events-none absolute right-0 top-0 z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/decoration/right-top-corner.png"
-          alt=""
-          aria-hidden="true"
-          className={CORNER_DECO_CLASS}
-        />
+        <DecoImg src={decos.topRight} className={CORNER_DECO_CLASS} />
       </div>
       <div className="pointer-events-none absolute bottom-0 left-0 z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/decoration/left-bottom-corner.png"
-          alt=""
-          aria-hidden="true"
-          className={CORNER_DECO_CLASS}
-        />
+        <DecoImg src={decos.bottomLeft} className={CORNER_DECO_CLASS} />
       </div>
       <div className="pointer-events-none absolute bottom-0 right-0 z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/decoration/right-bottom-corner.png"
-          alt=""
-          aria-hidden="true"
-          className={CORNER_DECO_CLASS}
-        />
+        <DecoImg src={decos.bottomRight} className={CORNER_DECO_CLASS} />
       </div>
 
       {/* Section Header */}
-      <div className="relative z-20 mx-auto mb-6 max-w-5xl px-6 text-center @container/book-of-guests sm:mb-8 sm:px-10 md:mb-10 md:px-12">
-        <div className="mt-8 mb-4 sm:mt-10 sm:mb-5 md:mt-12 md:mb-6">
-          <BookOfGuestsTitle />
+      <motion.div
+        className="relative z-20 mx-auto mb-8 max-w-5xl px-6 text-center @container/book-of-guests sm:mb-10 sm:px-10 md:px-12"
+        variants={revealVariants}
+        initial={initial}
+        whileInView="show"
+        viewport={{ once: true, amount: 0.3 }}
+      >
+        <DecoImg
+          src={decos.headerOrnament}
+          className="mx-auto mb-3 block h-auto w-28 select-none sm:mb-4 sm:w-36 md:w-44"
+        />
+        <DiamondDivider />
+        <div className="mt-4 mb-4 sm:mt-5 sm:mb-5">
+          <BookOfGuestsTitle title={copy.title} subtitle={copy.subtitle} />
         </div>
         <p
           className={`font-goudy-italic mx-auto max-w-2xl px-2 ${sectionType.textRelaxed}`}
-          style={{ color: "var(--color-welcome-text)" }}
+          style={{ color: BODY }}
         >
-          Meet the cherished souls joining us in celebration — your presence makes our day truly
-          special.
+          {copy.description}
         </p>
-        <div className="flex items-center justify-center pt-3 sm:pt-4">
+        <div className="flex items-center justify-center pt-4 sm:pt-5">
           <span className="h-px w-16 sm:w-24 md:w-32" style={dividerLineStyle} />
         </div>
-      </div>
+      </motion.div>
 
-      {/* Guests content */}
-      <div className="relative z-20 my-6 sm:my-8 md:my-10 mb-12 sm:mb-16 md:mb-20 px-6 sm:px-10 md:px-12">
+      <div className="relative z-20 px-5 sm:px-10 md:px-12">
         {/* Stats card */}
-        <div className="text-center mb-8 sm:mb-10 md:mb-12">
-          <div className="relative max-w-3xl mx-auto z-20">
-            <div
-              className="pointer-events-none absolute -inset-1 rounded-2xl opacity-50 blur-2xl sm:-inset-2"
-              style={ambientGlowStyle}
+        <motion.div
+          className="relative mx-auto mb-10 max-w-2xl text-center sm:mb-12 md:mb-14"
+          variants={revealVariants}
+          initial={initial}
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          <div
+            className="relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem]"
+            style={cardStyle}
+          >
+            {/* Inner frame + top glow */}
+            <span
               aria-hidden
+              className="pointer-events-none absolute inset-2.5 rounded-[1.4rem] border sm:inset-3 sm:rounded-[1.85rem]"
+              style={{ borderColor: HAIRLINE }}
             />
-            <div
-              className="relative z-20 overflow-hidden rounded-xl border backdrop-blur-xl transition-all duration-300 sm:rounded-2xl sm:backdrop-blur-2xl"
-              style={cardStyle}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 h-40"
+              style={{
+                background:
+                  "radial-gradient(60% 100% at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 75%, transparent), transparent)",
+              }}
+            />
+
+            <button
+              type="button"
+              onClick={() => fetchGuests(true)}
+              disabled={isRefreshing}
+              className="group absolute top-5 right-5 z-30 flex h-8 w-8 items-center justify-center rounded-full border transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-45 disabled:hover:scale-100 sm:top-6 sm:right-6 sm:h-9 sm:w-9"
+              style={refreshButtonStyle}
+              title={copy.refreshLabel}
+              aria-label={copy.refreshLabel}
             >
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/40 via-white/10 to-transparent" aria-hidden />
-              <div
-                className="pointer-events-none absolute inset-0 rounded-xl sm:rounded-2xl ring-1 ring-inset ring-white/35"
+              <RefreshCw
+                className={`h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-500 ${isRefreshing ? "animate-spin" : "group-hover:rotate-180"}`}
+                style={{ color: ACCENT }}
                 aria-hidden
               />
+            </button>
 
-              {/* Refresh — corner icon, outside centered content flow */}
-              <button
-                type="button"
-                onClick={() => fetchGuests(true)}
-                disabled={isRefreshing}
-                className="group absolute top-3 right-3 sm:top-4 sm:right-4 z-30 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-45 disabled:hover:scale-100"
-                style={refreshButtonStyle}
-                title="Refresh guest counts"
-                aria-label="Refresh guest counts"
+            <div className="relative z-[1] px-6 py-8 text-center sm:px-10 sm:py-10 md:px-12">
+              <div
+                className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full sm:mb-4 sm:h-12 sm:w-12"
+                style={{
+                  background: DEEP_GRADIENT,
+                  boxShadow: `0 0 0 4px ${PAPER}, 0 0 0 5px ${HAIRLINE}`,
+                }}
+                aria-hidden
               >
-                <RefreshCw
-                  className={`h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-500 ${isRefreshing ? "animate-spin" : "group-hover:rotate-180"}`}
-                  style={{ color: GOLD }}
-                  aria-hidden
-                />
-              </button>
+                <Users className="h-5 w-5" style={{ color: IVORY }} />
+              </div>
+              <p
+                className={`${cinzel.className} ${ct.label} uppercase tracking-[0.22em] font-semibold mb-3 sm:mb-4`}
+                style={{ color: palette.label }}
+              >
+                {copy.statsEyebrow}
+              </p>
 
-              <div className="relative z-[1] px-6 sm:px-10 md:px-12 py-5 sm:py-6 md:py-8 text-center">
-                <p
-                  className={`${cinzel.className} ${ct.label} uppercase tracking-[0.2em] font-semibold mb-3 sm:mb-4`}
-                  style={{ color: palette.label }}
-                >
-                  Our Celebration
-                </p>
-
-                <div className="flex items-center justify-center gap-3 sm:gap-4 mb-1 sm:mb-2">
-                  <span
-                    className={`${cinzel.className} ${ct.stat} font-semibold tabular-nums leading-none transition-transform duration-500 ${showIncrease ? "scale-110" : ""}`}
-                    style={{ color: palette.accent }}
-                  >
-                    {totalGuests}
-                  </span>
-                  <p
-                    className={`${cinzel.className} ${ct.bodyLg} font-medium leading-snug text-left max-w-[10rem] sm:max-w-none`}
+              <div className="flex items-center justify-center gap-3 sm:gap-4">
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.span
+                    key={totalGuests}
+                    initial={reduceMotion ? false : { opacity: 0, y: 14, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: showIncrease ? 1.12 : 1 }}
+                    exit={{ opacity: 0, y: -14 }}
+                    transition={{ duration: 0.5, ease }}
+                    className={`${theSeasons.className} text-4xl font-semibold tabular-nums leading-none sm:text-5xl md:text-6xl`}
                     style={{ color: palette.heading }}
                   >
-                    {totalGuests === 1 ? "Guest" : "Guests"}
-                    <span className="block text-[0.85em] font-normal opacity-90">Celebrating With Us</span>
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-4 sm:mt-5 mb-4 sm:mb-5">
+                    {totalGuests}
+                  </motion.span>
+                </AnimatePresence>
+                <p
+                  className={`${cinzel.className} ${ct.bodyLg} font-semibold uppercase leading-snug tracking-[0.12em] text-left`}
+                  style={{ color: palette.heading }}
+                >
+                  {totalGuests === 1 ? copy.guestSingular : copy.guestPlural}
                   <span
-                    className={`${cinzel.className} ${ct.meta} px-3 py-1 rounded-full border font-semibold uppercase tracking-[0.12em]`}
-                    style={chipPrimaryStyle}
+                    className="block text-[0.72em] font-normal normal-case tracking-[0.04em]"
+                    style={{ color: palette.label }}
                   >
-                    {rsvpCount} {rsvpCount === 1 ? "RSVP" : "RSVPs"}
+                    {copy.statsCaption}
                   </span>
-                  <span
-                    className={`${cinzel.className} ${ct.meta} px-3 py-1 rounded-full border font-semibold uppercase tracking-[0.12em]`}
-                    style={chipSecondaryStyle}
-                  >
-                    {confirmedGuests.length} {confirmedGuests.length === 1 ? "Party" : "Parties"}
-                  </span>
-                </div>
-
-                <div className="mx-auto mb-4 h-px w-12 sm:mb-5 sm:w-16" style={dividerLineStyle} />
-
-                <p className={`font-goudy-italic ${ct.body} mx-auto max-w-md leading-relaxed`} style={{ color: palette.body }}>
-                  Thank you for confirming your RSVP — your presence means the world to us.
-                </p>
-
-                <p className={`${cinzel.className} ${ct.meta} mt-3 sm:mt-4 uppercase tracking-[0.14em] opacity-70`} style={{ color: palette.body }}>
-                  Updated {formatLastUpdate(lastUpdate)}
                 </p>
               </div>
+
+              <div className="mt-5 mb-5 flex flex-wrap items-center justify-center gap-2 sm:mt-6 sm:gap-3">
+                <span
+                  className={`${cinzel.className} ${ct.meta} px-3.5 py-1 rounded-full border font-semibold uppercase tracking-[0.12em]`}
+                  style={chipPrimaryStyle}
+                >
+                  {rsvpCount} {rsvpCount === 1 ? copy.rsvpSingular : copy.rsvpPlural}
+                </span>
+                <span
+                  className={`${cinzel.className} ${ct.meta} px-3.5 py-1 rounded-full border font-semibold uppercase tracking-[0.12em]`}
+                  style={chipSecondaryStyle}
+                >
+                  {confirmedGuests.length} {confirmedGuests.length === 1 ? copy.partySingular : copy.partyPlural}
+                </span>
+              </div>
+
+              <DiamondDivider />
+
+              <p className={`font-goudy-italic ${ct.body} mx-auto mt-4 max-w-md leading-relaxed sm:mt-5`} style={{ color: palette.body }}>
+                {copy.thankYou}
+              </p>
+
+              <p
+                className={`${cinzel.className} ${ct.meta} mt-3 sm:mt-4 uppercase tracking-[0.14em]`}
+                style={{ color: "var(--color-welcome-text-soft)" }}
+              >
+                {copy.updatedLabel} {formatLastUpdate(lastUpdate)}
+              </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Guest List Display */}
         {confirmedGuests.length > 0 && (
-          <div className="relative z-20 max-w-5xl mx-auto">
-            <div className="text-center mb-4 sm:mb-6 md:mb-8">
+          <div className="relative mx-auto max-w-4xl">
+            <motion.div
+              className="mb-5 text-center sm:mb-7 md:mb-8"
+              variants={revealVariants}
+              initial={initial}
+              whileInView="show"
+              viewport={{ once: true, amount: 0.5 }}
+            >
               <p
-                className={`${cinzel.className} ${ct.label} uppercase tracking-[0.2em] font-semibold`}
+                className={`${cinzel.className} ${ct.label} uppercase tracking-[0.22em] font-semibold`}
                 style={{ color: palette.label }}
               >
-                Joining Us
+                {copy.listEyebrow}
               </p>
               <p className={`font-goudy-italic ${ct.body} mt-1.5`} style={{ color: palette.body }}>
-                A glimpse of the wonderful guests celebrating with us
+                {copy.listDescription}
               </p>
-            </div>
-            <div
-              className="relative overflow-hidden"
-              style={{
-                perspective: "1200px",
-                perspectiveOrigin: "center 85%",
-                transformStyle: "preserve-3d",
-              }}
-            >
-              <div
-                className={`space-y-2 sm:space-y-3 md:space-y-4 ${isTransitioning ? "animate-guest-roll-out" : ""}`}
-                style={{ transformStyle: "preserve-3d" }}
+            </motion.div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentIndex}
+                className="grid grid-cols-1 gap-2.5 sm:gap-3 md:grid-cols-2 md:gap-4"
+                variants={listVariants}
+                initial={initial}
+                animate="show"
+                exit="exit"
               >
-                {getVisibleGuests().map((guest, index) => (
-                  <div
-                    key={`${guest.id}-${currentIndex}-${index}`}
-                    className={`relative z-20 group rounded-xl sm:rounded-2xl p-3.5 sm:p-4 md:p-5 transition-all duration-300 border backdrop-blur-xl overflow-hidden hover:shadow-xl ${justEntered ? "animate-guest-roll-in" : ""}`}
-                    style={{
-                      ...cardStyle,
-                      ...(justEntered
-                        ? {
-                            animationDelay: `${index * 120}ms`,
-                            backfaceVisibility: "hidden",
-                          }
-                        : {}),
-                    }}
-                  >
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden />
-                  <div
-                    className="pointer-events-none absolute inset-0 rounded-xl sm:rounded-2xl ring-1 ring-inset ring-white/20 group-hover:ring-white/40 transition-all duration-300"
-                    aria-hidden
-                  />
-                  <div className="relative z-[1] flex items-start gap-3 sm:gap-4">
-                    <div className="relative flex-shrink-0">
-                      <div
-                        className="flex h-11 w-11 items-center justify-center rounded-full ring-2 ring-white/80 sm:h-12 sm:w-12 md:h-14 md:w-14"
-                        style={{
-                          background: NAV_GOLD,
-                          boxShadow:
-                            "0 6px 14px color-mix(in srgb, var(--color-welcome-gold) 28%, transparent)",
-                        }}
-                      >
-                        <span
-                          className={`${cinzel.className} font-semibold ${sectionType.text}`}
-                          style={{ color: IVORY }}
-                        >
-                          {getInitials(guest.name)}
-                        </span>
-                      </div>
-                    </div>
+                {getVisibleGuests().map((guest, index) => {
+                  const hasTable = Boolean(guest.tableNumber && guest.tableNumber.trim() !== "")
+                  const companions = (guest.companions || []).filter((c) => c.name && c.name.trim() !== "")
+                  return (
+                    <motion.article
+                      key={`${guest.id}-${index}`}
+                      variants={cardVariants}
+                      whileHover={reduceMotion ? undefined : { y: -3 }}
+                      transition={{ duration: 0.3, ease }}
+                      className="group relative overflow-hidden rounded-2xl px-3.5 py-3 sm:px-4 sm:py-3.5"
+                      style={cardStyle}
+                    >
+                      {/* Hairline inner frame — turns olive on hover */}
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-1.5 rounded-[0.85rem] border transition-colors duration-300 group-hover:border-[color-mix(in_srgb,var(--color-motif-accent)_45%,transparent)]"
+                        style={{ borderColor: HAIRLINE }}
+                      />
 
-                    <div className="flex-1 min-w-0 pt-0.5">
-                      <div className="flex items-start justify-between gap-2 mb-2 sm:mb-2.5">
-                        <div className="min-w-0">
-                          <h3
-                            className={`font-goudy-italic ${ct.guestName} truncate font-semibold leading-tight`}
-                            style={{ color: palette.heading }}
-                            title={guest.name}
-                          >
-                            {guest.name}
-                          </h3>
-                          {guest.role && (
-                            <p
-                              className={`${cinzel.className} ${ct.meta} font-medium uppercase tracking-wide mt-0.5`}
-                              style={{ color: palette.label }}
-                            >
-                              {guest.role}
-                            </p>
-                          )}
-                        </div>
-                        {guest.isVip && (
-                          <span
-                            className={`${cinzel.className} shrink-0 ${ct.meta} px-2 py-0.5 rounded-full font-semibold uppercase tracking-[0.12em] border`}
-                            style={{
-                              background: NAV_GOLD,
-                              color: IVORY,
-                              borderColor: GOLD_BORDER,
-                            }}
-                          >
-                            VIP
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                        <span
-                          className={`${cinzel.className} ${ct.meta} px-2.5 py-1 rounded-full border font-semibold uppercase tracking-[0.1em]`}
-                          style={chipPrimaryStyle}
-                        >
-                          {guest.allowedGuests} {guest.allowedGuests === 1 ? "Guest" : "Guests"}
-                        </span>
-                        <span
-                          className={`${cinzel.className} ${ct.meta} px-2.5 py-1 rounded-full border font-semibold uppercase tracking-[0.1em]`}
-                          style={chipSecondaryStyle}
-                        >
-                          {guest.tableNumber && guest.tableNumber.trim() !== "" ? (
-                            <> {guest.tableNumber}</>
-                          ) : (
-                            <span className="opacity-65">No Table Yet</span>
-                          )}
-                        </span>
-                      </div>
-
-                      {guest.companions && guest.companions.length > 0 && (
+                      <div className="relative z-[1] flex items-center gap-2.5 sm:gap-3">
+                        {/* Monogram */}
                         <div
-                          className="pt-2.5 sm:pt-3 border-t"
+                          className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-transform duration-500 group-hover:scale-105 sm:h-12 sm:w-12"
                           style={{
-                            borderColor: "color-mix(in srgb, var(--color-motif-deep) 14%, transparent)",
+                            background: SAGE_GRADIENT,
+                            boxShadow: `0 0 0 2px ${IVORY}, 0 0 0 3px ${HAIRLINE}, 0 6px 14px -6px color-mix(in srgb, var(--color-motif-deep) 55%, transparent)`,
                           }}
                         >
-                          <span
-                            className={`${cinzel.className} ${ct.meta} font-semibold uppercase tracking-[0.14em] mb-2 block`}
+                          <span className={`${theSeasons.className} text-[1rem] tracking-[0.06em] sm:text-[1.08rem]`} style={{ color: IVORY }}>
+                            {getInitials(guest.name)}
+                          </span>
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex min-w-0 items-center gap-1.5">
+                            <h3
+                              className={`${theSeasons.className} min-w-0 truncate text-[0.98rem] uppercase leading-tight tracking-[0.07em] sm:text-[1.06rem]`}
+                              style={{ color: palette.heading }}
+                              title={guest.name}
+                            >
+                              {guest.name}
+                            </h3>
+                            {guest.isVip && (
+                              <span
+                                className={`${cinzel.className} inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[0.44rem] font-semibold uppercase leading-none tracking-[0.12em]`}
+                                style={{ background: DEEP_GRADIENT, color: IVORY }}
+                              >
+                                <Crown className="h-2.5 w-2.5" aria-hidden />
+                                {copy.vipLabel}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Meta line: guests · table · role (each item stays whole when wrapping) */}
+                          <div
+                            className={`${cinzel.className} mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[0.48rem] font-semibold uppercase leading-none tracking-[0.12em] sm:text-[0.52rem]`}
                             style={{ color: palette.label }}
                           >
-                            With Them
-                          </span>
-                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                            {guest.companions.map((companion, idx) => (
-                              <div
-                                key={idx}
-                                className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border transition-colors"
-                                style={{
-                                  borderColor: "color-mix(in srgb, var(--color-motif-deep) 14%, transparent)",
-                                  backgroundColor: "var(--color-welcome-bg-soft)",
-                                }}
-                              >
-                                <span className={`font-goudy-italic ${ct.meta} whitespace-nowrap font-medium`} style={{ color: palette.body }}>
-                                  {companion.name}
-                                </span>
-                                {companion.relationship && companion.relationship.trim() !== "" && (
-                                  <span
-                                    className={`${cinzel.className} rounded-full border px-1.5 py-0.5 ${sectionType.label} font-medium whitespace-nowrap sm:px-2`}
-                                    style={chipSecondaryStyle}
-                                  >
-                                    {companion.relationship}
-                                  </span>
-                                )}
-                              </div>
-                            ))}
+                            <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                              <Users className="h-2.5 w-2.5" aria-hidden />
+                              {guest.allowedGuests} {guest.allowedGuests === 1 ? copy.guestSingular : copy.guestPlural}
+                            </span>
+                            <span aria-hidden className="h-[3px] w-[3px] shrink-0 rotate-45" style={{ background: "var(--color-motif-medium)" }} />
+                            <span className="inline-flex min-w-0 items-center gap-1 whitespace-nowrap">
+                              <Armchair className="h-2.5 w-2.5 shrink-0" aria-hidden />
+                              {hasTable ? (
+                                <span className="truncate" style={{ color: palette.heading }}>{guest.tableNumber}</span>
+                              ) : (
+                                <span style={{ color: "var(--color-welcome-text-soft)" }}>{copy.noTable}</span>
+                              )}
+                            </span>
+                            {guest.role ? (
+                              <>
+                                <span aria-hidden className="h-[3px] w-[3px] shrink-0 rotate-45" style={{ background: "var(--color-motif-medium)" }} />
+                                <span className="max-w-full truncate">{guest.role}</span>
+                              </>
+                            ) : null}
                           </div>
                         </div>
-                      )}
-
-                      <div
-                        className="pt-2.5 sm:pt-3 mt-2.5 border-t flex items-center justify-between gap-2"
-                        style={{
-                          borderColor: "color-mix(in srgb, var(--color-motif-deep) 12%, transparent)",
-                        }}
-                      >
-                        <span className={`font-goudy-italic ${ct.meta}`} style={{ color: palette.body, opacity: 0.85 }}>
-                          Confirmed {formatDate(guest.updatedAt)}
-                        </span>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              </div>
 
-              {/* Carousel indicators */}
-              {/* {confirmedGuests.length > CARDS_PER_VIEW && (
-                <div className="flex flex-col items-center gap-2 mt-5 sm:mt-7">
-                  <div className="flex items-center justify-center gap-2">
-                    {Array.from({ length: Math.ceil(confirmedGuests.length / CARDS_PER_VIEW) }).map((_, idx) => {
-                      const pageIndex = Math.floor(currentIndex / CARDS_PER_VIEW)
-                      const isActive = pageIndex === idx
-                      return (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => {
-                            setIsTransitioning(true)
-                            setTimeout(() => {
-                              setCurrentIndex(idx * CARDS_PER_VIEW)
-                              setIsTransitioning(false)
-                              setJustEntered(true)
-                              setTimeout(() => setJustEntered(false), 1100)
-                            }, 600)
-                          }}
-                          className="h-2 rounded-full transition-all duration-300 hover:opacity-90"
-                          style={{
-                            width: isActive ? "1.75rem" : "0.5rem",
-                            backgroundColor: isActive
-                              ? palette.accent
-                              : "color-mix(in srgb, var(--color-motif-deep) 35%, transparent)",
-                          }}
-                          aria-label={`Go to page ${idx + 1}`}
-                        />
-                      )
-                    })}
-                  </div>
-                  <p className={`${cinzel.className} ${ct.meta} uppercase tracking-[0.14em] opacity-70`} style={{ color: palette.body }}>
-                    Page {Math.floor(currentIndex / CARDS_PER_VIEW) + 1} of {Math.ceil(confirmedGuests.length / CARDS_PER_VIEW)}
-                  </p>
-                </div>
-              )} */}
-            </div>
+                      {companions.length > 0 && (() => {
+                        const cardId = String(guest.id)
+                        const expanded = expandedCompanions.has(cardId)
+                        const shown = expanded ? companions : companions.slice(0, COMPANION_PREVIEW)
+                        const hidden = companions.length - shown.length
+                        return (
+                          <div
+                            className="relative z-[1] mt-2.5 rounded-xl px-2.5 pb-2 pt-1.5"
+                            style={{ background: "color-mix(in srgb, var(--color-motif-silver) 45%, transparent)" }}
+                          >
+                            {/* Label row */}
+                            <div className="mb-1.5 flex items-center gap-1.5">
+                              <span
+                                className={`${cinzel.className} text-[0.48rem] font-semibold uppercase tracking-[0.16em] sm:text-[0.52rem]`}
+                                style={{ color: palette.label }}
+                              >
+                                {copy.companionsLabel}
+                              </span>
+                              <span className="h-px flex-1" style={{ background: "linear-gradient(to right, var(--color-motif-medium), transparent)" }} aria-hidden />
+                              <span
+                                className={`${cinzel.className} rounded-full px-1.5 py-[1px] text-[0.46rem] font-semibold leading-none tracking-[0.06em]`}
+                                style={{ background: IVORY, color: palette.label, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+                              >
+                                +{companions.length}
+                              </span>
+                            </div>
+
+                            {/* Companion pills: mini monogram · name · relationship */}
+                            <ul className="flex flex-wrap gap-1">
+                              {shown.map((companion, idx) => (
+                                <li
+                                  key={idx}
+                                  className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-full py-[2px] pl-[2px] pr-2"
+                                  style={{ background: IVORY, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+                                >
+                                  <span
+                                    className={`${theSeasons.className} flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[0.45rem] leading-none`}
+                                    style={{ background: SAGE_GRADIENT, color: IVORY }}
+                                    aria-hidden
+                                  >
+                                    {getInitials(companion.name).slice(0, 1)}
+                                  </span>
+                                  <span className="font-goudy-italic min-w-0 truncate text-[0.66rem] leading-none sm:text-[0.7rem]" style={{ color: palette.heading }}>
+                                    {companion.name}
+                                  </span>
+                                  {companion.relationship && companion.relationship.trim() !== "" ? (
+                                    <span
+                                      className={`${cinzel.className} shrink-0 text-[0.44rem] font-semibold uppercase leading-none tracking-[0.1em] sm:text-[0.48rem]`}
+                                      style={{ color: "var(--color-welcome-text-soft)" }}
+                                    >
+                                      · {companion.relationship}
+                                    </span>
+                                  ) : null}
+                                </li>
+                              ))}
+                              {(hidden > 0 || expanded) && companions.length > COMPANION_PREVIEW && (
+                                <li>
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleCompanions(cardId)}
+                                    className={`${cinzel.className} inline-flex h-[1.3rem] items-center rounded-full px-2 text-[0.48rem] font-semibold uppercase leading-none tracking-[0.12em] transition-all hover:brightness-110`}
+                                    style={{ background: DEEP_GRADIENT, color: IVORY }}
+                                    aria-expanded={expanded}
+                                  >
+                                    {expanded ? copy.companionsLess : copy.companionsMore.replace("{count}", String(hidden))}
+                                  </button>
+                                </li>
+                              )}
+                            </ul>
+                          </div>
+                        )
+                      })()}
+
+                      <p
+                        className="font-goudy-italic relative z-[1] mt-1.5 text-right text-[0.56rem] leading-none sm:text-[0.6rem]"
+                        style={{ color: "var(--color-welcome-text-soft)" }}
+                      >
+                        {copy.confirmedLabel} {formatDate(guest.updatedAt)}
+                      </p>
+                    </motion.article>
+                  )
+                })}
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Page dots */}
+            {confirmedGuests.length > CARDS_PER_VIEW && (
+              <div className="mt-6 flex items-center justify-center gap-2 sm:mt-8" aria-hidden>
+                {Array.from({ length: Math.ceil(confirmedGuests.length / CARDS_PER_VIEW) }).map((_, idx) => {
+                  const isActive = Math.floor(currentIndex / CARDS_PER_VIEW) === idx
+                  return (
+                    <span
+                      key={idx}
+                      className="h-1.5 rounded-full transition-all duration-500"
+                      style={{
+                        width: isActive ? "1.5rem" : "0.375rem",
+                        background: isActive ? ACCENT : "var(--color-motif-medium)",
+                      }}
+                    />
+                  )
+                })}
+              </div>
+            )}
           </div>
         )}
 
         {confirmedGuests.length === 0 && !isRefreshing && (
-          <div className="relative z-20 max-w-xl mx-auto text-center px-4">
-            <div className="rounded-xl border px-6 py-10 backdrop-blur-xl sm:rounded-2xl sm:py-12" style={cardStyle}>
-              <p className={`${cinzel.className} ${ct.bodyLg} mb-2 font-semibold`} style={{ color: palette.heading }}>
-                Guest list updating
+          <motion.div
+            className="relative mx-auto max-w-xl px-4 text-center"
+            variants={revealVariants}
+            initial={initial}
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            <div className="rounded-[1.5rem] px-6 py-10 sm:py-12" style={cardStyle}>
+              <p className={`${cinzel.className} ${ct.bodyLg} mb-2 font-semibold uppercase tracking-[0.1em]`} style={{ color: palette.heading }}>
+                {copy.emptyTitle}
               </p>
               <p className={`font-goudy-italic ${ct.body}`} style={{ color: palette.body }}>
-                Confirmed guests will appear here as RSVPs come in.
+                {copy.emptyText}
               </p>
             </div>
-          </div>
+          </motion.div>
         )}
 
+        <DecoImg
+          src={decos.footerVine}
+          className="mx-auto mt-10 block h-auto w-56 select-none opacity-90 sm:mt-12 sm:w-72 md:w-96"
+        />
       </div>
     </div>
   )

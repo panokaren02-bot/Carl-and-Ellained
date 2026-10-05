@@ -1,12 +1,9 @@
 import type { Metadata } from "next"
-import { siteConfig } from "@/content/site"
+import { siteConfig, canonicalSiteUrl } from "@/content/site"
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://adrean-and-brendel.weddinginvitationrsvp.com/"
-const canonicalBase = siteUrl.replace(/\/$/, "")
+const canonicalBase = canonicalSiteUrl
 
-export const PROPOSAL_OG_IMAGE_PATH = "/frontboxes/new-linkPreview.jpg"
+export const PROPOSAL_OG_IMAGE_PATH = siteConfig.linkPreviewImage
 export const PROPOSAL_OG_IMAGE_URL = `${canonicalBase}${PROPOSAL_OG_IMAGE_PATH}`
 
 const coupleNames = `${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname}`

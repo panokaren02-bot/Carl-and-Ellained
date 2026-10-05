@@ -352,7 +352,7 @@ export function EntourageSponsors({
             onClick={() => setActiveSubTab("entourage")}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
               activeSubTab === "entourage"
-                ? "bg-[#FFF8F0] text-[#6B4423] shadow-sm"
+                ? "bg-[#FBFCF7] text-[#304A34] shadow-sm"
                 : "text-[#6B7280] hover:bg-[#F9FAFB]"
             }`}
           >
@@ -363,7 +363,7 @@ export function EntourageSponsors({
             onClick={() => setActiveSubTab("sponsors")}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
               activeSubTab === "sponsors"
-                ? "bg-[#FFF8F0] text-[#6B4423] shadow-sm"
+                ? "bg-[#FBFCF7] text-[#304A34] shadow-sm"
                 : "text-[#6B7280] hover:bg-[#F9FAFB]"
             }`}
           >
@@ -384,7 +384,7 @@ export function EntourageSponsors({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={`Search ${activeSubTab}...`}
-                className="w-full pl-10 pr-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none transition-all"
+                className="w-full pl-10 pr-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none transition-all"
               />
             </div>
           </div>
@@ -400,7 +400,7 @@ export function EntourageSponsors({
                 setSponsorFormData({ MalePrincipalSponsor: "", FemalePrincipalSponsor: "" })
               }
             }}
-            className="bg-gradient-to-r from-[#8B6F47] to-[#6B5335] hover:from-[#6B5335] hover:to-[#8B6F47] text-white"
+            className="bg-gradient-to-r from-[#4F674D] to-[#304A34] hover:from-[#304A34] hover:to-[#4F674D] text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add {activeSubTab === "entourage" ? "Entourage" : "Sponsor"}
@@ -450,7 +450,7 @@ export function EntourageSponsors({
                                 Email: member.Email || "",
                               })
                             }}
-                            className="p-2 text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#6B4423] rounded-lg transition-colors"
+                            className="p-2 text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#304A34] rounded-lg transition-colors"
                             title="Edit"
                           >
                             <Edit2 className="h-4 w-4" />
@@ -507,7 +507,7 @@ export function EntourageSponsors({
                                 FemalePrincipalSponsor: sponsor.FemalePrincipalSponsor,
                               })
                             }}
-                            className="p-2 text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#6B4423] rounded-lg transition-colors"
+                            className="p-2 text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#304A34] rounded-lg transition-colors"
                             title="Edit"
                           >
                             <Edit2 className="h-4 w-4" />
@@ -557,7 +557,7 @@ export function EntourageSponsors({
                   type="text"
                   value={entourageFormData.Name}
                   onChange={(e) => setEntourageFormData({ ...entourageFormData, Name: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="Enter name"
                 />
               </div>
@@ -568,7 +568,7 @@ export function EntourageSponsors({
                   type="text"
                   value={entourageFormData.RoleCategory}
                   onChange={(e) => setEntourageFormData({ ...entourageFormData, RoleCategory: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="e.g., Bridesmaid, Groomsman"
                 />
               </div>
@@ -579,7 +579,7 @@ export function EntourageSponsors({
                   type="text"
                   value={entourageFormData.RoleTitle}
                   onChange={(e) => setEntourageFormData({ ...entourageFormData, RoleTitle: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="e.g., Maid of Honor, Best Man"
                 />
               </div>
@@ -590,7 +590,7 @@ export function EntourageSponsors({
                   type="email"
                   value={entourageFormData.Email}
                   onChange={(e) => setEntourageFormData({ ...entourageFormData, Email: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="Enter email"
                 />
               </div>
@@ -610,7 +610,7 @@ export function EntourageSponsors({
               </Button>
               <Button
                 onClick={editingEntourage ? handleUpdateEntourage : handleAddEntourage}
-                className="flex-1 bg-gradient-to-r from-[#8B6F47] to-[#6B5335] hover:from-[#6B5335] hover:to-[#8B6F47] text-white"
+                className="flex-1 bg-gradient-to-r from-[#4F674D] to-[#304A34] hover:from-[#304A34] hover:to-[#4F674D] text-white"
               >
                 {editingEntourage ? "Update" : "Add"} Member
               </Button>
@@ -646,7 +646,7 @@ export function EntourageSponsors({
                   type="text"
                   value={sponsorFormData.MalePrincipalSponsor}
                   onChange={(e) => setSponsorFormData({ ...sponsorFormData, MalePrincipalSponsor: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="Enter male sponsor name"
                 />
               </div>
@@ -659,7 +659,7 @@ export function EntourageSponsors({
                   onChange={(e) =>
                     setSponsorFormData({ ...sponsorFormData, FemalePrincipalSponsor: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="Enter female sponsor name"
                 />
               </div>
@@ -679,7 +679,7 @@ export function EntourageSponsors({
               </Button>
               <Button
                 onClick={editingSponsor ? handleUpdateSponsor : handleAddSponsor}
-                className="flex-1 bg-gradient-to-r from-[#8B6F47] to-[#6B5335] hover:from-[#6B5335] hover:to-[#8B6F47] text-white"
+                className="flex-1 bg-gradient-to-r from-[#4F674D] to-[#304A34] hover:from-[#304A34] hover:to-[#4F674D] text-white"
               >
                 {editingSponsor ? "Update" : "Add"} Sponsor
               </Button>
@@ -693,7 +693,7 @@ export function EntourageSponsors({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
           <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl">
             <div className="text-center">
-              <div className="w-16 h-16 border-4 border-[#E5E7EB] border-t-[#8B6F47] rounded-full animate-spin mx-auto mb-4"></div>
+              <div className="w-16 h-16 border-4 border-[#E5E7EB] border-t-[#4F674D] rounded-full animate-spin mx-auto mb-4"></div>
               <h3 className="text-xl font-bold text-[#111827] mb-2">{processingAction}...</h3>
               <p className="text-sm text-[#6B7280]">Please wait while we process your request</p>
             </div>

@@ -15,12 +15,11 @@ import {
   type Variants,
 } from 'motion/react';
 import { useSiteConfig } from '@/hooks/use-site-config';
+import { siteConfig as defaultSiteConfig } from '@/content/site';
 import { parseWeddingDate } from '@/lib/wedding-date';
 import { InviteParticles } from '@/components/loader/InviteParticles';
-import {
-  InvitePhotoBackdrop,
-  MOBILE_BG_PHOTOS,
-} from '@/components/loader/invite-photo-backdrop';
+import { InvitePhotoBackdrop } from '@/components/loader/invite-photo-backdrop';
+import { PlainAtmosphere } from '@/components/loader/PlainAtmosphere';
 import './envelope-invite.css';
 
 interface HeroProps {
@@ -30,20 +29,11 @@ interface HeroProps {
   enterFromLoading?: boolean;
 }
 
-const COUPLE_NAME_IMAGE = '/Details/CoupleName.png';
-const SEAL_IMAGE = '/deco/seal.png';
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-const DESKTOP_POLAROID_PHOTOS = [
-  { src: MOBILE_BG_PHOTOS[0], side: 'left' as const },
-  { src: MOBILE_BG_PHOTOS[1], side: 'center' as const },
-  { src: MOBILE_BG_PHOTOS[2], side: 'right' as const },
-  { src: MOBILE_BG_PHOTOS[3], side: 'right-inner' as const },
-];
-
-const MOBILE_ENVELOPE_PHOTOS = [
-  { src: MOBILE_BG_PHOTOS[8], side: 'left' as const },
-  { src: MOBILE_BG_PHOTOS[7], side: 'right' as const },
-] as const;
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}
 
 const photoInteractEase: Transition = { duration: 0.38, ease: [0.22, 1, 0.36, 1] };
 const focusLiftEase: Transition = { duration: 1.15, ease: [0.22, 1, 0.36, 1] };
@@ -93,6 +83,10 @@ export const Hero: React.FC<HeroProps> = ({
   enterFromLoading = false,
 }) => {
   const siteConfig = useSiteConfig();
+  const content = siteConfig.loadingScreen ?? defaultSiteConfig.loadingScreen;
+  const isPlain = content.display === 'plain';
+  const plainTheme = content.plainTheme ?? defaultSiteConfig.loadingScreen.plainTheme;
+  const cornerDecos = content.cornerDecos ?? defaultSiteConfig.loadingScreen.cornerDecos;
   const reduceMotion = useReducedMotion();
   const openedRef = useRef(false);
   const enterBtnRef = useRef<HTMLButtonElement>(null);
@@ -130,25 +124,40 @@ export const Hero: React.FC<HeroProps> = ({
     return { month, day, year };
   }, [letterDateNumeric]);
 
-  const daysToGo = useMemo(() => {
-    const parsed = parseWeddingDate(siteConfig.wedding.date);
-    const wedding = new Date(`${parsed.month} ${parsed.day}, ${parsed.year}`);
-    if (Number.isNaN(wedding.getTime())) return null;
+  const backgroundPhotos = useMemo(
+    () => (content.backgroundPhotos ?? []).map((src) => encodeURI(src)),
+    [content.backgroundPhotos],
+  );
+  const showPhotoBackdrop = !isPlain && backgroundPhotos.length > 0;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    wedding.setHours(0, 0, 0, 0);
+  const envelopePolaroids = useMemo(() => {
+    const photos = (content.photos ?? []).map((src) => encodeURI(src));
+    const pick = (index: number) => photos[index % photos.length];
+    if (!photos.length) return { mobile: [] as const, desktop: [] as const };
+    return {
+      mobile: [
+        { src: pick(0), side: 'left' as const },
+        { src: pick(1), side: 'right' as const },
+      ] as const,
+      desktop: [
+        { src: pick(0), side: 'left' as const },
+        { src: pick(1), side: 'center' as const },
+        { src: pick(2), side: 'right' as const },
+        { src: pick(3), side: 'right-inner' as const },
+      ] as const,
+    };
+  }, [content.photos]);
 
-    const diff = Math.ceil((wedding.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    return Math.max(0, diff);
-  }, [siteConfig.wedding.date]);
-
-  const daysToGoLabel =
-    daysToGo === null
-      ? null
-      : daysToGo === 1
-        ? '1 day to go'
-        : `${daysToGo} days to go`;
+  const countdownText = useMemo(() => {
+    const weddingDate = new Date(siteConfig.wedding.date);
+    if (Number.isNaN(weddingDate.getTime())) return '';
+    const now = new Date();
+    const days = Math.round((startOfDay(weddingDate) - startOfDay(now)) / MS_PER_DAY);
+    if (days < 0) return content.countdownPastText;
+    if (days === 0) return content.countdownTodayText;
+    if (days === 1) return content.countdownOneDayText;
+    return content.countdownText.replace('{days}', days.toLocaleString());
+  }, [content, siteConfig.wedding.date]);
 
   const flapIsOpen =
     phase === 'flap-open' ||
@@ -266,18 +275,20 @@ export const Hero: React.FC<HeroProps> = ({
 
     setLiveMessage('Invitation rising.');
     setPhase('rising');
-    await wait(3200);
+    await wait(isPlain ? 2400 : 3200);
 
-    setLiveMessage('Photos revealing.');
-    setPhase('photos');
-    await wait(3600);
+    if (!isPlain) {
+      setLiveMessage('Photos revealing.');
+      setPhase('photos');
+      await wait(3600);
+    }
 
     setPhase('revealed');
     await wait(650);
 
     setPhase('cta');
     setLiveMessage('Invitation ready.');
-  }, [reduceMotion]);
+  }, [isPlain, reduceMotion]);
 
   const handleSealClick = useCallback(
     (e: React.MouseEvent | React.KeyboardEvent) => {
@@ -412,11 +423,10 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   const buttonRevealVariants: Variants = {
-    hidden: { opacity: 0, y: 28, x: '-50%', scale: 0.92, filter: 'blur(6px)' },
+    hidden: { opacity: 0, y: 28, scale: 0.92, filter: 'blur(6px)' },
     visible: {
       opacity: 1,
       y: 0,
-      x: '-50%',
       scale: 1,
       filter: 'blur(0px)',
       transition: buttonEntryEase,
@@ -424,7 +434,6 @@ export const Hero: React.FC<HeroProps> = ({
     exit: {
       opacity: 0,
       y: 18,
-      x: '-50%',
       scale: 1.06,
       filter: 'blur(8px)',
       transition: { duration: 0.32, ease: [0.4, 0, 1, 1] },
@@ -473,7 +482,7 @@ export const Hero: React.FC<HeroProps> = ({
 
   return (
     <motion.div
-      className={`env-invite-screen ${visible ? '' : 'is-hidden'}`}
+      className={`env-invite-screen${isPlain ? ' env-invite-screen--plain' : ''} ${visible ? '' : 'is-hidden'}`}
       data-phase={isExiting ? 'exiting' : phase}
       aria-hidden={!visible}
       initial={false}
@@ -493,12 +502,41 @@ export const Hero: React.FC<HeroProps> = ({
       }
       style={{
         pointerEvents: !visible || isExiting ? 'none' : undefined,
-      }}
+        ...(isPlain && {
+          '--env-plain-bg': plainTheme.background,
+          '--env-plain-ink': plainTheme.text,
+          '--env-plain-accent': plainTheme.accent,
+        }),
+      } as React.CSSProperties}
     >
-      <div className="invite-photo-backdrop-wrap invite-photo-backdrop-wrap--envelope" aria-hidden="true">
-        <InvitePhotoBackdrop className="invite-photo-backdrop--envelope" />
-      </div>
-      <div className="env-invite-readability-scrim" aria-hidden="true" />
+      {showPhotoBackdrop && (
+        <div className="invite-photo-backdrop-wrap invite-photo-backdrop-wrap--envelope" aria-hidden="true">
+          <InvitePhotoBackdrop className="invite-photo-backdrop--envelope" photos={backgroundPhotos} />
+        </div>
+      )}
+
+      {isPlain && (
+        <>
+          <PlainAtmosphere fixed baseColor={plainTheme.background} />
+          <div className="env-invite-plain-corners" aria-hidden="true">
+            {(
+              [
+                { src: cornerDecos.topLeft, className: 'left-0 top-0' },
+                { src: cornerDecos.topRight, className: 'right-0 top-0' },
+                { src: cornerDecos.bottomLeft, className: 'left-0 bottom-0' },
+                { src: cornerDecos.bottomRight, className: 'right-0 bottom-0' },
+              ] as const
+            ).map(({ src, className }) => (
+              <div key={src} className={`pointer-events-none absolute ${className}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" className="env-invite-plain-corner-img" />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {!isPlain && <div className="env-invite-readability-scrim" aria-hidden="true" />}
 
       {!reduceMotion && (
         <div className="env-invite-particles pointer-events-none" aria-hidden="true">
@@ -639,110 +677,72 @@ export const Hero: React.FC<HeroProps> = ({
                   >
                     <div className="env-invite-letter-frame" aria-hidden="true" />
                     <div className="env-invite-letter-inner">
-                      <span className="env-invite-letter-label">Save the Date</span>
+                      <span className="env-invite-letter-label">{content.headline}</span>
                       <span className="env-invite-letter-date">{letterDateNumeric}</span>
-                      <span className="env-invite-letter-invited">You are Invited</span>
+                      <span className="env-invite-letter-invited">{content.eyebrow}</span>
                       <div
-                        className="env-invite-letter-names"
+                        className="env-invite-letter-names couple-name-lockup"
                         role="img"
                         aria-label={coupleNames}
                         style={{
-                          maskImage: `url(${COUPLE_NAME_IMAGE})`,
-                          WebkitMaskImage: `url(${COUPLE_NAME_IMAGE})`,
+                          maskImage: `url("${content.coupleNameImage}")`,
+                          WebkitMaskImage: `url("${content.coupleNameImage}")`,
                         }}
                       />
                     </div>
                   </motion.div>
 
+                  {!isPlain && (
                   <div className="env-invite-photos-emerge">
-                    {isMobileViewport ? (
-                      <>
-                        <PolaroidPhoto
-                          side="left"
-                          src={MOBILE_ENVELOPE_PHOTOS[0].src}
-                          alt={`${groomName} portrait`}
-                          variants={mobileEnvelopePhotoLeftVariants}
-                          photoState={photoState}
-                          liftedPhoto={liftedPhoto}
-                          onToggle={toggleLiftedPhoto}
-                          interactive={photosInteractive}
-                          emergenceDelay={0.55}
-                          reduceMotion={reduceMotion}
-                          isExiting={isExiting}
-                          envelopePair
-                        />
-                        <PolaroidPhoto
-                          side="right"
-                          src={MOBILE_ENVELOPE_PHOTOS[1].src}
-                          alt={`${brideName} portrait`}
-                          variants={mobileEnvelopePhotoRightVariants}
-                          photoState={photoState}
-                          liftedPhoto={liftedPhoto}
-                          onToggle={toggleLiftedPhoto}
-                          interactive={photosInteractive}
-                          emergenceDelay={1.0}
-                          reduceMotion={reduceMotion}
-                          isExiting={isExiting}
-                          envelopePair
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <PolaroidPhoto
-                          side="left"
-                          src={DESKTOP_POLAROID_PHOTOS[0].src}
-                          alt={coupleNames}
-                          variants={photoLeftVariants}
-                          photoState={photoState}
-                          liftedPhoto={liftedPhoto}
-                          onToggle={toggleLiftedPhoto}
-                          interactive={photosInteractive}
-                          emergenceDelay={0.55}
-                          reduceMotion={reduceMotion}
-                          isExiting={isExiting}
-                        />
-                        <PolaroidPhoto
-                          side="center"
-                          src={DESKTOP_POLAROID_PHOTOS[1].src}
-                          alt={coupleNames}
-                          variants={photoCenterVariants}
-                          photoState={photoState}
-                          liftedPhoto={liftedPhoto}
-                          onToggle={toggleLiftedPhoto}
-                          interactive={photosInteractive}
-                          emergenceDelay={1.0}
-                          reduceMotion={reduceMotion}
-                          isExiting={isExiting}
-                        />
-                        <PolaroidPhoto
-                          side="right"
-                          src={DESKTOP_POLAROID_PHOTOS[2].src}
-                          alt={coupleNames}
-                          variants={photoRightVariants}
-                          photoState={photoState}
-                          liftedPhoto={liftedPhoto}
-                          onToggle={toggleLiftedPhoto}
-                          interactive={photosInteractive}
-                          emergenceDelay={1.45}
-                          reduceMotion={reduceMotion}
-                          isExiting={isExiting}
-                        />
-                        <PolaroidPhoto
-                          side="right-inner"
-                          src={DESKTOP_POLAROID_PHOTOS[3].src}
-                          alt={coupleNames}
-                          variants={photoRightInnerVariants}
-                          photoState={photoState}
-                          liftedPhoto={liftedPhoto}
-                          onToggle={toggleLiftedPhoto}
-                          interactive={photosInteractive}
-                          emergenceDelay={1.7}
-                          reduceMotion={reduceMotion}
-                          isExiting={isExiting}
-                        />
-                      </>
-                    )}
+                    {isMobileViewport
+                      ? envelopePolaroids.mobile.map((photo, index) => (
+                          <PolaroidPhoto
+                            key={`mobile-${photo.side}-${photo.src}`}
+                            side={photo.side}
+                            src={photo.src}
+                            alt={photo.side === 'left' ? `${groomName} portrait` : `${brideName} portrait`}
+                            variants={
+                              photo.side === 'left'
+                                ? mobileEnvelopePhotoLeftVariants
+                                : mobileEnvelopePhotoRightVariants
+                            }
+                            photoState={photoState}
+                            liftedPhoto={liftedPhoto}
+                            onToggle={toggleLiftedPhoto}
+                            interactive={photosInteractive}
+                            emergenceDelay={index === 0 ? 0.55 : 1.0}
+                            reduceMotion={reduceMotion}
+                            isExiting={isExiting}
+                            envelopePair
+                          />
+                        ))
+                      : envelopePolaroids.desktop.map((photo, index) => {
+                          const delays = [0.55, 1.0, 1.45, 1.7] as const;
+                          const variantsBySide: Record<PhotoSide, Variants> = {
+                            left: photoLeftVariants,
+                            center: photoCenterVariants,
+                            right: photoRightVariants,
+                            'right-inner': photoRightInnerVariants,
+                          };
+                          return (
+                            <PolaroidPhoto
+                              key={`desktop-${photo.side}-${photo.src}`}
+                              side={photo.side}
+                              src={photo.src}
+                              alt={coupleNames}
+                              variants={variantsBySide[photo.side]}
+                              photoState={photoState}
+                              liftedPhoto={liftedPhoto}
+                              onToggle={toggleLiftedPhoto}
+                              interactive={photosInteractive}
+                              emergenceDelay={delays[index] ?? 1.7}
+                              reduceMotion={reduceMotion}
+                              isExiting={isExiting}
+                            />
+                          );
+                        })}
                   </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -798,7 +798,7 @@ export const Hero: React.FC<HeroProps> = ({
                 aria-label="Break the wax seal to open the invitation"
               >
                 <Image
-                  src={SEAL_IMAGE}
+                  src={content.sealImage ?? defaultSiteConfig.loadingScreen.sealImage}
                   alt=""
                   fill
                   priority
@@ -836,67 +836,65 @@ export const Hero: React.FC<HeroProps> = ({
           </div>
         </motion.div>
 
-          <p className="env-invite-hint">
-            Tap the Seal to Open
-          </p>
+          <p className="env-invite-hint">{content.hintText}</p>
 
           </motion.div>
         </div>
       </div>
 
-      <motion.div
-        className="env-invite-reveal-copy"
-        variants={revealCopyContainerVariants}
-        initial="hidden"
-        animate={
-          isExiting
-            ? 'exit'
-            : phase === 'revealed' || phase === 'cta'
-              ? 'visible'
-              : 'hidden'
-        }
-      >
-        {daysToGoLabel && (
-          <motion.p
-            className="env-invite-days-to-go"
-            variants={revealCopyItemVariants}
-          >
-            {daysToGoLabel}
-          </motion.p>
-        )}
-        <motion.h2 variants={revealCopyItemVariants}>
-          We can't wait to celebrate with you!
-        </motion.h2>
-      </motion.div>
+      <div className="env-invite-cta-bar" aria-live="off">
+        <motion.div
+          className="env-invite-reveal-copy"
+          variants={revealCopyContainerVariants}
+          initial="hidden"
+          animate={
+            isExiting
+              ? 'exit'
+              : phase === 'revealed' || phase === 'cta'
+                ? 'visible'
+                : 'hidden'
+          }
+        >
+          {countdownText && (
+            <motion.p
+              className="env-invite-days-to-go"
+              variants={revealCopyItemVariants}
+            >
+              {countdownText}
+            </motion.p>
+          )}
+          <motion.h2 variants={revealCopyItemVariants}>{content.message}</motion.h2>
+        </motion.div>
 
-      <motion.button
-        ref={enterBtnRef}
-        type="button"
-        className="env-invite-enter-btn"
-        variants={buttonRevealVariants}
-        initial="hidden"
-        animate={
-          isExiting
-            ? 'exit'
-            : phase === 'cta'
-              ? 'visible'
-              : 'hidden'
-        }
-        whileHover={
-          phase === 'cta' && !isExiting && !reduceMotion
-            ? { y: -2, x: '-50%', scale: 1.02 }
-            : undefined
-        }
-        whileTap={
-          phase === 'cta' && !isExiting && !reduceMotion
-            ? { y: 0, x: '-50%', scale: 0.98 }
-            : undefined
-        }
-        onClick={handleEnterInvitation}
-        disabled={phase !== 'cta' || isExiting}
-      >
-        View the Invitation
-      </motion.button>
+        <motion.button
+          ref={enterBtnRef}
+          type="button"
+          className="env-invite-enter-btn"
+          variants={buttonRevealVariants}
+          initial="hidden"
+          animate={
+            isExiting
+              ? 'exit'
+              : phase === 'cta'
+                ? 'visible'
+                : 'hidden'
+          }
+          whileHover={
+            phase === 'cta' && !isExiting && !reduceMotion
+              ? { y: -2, scale: 1.02 }
+              : undefined
+          }
+          whileTap={
+            phase === 'cta' && !isExiting && !reduceMotion
+              ? { y: 0, scale: 0.98 }
+              : undefined
+          }
+          onClick={handleEnterInvitation}
+          disabled={phase !== 'cta' || isExiting}
+        >
+          {content.enterButtonText}
+        </motion.button>
+      </div>
     </motion.div>
   );
 };

@@ -20,19 +20,19 @@ export function Footer() {
     >
       <div className="pointer-events-none absolute left-0 top-0 z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/deco/left-top-deco.png" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
+        <img src="/deco/left-top-deco.webp" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
       </div>
       <div className="pointer-events-none absolute right-0 top-0 z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/deco/right-top-deco.png" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
+        <img src="/deco/right-top-deco.webp" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
       </div>
       <div className="pointer-events-none absolute bottom-0 left-0 z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/deco/left-bottom-deco.png" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
+        <img src="/deco/left-bottom-deco.webp" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
       </div>
       <div className="pointer-events-none absolute bottom-0 right-0 z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/deco/right-bottom-deco.png" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
+        <img src="/deco/right-bottom-deco.webp" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
       </div>
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="text-center mb-8 sm:mb-10">

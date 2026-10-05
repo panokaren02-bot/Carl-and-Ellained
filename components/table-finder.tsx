@@ -36,15 +36,15 @@ const aboveTheBeyond = localFont({
   variable: "--font-above-beyond",
 })
 
-const IVORY = "#fffaf4"
+const IVORY = "var(--color-motif-soft)"
 const GOLD = "var(--color-welcome-gold)"
 const NAVY = "var(--color-welcome-navy)"
 const SCRIPT = "var(--color-welcome-green)"
 const BODY = "var(--color-welcome-text)"
-const NAV_GOLD = "linear-gradient(180deg, #E8D5A3 0%, #CDB072 52%, #C4A265 100%)"
+const NAV_GOLD = "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)"
 const GOLD_BORDER = "color-mix(in srgb, var(--color-welcome-gold) 38%, transparent)"
 const GOLD_BORDER_SOFT = "color-mix(in srgb, var(--color-welcome-gold) 22%, transparent)"
-const CHAMPAGNE = "#E8D5A3"
+const CHAMPAGNE = "var(--color-motif-silver)"
 
 const goldDividerStyle = {
   background: "linear-gradient(to right, transparent, var(--color-welcome-gold), transparent)",
@@ -60,7 +60,7 @@ const cardStyle = {
   borderWidth: "1px",
   borderStyle: "solid" as const,
   boxShadow:
-    "0 10px 28px color-mix(in srgb, var(--color-welcome-gold) 12%, transparent), inset 0 1px 0 rgb(255 250 244 / 70%)",
+    "0 10px 28px color-mix(in srgb, var(--color-welcome-gold) 12%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
 } as const
 
 const innerSurfaceStyle = {
@@ -267,16 +267,16 @@ function RsvpBadge({ status, compact = false }: { status: RsvpStatus; compact?: 
           : "px-2 py-0.5 text-[0.55rem] sm:px-2.5 sm:text-[0.625rem]"
       }`}
       style={{
-        color: isConfirmed ? "#3f5a32" : isDeclined ? "#9b3d3d" : BODY,
+        color: isConfirmed ? "var(--color-welcome-navy)" : isDeclined ? "var(--color-welcome-text-soft)" : BODY,
         borderColor: isConfirmed
-          ? "color-mix(in srgb, #5d6f47 35%, transparent)"
+          ? "color-mix(in srgb, var(--color-motif-deep) 35%, transparent)"
           : isDeclined
-            ? "color-mix(in srgb, #9b3d3d 35%, transparent)"
+            ? "color-mix(in srgb, var(--color-motif-blush) 35%, transparent)"
             : GOLD_BORDER,
         backgroundColor: isConfirmed
-          ? "color-mix(in srgb, #5d6f47 12%, white)"
+          ? "color-mix(in srgb, var(--color-motif-deep) 12%, white)"
           : isDeclined
-            ? "color-mix(in srgb, #9b3d3d 8%, white)"
+            ? "color-mix(in srgb, var(--color-motif-blush) 8%, white)"
             : `color-mix(in srgb, ${IVORY} 82%, ${CHAMPAGNE})`,
       }}
     >
@@ -374,6 +374,7 @@ const howItWorks = [
 
 export function TableFinder() {
   const siteConfig = useSiteConfig()
+  const tfDecos = siteConfig.tableFinder.decos
   const groomName = siteConfig.couple.groomNickname || siteConfig.couple.groom
   const brideName = siteConfig.couple.brideNickname || siteConfig.couple.bride
 
@@ -463,19 +464,19 @@ export function TableFinder() {
     >
       <div className="pointer-events-none absolute left-0 top-0 z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/decoration/left-top-corner.png" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
+        {tfDecos.topLeft ? <img src={tfDecos.topLeft} alt="" aria-hidden="true" className={CORNER_DECO_CLASS} /> : null}
       </div>
       <div className="pointer-events-none absolute right-0 top-0 z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/decoration/right-top-corner.png" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
+        {tfDecos.topRight ? <img src={tfDecos.topRight} alt="" aria-hidden="true" className={CORNER_DECO_CLASS} /> : null}
       </div>
       <div className="pointer-events-none absolute bottom-0 left-0 z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/decoration/left-bottom-corner.png" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
+        {tfDecos.bottomLeft ? <img src={tfDecos.bottomLeft} alt="" aria-hidden="true" className={CORNER_DECO_CLASS} /> : null}
       </div>
       <div className="pointer-events-none absolute bottom-0 right-0 z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/decoration/right-bottom-corner.png" alt="" aria-hidden="true" className={CORNER_DECO_CLASS} />
+        {tfDecos.bottomRight ? <img src={tfDecos.bottomRight} alt="" aria-hidden="true" className={CORNER_DECO_CLASS} /> : null}
       </div>
 
       <section className="relative z-20 mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-14 md:px-8">
@@ -799,7 +800,7 @@ export function TableFinder() {
             </div>
           ) : error ? (
             <div className="mx-auto max-w-md rounded-2xl border p-5 text-center" style={cardStyle}>
-              <AlertCircle className="mx-auto mb-2 h-5 w-5" style={{ color: "#9b3d3d" }} />
+              <AlertCircle className="mx-auto mb-2 h-5 w-5" style={{ color: "var(--color-welcome-text-soft)" }} />
               <p className={`font-goudy-italic ${sectionType.text}`} style={{ color: BODY }}>
                 {error}
               </p>
@@ -832,7 +833,7 @@ export function TableFinder() {
                       ...cardStyle,
                       borderColor: isSelectedTable ? "var(--color-welcome-gold)" : GOLD_BORDER,
                       boxShadow: isSelectedTable
-                        ? "0 12px 36px color-mix(in srgb, var(--color-welcome-gold) 28%, transparent), inset 0 1px 0 rgb(255 250 244 / 70%)"
+                        ? "0 12px 36px color-mix(in srgb, var(--color-welcome-gold) 28%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)"
                         : cardStyle.boxShadow,
                     }}
                   >

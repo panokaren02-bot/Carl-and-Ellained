@@ -1,26 +1,29 @@
-/* ── Design tokens ── */
+/* ── Design tokens — app/globals.css motif + welcome (Sage Green Botanical) ── */
 .env-invite-screen {
-  /* Envelope — warm ivory linen paper */
-  --env-envelope: #EFE4D4;
-  --env-base: #E6D8C4;
-  --env-highlight: #F8F3EA;
-  --env-shadow: #D4C4AA;
-  --env-fold: #C9B89A;
+  --env-shadow-tint: var(--color-welcome-navy);
+  --env-type-light: var(--color-motif-soft);
 
-  /* UI + surfaces — linen garden palette */
+  /* Envelope — ivory + sage paper */
+  --env-envelope: color-mix(in srgb, var(--color-motif-cream) 88%, white);
+  --env-base: var(--color-motif-cream);
+  --env-highlight: var(--color-motif-soft);
+  --env-shadow: color-mix(in srgb, var(--color-motif-medium) 55%, var(--color-motif-cream));
+  --env-fold: var(--color-motif-medium);
+
+  /* UI + surfaces */
   --env-ui-brand: var(--color-motif-deep);
   --env-ui-accent: var(--color-motif-accent);
   --env-text: var(--color-welcome-text);
   --env-text-soft: var(--color-welcome-text-soft);
-  --env-wax: #C4A265;
-  --env-seal-light: #E8D5A8;
-  --env-seal-gold: #C4A265;
-  --env-seal-mid: #B49A68;
-  --env-seal-deep: #9A7E4A;
-  --env-seal-shadow: #7A6340;
-  --env-paper: #F7F2E8;
-  --env-gold: #B49A68;
-  --env-ivory: #EDE6D8;
+  --env-wax: var(--color-welcome-gold);
+  --env-seal-light: var(--color-motif-silver);
+  --env-seal-gold: var(--color-welcome-gold);
+  --env-seal-mid: var(--color-motif-accent);
+  --env-seal-deep: var(--color-motif-deep);
+  --env-seal-shadow: var(--color-welcome-navy);
+  --env-paper: var(--color-welcome-bg);
+  --env-gold: var(--color-welcome-gold);
+  --env-ivory: var(--color-welcome-bg-soft);
   --env-blush: var(--color-motif-blush);
   --env-border: color-mix(in srgb, var(--env-fold) 48%, transparent);
   --env-border-soft: color-mix(in srgb, var(--env-seal-deep) 22%, transparent);
@@ -243,6 +246,7 @@
   transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.55s;
 }
 
+.env-invite-screen[data-phase="exiting"] .env-invite-cta-bar,
 .env-invite-screen[data-phase="exiting"] .env-invite-reveal-copy,
 .env-invite-screen[data-phase="exiting"] .env-invite-enter-btn,
 .env-invite-screen[data-phase="exiting"] .env-invite-hint {
@@ -730,17 +734,30 @@
   aspect-ratio: 2161 / 728;
   margin: 0.35em 1.2rem 0.55em;
   flex-shrink: 0;
-  background-color: var(--env-gold);
+  background: linear-gradient(
+    118deg,
+    var(--couple-name-fill, var(--color-welcome-navy)) 0%,
+    var(--couple-name-fill-mid, var(--color-motif-deep)) 48%,
+    var(--couple-name-fill-accent, var(--color-welcome-heading)) 100%
+  );
   pointer-events: none;
   user-select: none;
-  -webkit-mask-image: url("/Details/CoupleName.png");
-  mask-image: url("/Details/CoupleName.png");
   -webkit-mask-size: contain;
   mask-size: contain;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
+}
+
+/* Photos envelope — sage-gold on letter paper */
+.env-invite-screen:not(.env-invite-screen--plain) .env-invite-letter-names {
+  background: linear-gradient(
+    118deg,
+    color-mix(in srgb, var(--env-gold) 88%, var(--color-welcome-navy)) 0%,
+    var(--env-gold) 55%,
+    color-mix(in srgb, var(--env-gold) 75%, var(--color-motif-deep)) 100%
+  );
 }
 
 .env-invite-letter-name {
@@ -1317,21 +1334,28 @@
   flex-shrink: 0;
   display: block;
   width: 100%;
-  margin: 1.15rem 0 0;
+  margin: 1.85rem 0 0;
+  padding: 0;
   text-align: center;
   font-family: "Cinzel", serif;
-  font-size: clamp(0.62rem, 2.2vw, 0.8rem);
-  font-weight: 500;
-  letter-spacing: 0.18em;
+  font-size: clamp(0.68rem, 2.45vw, 0.84rem);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--env-gold);
-  text-shadow: 0 1px 8px rgb(42 34 28 / 55%);
+  color: var(--env-text);
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--env-shadow-tint) 40%, transparent);
   transition:
     opacity 0.35s ease,
     max-height 0.35s ease,
-    margin 0.35s ease;
-  max-height: 2.25rem;
+    margin 0.35s ease,
+    transform 0.35s ease;
+  max-height: 2.5rem;
   overflow: hidden;
+}
+
+.env-invite-screen[data-phase="idle"] .env-invite-hint {
+  transform: translateY(0.35rem);
 }
 
 .env-invite-days-to-go {
@@ -1347,7 +1371,7 @@
   line-height: 1.4;
   text-transform: uppercase;
   color: var(--env-gold);
-  text-shadow: 0 1px 8px rgb(42 34 28 / 55%);
+  text-shadow: 0 1px 8px color-mix(in srgb, var(--env-shadow-tint) 55%, transparent);
   pointer-events: none;
 }
 
@@ -1362,9 +1386,55 @@
   visibility: hidden;
   max-height: 0;
   margin: 0;
+  padding: 0;
+  transform: none;
 }
 
-/* ── Reveal + CTA — absolute so hidden state never adds page height ── */
+/* ── Bottom CTA dock — centered copy + button ── */
+.env-invite-cta-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(0.65rem, 2dvh, 0.9rem);
+  padding:
+    0
+    clamp(1rem, 4vw, 1.5rem)
+    calc(clamp(1.35rem, 5dvh, 2.25rem) + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+
+.env-invite-screen[data-phase="revealed"] .env-invite-cta-bar,
+.env-invite-screen[data-phase="cta"] .env-invite-cta-bar {
+  pointer-events: auto;
+}
+
+.env-invite-cta-bar .env-invite-reveal-copy {
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  width: min(420px, 92vw);
+  margin: 0;
+  padding: 0 0.25rem;
+}
+
+.env-invite-cta-bar .env-invite-enter-btn {
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  width: max-content;
+  max-width: min(92vw, 22rem);
+  margin: 0 auto;
+}
+
+/* ── Reveal copy (legacy absolute coords when outside cta bar) ── */
 .env-invite-reveal-copy {
   position: absolute;
   left: 50%;
@@ -1393,7 +1463,7 @@
   line-height: 1.75;
   color: var(--env-gold);
   font-weight: 500;
-  text-shadow: 0 1px 8px rgb(42 34 28 / 55%);
+  text-shadow: 0 1px 8px color-mix(in srgb, var(--env-shadow-tint) 55%, transparent);
 }
 
 .env-invite-reveal-copy p {
@@ -1517,6 +1587,11 @@
     margin-bottom: 0.35rem;
   }
 
+  .env-invite-cta-bar {
+    padding-bottom: calc(clamp(1.1rem, 4dvh, 1.75rem) + env(safe-area-inset-bottom, 0px));
+    gap: 0.55rem;
+  }
+
   .env-invite-reveal-copy {
     padding: 0 0.75rem;
     bottom: calc(clamp(4.75rem, 11dvh, 6.25rem) + env(safe-area-inset-bottom, 0px));
@@ -1537,8 +1612,7 @@
     margin-top: 0.55rem;
   }
 
-  .env-invite-enter-btn {
-    bottom: calc(clamp(1rem, 3dvh, 1.65rem) + env(safe-area-inset-bottom, 0px));
+  .env-invite-cta-bar .env-invite-enter-btn {
     padding: 0.62rem 1.35rem;
     min-height: 2.875rem;
     font-size: max(0.68rem, 2.65vw);
@@ -1565,8 +1639,11 @@
     margin-top: 0.35rem;
   }
 
-  .env-invite-enter-btn {
-    bottom: calc(clamp(0.75rem, 2.5dvh, 1.25rem) + env(safe-area-inset-bottom, 0px));
+  .env-invite-cta-bar {
+    padding-bottom: calc(clamp(0.85rem, 3.5dvh, 1.35rem) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .env-invite-cta-bar .env-invite-enter-btn {
     padding: 0.58rem 1.15rem;
     min-height: 2.75rem;
     font-size: max(0.64rem, 2.5vw);
@@ -1585,11 +1662,11 @@
     display: block;
     background: linear-gradient(
       180deg,
-      rgb(42 34 28 / 52%) 0%,
-      rgb(42 34 28 / 22%) 18%,
-      rgb(42 34 28 / 8%) 42%,
-      rgb(42 34 28 / 20%) 68%,
-      rgb(42 34 28 / 58%) 100%
+      color-mix(in srgb, var(--env-shadow-tint) 52%, transparent) 0%,
+      color-mix(in srgb, var(--env-shadow-tint) 22%, transparent) 18%,
+      color-mix(in srgb, var(--env-shadow-tint) 8%, transparent) 42%,
+      color-mix(in srgb, var(--env-shadow-tint) 20%, transparent) 68%,
+      color-mix(in srgb, var(--env-shadow-tint) 58%, transparent) 100%
     );
   }
 
@@ -1597,28 +1674,34 @@
     display: none;
   }
 
-  .env-invite-hint,
+  .env-invite-hint {
+    color: var(--env-type-light);
+    text-shadow:
+      0 1px 2px color-mix(in srgb, var(--env-shadow-tint) 55%, transparent),
+      0 4px 14px color-mix(in srgb, var(--env-shadow-tint) 35%, transparent);
+  }
+
   .env-invite-days-to-go,
   .env-invite-reveal-copy h2,
   .env-invite-reveal-copy p,
   .env-invite-reveal-copy .script {
-    color: #fffaf4;
+    color: var(--env-type-light);
     text-shadow:
-      0 1px 2px rgb(42 34 28 / 55%),
-      0 8px 20px rgb(42 34 28 / 40%);
+      0 1px 2px color-mix(in srgb, var(--env-shadow-tint) 55%, transparent),
+      0 8px 20px color-mix(in srgb, var(--env-shadow-tint) 40%, transparent);
   }
 
   .env-invite-enter-btn {
-    color: #fffaf4;
-    background: color-mix(in srgb, var(--env-gold) 82%, #5c4724);
+    color: var(--env-type-light);
+    background: color-mix(in srgb, var(--env-gold) 82%, var(--color-welcome-navy));
     border-color: color-mix(in srgb, var(--env-gold) 55%, white);
-    text-shadow: 0 1px 8px rgb(42 34 28 / 35%);
-    box-shadow: 0 10px 24px rgb(42 34 28 / 38%);
+    text-shadow: 0 1px 8px color-mix(in srgb, var(--env-shadow-tint) 35%, transparent);
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--env-shadow-tint) 38%, transparent);
   }
 
   .env-invite-enter-btn:hover {
-    color: #fffaf4;
-    background: color-mix(in srgb, var(--env-gold) 70%, #5c4724);
+    color: var(--env-type-light);
+    background: color-mix(in srgb, var(--env-gold) 70%, var(--color-welcome-navy));
   }
 
   .env-invite-screen[data-phase="exiting"]::before {
@@ -1847,10 +1930,17 @@
 
   .env-invite-hint {
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: max(1.15rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)));
+    left: 50%;
+    right: auto;
+    bottom: max(0.85rem, calc(0.55rem + env(safe-area-inset-bottom, 0px)));
+    width: max-content;
+    max-width: min(92vw, 22rem);
     margin: 0;
+    transform: translateX(-50%) translateY(0.35rem);
+  }
+
+  .env-invite-screen[data-phase="idle"] .env-invite-hint {
+    transform: translateX(-50%) translateY(0.35rem);
   }
 
   .env-invite-days-to-go,
@@ -2153,5 +2243,295 @@
   .env-invite-interior,
   .env-invite-contents-clip {
     transition: none !important;
+  }
+}
+
+/* Plain display — matches loadingScreen.display = "plain" */
+.env-invite-screen--plain {
+  --env-plain-bg: var(--color-welcome-bg);
+  --env-plain-ink: var(--color-welcome-text);
+  --env-plain-accent: var(--color-welcome-gold);
+  --env-letter-w: clamp(228px, calc(var(--env-width) * 0.58), 360px);
+  --env-letter-h: clamp(268px, calc(var(--env-width) * 0.66), 420px);
+  background: transparent;
+}
+
+.env-invite-screen--plain .invite-plain-atmosphere {
+  z-index: 0;
+}
+
+.env-invite-screen--plain::before,
+.env-invite-screen--plain .env-invite-bg-glow,
+.env-invite-screen--plain .env-invite-particles {
+  display: none;
+}
+
+.env-invite-screen--plain .env-invite-plain-corners {
+  z-index: 2;
+}
+
+.env-invite-screen--plain .env-invite-stage {
+  position: relative;
+  z-index: 3;
+}
+
+.env-invite-screen--plain .env-invite-cta-bar {
+  z-index: 5;
+}
+
+.env-invite-screen--plain .env-invite-hint,
+.env-invite-screen--plain .env-invite-live,
+.env-invite-screen--plain .env-invite-ghost-date {
+  position: relative;
+  z-index: 3;
+}
+
+.env-invite-screen--plain .env-invite-emerge-stack {
+  width: var(--env-letter-w);
+}
+
+.env-invite-screen--plain .env-invite-photos-emerge {
+  display: none;
+}
+
+/* Plain invitation card — wider paper, refined frame */
+.env-invite-screen--plain .env-invite-letter {
+  background: linear-gradient(
+    165deg,
+    var(--color-motif-soft) 0%,
+    var(--env-paper) 42%,
+    color-mix(in srgb, var(--env-paper) 92%, var(--color-motif-silver)) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--env-plain-accent) 42%, transparent);
+  box-shadow:
+    0 18px 42px color-mix(in srgb, var(--env-shadow-tint) 14%, transparent),
+    0 6px 16px color-mix(in srgb, var(--env-shadow-tint) 8%, transparent),
+    inset 0 1px 0 color-mix(in srgb, white 72%, transparent),
+    inset 0 -20px 28px color-mix(in srgb, var(--env-plain-accent) 5%, transparent);
+}
+
+.env-invite-screen--plain .env-invite-letter-frame {
+  inset:
+    clamp(8px, calc(var(--env-letter-w) * 0.045), 12px)
+    clamp(8px, calc(var(--env-letter-w) * 0.045), 12px)
+    clamp(16px, calc(var(--env-letter-w) * 0.07), 22px)
+    clamp(8px, calc(var(--env-letter-w) * 0.045), 12px);
+  border-color: color-mix(in srgb, var(--env-plain-accent) 38%, transparent);
+}
+
+.env-invite-screen--plain .env-invite-letter-frame::after {
+  border-color: color-mix(in srgb, var(--env-plain-accent) 22%, transparent);
+}
+
+.env-invite-screen--plain .env-invite-letter-inner {
+  gap: 0.48em;
+  padding:
+    clamp(0.65rem, calc(var(--env-letter-w) * 0.06), 1.1rem)
+    clamp(0.55rem, calc(var(--env-letter-w) * 0.05), 1rem)
+    clamp(1rem, calc(var(--env-letter-w) * 0.09), 1.45rem);
+}
+
+.env-invite-screen--plain .env-invite-letter-label {
+  margin-top: 0.65em;
+  color: color-mix(in srgb, var(--env-plain-accent) 88%, var(--env-plain-ink));
+  letter-spacing: 0.2em;
+}
+
+.env-invite-screen--plain .env-invite-letter-date {
+  color: var(--env-plain-ink);
+}
+
+.env-invite-screen--plain .env-invite-letter-invited {
+  color: color-mix(in srgb, var(--env-plain-ink) 88%, var(--env-ui-accent));
+}
+
+.env-invite-screen--plain .env-invite-letter-names {
+  width: calc(100% - 0.5rem);
+  min-height: clamp(2.75rem, calc(var(--env-letter-w) * 0.24), 4.25rem);
+  margin: 0.2em 0 0.35em;
+  background: linear-gradient(
+    118deg,
+    var(--couple-name-fill, var(--color-welcome-navy)) 0%,
+    var(--couple-name-fill-mid, var(--color-motif-deep)) 46%,
+    var(--couple-name-fill-accent, var(--color-welcome-heading)) 100%
+  );
+  filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--env-shadow-tint) 10%, transparent));
+}
+
+.env-invite-screen--plain .env-invite-readability-scrim {
+  display: none;
+}
+
+.env-invite-screen--plain .env-invite-plain-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.env-invite-screen--plain .env-invite-plain-bg-image {
+  object-fit: contain;
+  object-position: center 72%;
+  opacity: 0.38;
+  transform: scale(1.02);
+  filter: saturate(0.92);
+}
+
+.env-invite-screen--plain .env-invite-plain-bg-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      var(--env-plain-bg) 0%,
+      color-mix(in srgb, var(--env-plain-bg) 55%, transparent) 18%,
+      transparent 42%,
+      color-mix(in srgb, var(--env-plain-bg) 45%, transparent) 62%,
+      var(--env-plain-bg) 100%
+    ),
+    radial-gradient(
+      ellipse 88% 72% at 50% 48%,
+      color-mix(in srgb, var(--env-plain-bg) 62%, transparent),
+      var(--env-plain-bg) 76%
+    );
+}
+
+.env-invite-screen--plain .env-invite-plain-corners {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.env-invite-screen--plain .env-invite-plain-corner-img {
+  display: block;
+  height: auto;
+  width: auto;
+  max-width: min(42vw, 165px);
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .env-invite-screen--plain .env-invite-plain-corner-img {
+    max-width: 245px;
+  }
+}
+
+@media (min-width: 768px) {
+  .env-invite-screen--plain {
+    --env-letter-w: clamp(260px, calc(var(--env-width) * 0.54), 380px);
+    --env-letter-h: clamp(300px, calc(var(--env-width) * 0.62), 440px);
+  }
+
+  .env-invite-screen--plain .env-invite-emerge-stack .env-invite-letter,
+  .env-invite-screen--plain[data-phase="rising"] .env-invite-emerge-stack .env-invite-letter,
+  .env-invite-screen--plain[data-phase="revealed"] .env-invite-emerge-stack .env-invite-letter,
+  .env-invite-screen--plain[data-phase="cta"] .env-invite-emerge-stack .env-invite-letter {
+    top: -28%;
+  }
+
+  .env-invite-screen--plain .env-invite-plain-corner-img {
+    max-width: 320px;
+  }
+
+  .env-invite-screen--plain::before {
+    display: block;
+    background:
+      radial-gradient(
+        920px 620px at 50% 18%,
+        color-mix(in srgb, var(--env-plain-accent) 14%, transparent) 0,
+        transparent 58%
+      ),
+      radial-gradient(
+        560px 400px at 10% 86%,
+        color-mix(in srgb, var(--env-blush) 16%, transparent) 0,
+        transparent 55%
+      );
+  }
+}
+
+@media (max-width: 767px) {
+  .env-invite-screen--plain {
+    --env-letter-w: clamp(240px, calc(var(--env-width) * 0.62), 360px);
+    --env-letter-h: clamp(280px, calc(var(--env-width) * 0.7), 420px);
+    background: var(--env-plain-bg);
+  }
+
+  .env-invite-screen--plain .env-invite-emerge-stack .env-invite-letter,
+  .env-invite-screen--plain[data-phase="rising"] .env-invite-emerge-stack .env-invite-letter,
+  .env-invite-screen--plain[data-phase="revealed"] .env-invite-emerge-stack .env-invite-letter,
+  .env-invite-screen--plain[data-phase="cta"] .env-invite-emerge-stack .env-invite-letter {
+    top: -52%;
+  }
+
+  .env-invite-screen--plain[data-phase="rising"] .env-invite-emerge-stack,
+  .env-invite-screen--plain[data-phase="revealed"] .env-invite-emerge-stack,
+  .env-invite-screen--plain[data-phase="cta"] .env-invite-emerge-stack {
+    bottom: 14%;
+  }
+
+  .env-invite-screen--plain::before {
+    display: block;
+    background:
+      radial-gradient(
+        920px 620px at 50% 12%,
+        color-mix(in srgb, var(--env-plain-accent) 12%, transparent) 0,
+        transparent 55%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--env-plain-bg) 92%, transparent) 0%,
+        color-mix(in srgb, var(--env-plain-bg) 70%, transparent) 100%
+      );
+  }
+
+  .env-invite-screen--plain .env-invite-hint {
+    margin-top: 2.1rem;
+  }
+
+  .env-invite-screen--plain .env-invite-enter-btn {
+    color: var(--env-type-light);
+    background: color-mix(in srgb, var(--env-plain-accent) 82%, var(--color-welcome-navy));
+    border-color: color-mix(in srgb, var(--env-plain-accent) 55%, white);
+    text-shadow: 0 1px 8px color-mix(in srgb, var(--env-shadow-tint) 35%, transparent);
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--env-shadow-tint) 38%, transparent);
+  }
+}
+
+.env-invite-screen--plain .env-invite-hint {
+  color: var(--env-plain-ink);
+  text-shadow: 0 1px 0 color-mix(in srgb, white 60%, transparent);
+}
+
+.env-invite-screen--plain .env-invite-days-to-go,
+.env-invite-screen--plain .env-invite-reveal-copy h2,
+.env-invite-screen--plain .env-invite-reveal-copy p {
+  color: var(--env-plain-ink);
+  text-shadow: 0 1px 0 color-mix(in srgb, white 65%, transparent);
+}
+/* ==========================================================================
+   Darker motif envelope — deep botanical green paper with olive highlights.
+   Scoped to the envelope so the letter inside and the CTA button keep their
+   light colors (they read --env-paper / their own tokens).
+   ========================================================================== */
+.env-invite-envelope {
+  --env-highlight: color-mix(in srgb, var(--color-motif-accent) 85%, var(--color-motif-medium));
+  --env-base: var(--color-motif-deep);
+  --env-fold: color-mix(in srgb, var(--color-motif-deep) 62%, var(--color-welcome-navy));
+  --env-shadow: var(--color-welcome-navy);
+  --env-envelope: color-mix(in srgb, var(--color-motif-deep) 88%, var(--color-motif-accent));
+}
+
+/* Crease lines read better as a soft light hairline on dark paper */
+.env-invite-envelope .env-invite-creases line {
+  stroke: color-mix(in srgb, var(--color-motif-soft) 22%, transparent);
+}
+
+/* Desktop full-bleed envelope: match the screen backing to the dark paper */
+@media (min-width: 768px) {
+  .env-invite-screen:not(.env-invite-screen--plain) {
+    --env-envelope: color-mix(in srgb, var(--color-motif-deep) 88%, var(--color-motif-accent));
   }
 }

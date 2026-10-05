@@ -29,38 +29,37 @@ const aboveTheBeyond = localFont({
   variable: "--font-above-beyond",
 })
 
-const IVORY = "#fffaf4"
-const GOLD = "var(--color-welcome-gold)"
+// Palette lives in globals.css → motif / welcome tokens.
+const PAPER = "var(--color-welcome-bg-soft)"
+const IVORY = "var(--color-motif-soft)"
 const NAVY = "var(--color-welcome-navy)"
 const BODY = "var(--color-welcome-text)"
-const NAV_GOLD =
-  "linear-gradient(180deg, #E8D5A3 0%, #CDB072 52%, #C4A265 100%)"
+const ACCENT = "var(--color-motif-accent)"
+const DEEP_GRADIENT =
+  "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)"
 
 const palette = {
   body: BODY,
   heading: NAVY,
-  label: GOLD,
-  accent: GOLD,
+  label: ACCENT,
+  accent: ACCENT,
 } as const
 
-const goldDividerStyle = {
-  background: "linear-gradient(to right, transparent, var(--color-welcome-gold), transparent)",
+const lightLineStyle = {
+  background: "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-motif-soft) 75%, transparent), transparent)",
 } as const
 
-const goldDividerStyleLeft = {
-  background: "linear-gradient(to left, transparent, var(--color-welcome-gold), transparent)",
-} as const
-
+// Header sits on the sage Silk backdrop — light text with a forest-green halo.
 const silkTitleShadow =
-  "0 1px 0 rgb(42 34 28 / 42%), 0 2px 10px rgb(42 34 28 / 38%), 0 8px 28px rgb(42 34 28 / 28%)"
+  "0 1px 0 rgb(48 74 52 / 40%), 0 2px 10px rgb(48 74 52 / 35%), 0 8px 28px rgb(48 74 52 / 25%)"
 const silkScriptShadow =
-  "0 1px 0 rgb(42 34 28 / 35%), 0 2px 12px rgb(42 34 28 / 32%), 0 0 18px rgb(232 213 163 / 35%)"
+  "0 1px 0 rgb(48 74 52 / 32%), 0 2px 12px rgb(48 74 52 / 30%)"
 const silkBodyShadow =
-  "0 1px 1px rgb(42 34 28 / 45%), 0 2px 10px rgb(42 34 28 / 32%)"
+  "0 1px 1px rgb(48 74 52 / 42%), 0 2px 10px rgb(48 74 52 / 30%)"
 
 const silkGlowStyle = {
   background:
-    "radial-gradient(ellipse at center, rgb(94 81 68 / 34%) 0%, rgb(94 81 68 / 12%) 46%, transparent 72%)",
+    "radial-gradient(ellipse at center, rgb(48 74 52 / 26%) 0%, rgb(48 74 52 / 10%) 46%, transparent 72%)",
 } as const
 
 function SilkTextGlow({ children, className = "" }: { children: ReactNode; className?: string }) {
@@ -77,12 +76,12 @@ function SilkTextGlow({ children, className = "" }: { children: ReactNode; class
 }
 
 const cardStyle = {
-  background: IVORY,
+  background: `linear-gradient(180deg, ${PAPER} 0%, var(--color-motif-cream) 100%)`,
   borderWidth: "1px",
   borderStyle: "solid",
-  borderColor: "color-mix(in srgb, var(--color-welcome-gold) 38%, transparent)",
+  borderColor: "color-mix(in srgb, var(--color-motif-medium) 70%, transparent)",
   boxShadow:
-    "0 10px 28px color-mix(in srgb, var(--color-welcome-gold) 12%, transparent), inset 0 1px 0 rgb(255 250 244 / 70%)",
+    "0 22px 48px -24px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
 } as const
 
 interface Message {
@@ -98,10 +97,19 @@ interface MessageFormProps {
 
 function OutsideDivider() {
   return (
-    <div className="flex items-center justify-center gap-1.5">
-      <span className="h-px w-6 sm:w-10" style={goldDividerStyle} />
-      <span className="h-0.5 w-0.5 rounded-full sm:h-1 sm:w-1" style={{ background: GOLD }} aria-hidden />
-      <span className="h-px w-6 sm:w-10" style={goldDividerStyleLeft} />
+    <div className="flex items-center justify-center" aria-hidden>
+      <span className="h-px w-20 sm:w-32" style={lightLineStyle} />
+    </div>
+  )
+}
+
+function CardOrnament() {
+  return (
+    <div className="mx-auto mb-3 flex items-center justify-center sm:mb-4" aria-hidden>
+      <span
+        className="h-px w-16 sm:w-24"
+        style={{ background: "linear-gradient(to right, transparent, var(--color-motif-medium), transparent)" }}
+      />
     </div>
   )
 }
@@ -134,7 +142,7 @@ function MessagesTitle() {
         className={`${aboveTheBeyond.className} relative z-10 mx-auto mt-1.5 block w-fit max-w-full px-1 leading-[0.88] sm:mt-2 sm:leading-[0.9]`}
         style={{
           fontSize: "var(--script-size)",
-          color: "#F3E6C0",
+          color: "var(--color-motif-cream)",
           textShadow: silkScriptShadow,
         }}
       >
@@ -212,10 +220,10 @@ function MessageForm({ onSuccess, onMessageSent }: MessageFormProps) {
   const inputBorder = (field: string) =>
     focusedField === field
       ? palette.accent
-      : "color-mix(in srgb, var(--color-welcome-gold) 32%, transparent)"
+      : "color-mix(in srgb, var(--color-motif-medium) 75%, transparent)"
 
   const inputClass = (field: string) =>
-    `message-form-input w-full rounded-lg border bg-[#fffaf4] px-3 py-2 font-goudy-italic ${sectionType.text} transition-all duration-300 focus:ring-2 focus:ring-[color-mix(in_srgb,var(--color-welcome-gold)_28%,transparent)] sm:px-4 sm:py-2.5 md:py-3 ${
+    `message-form-input w-full rounded-lg border px-3 py-2 font-goudy-italic ${sectionType.text} transition-all duration-300 focus:ring-2 focus:ring-[color-mix(in_srgb,var(--color-motif-accent)_22%,transparent)] sm:px-4 sm:py-2.5 md:py-3 ${
       focusedField === field ? "shadow-md" : ""
     }`
 
@@ -224,7 +232,7 @@ function MessageForm({ onSuccess, onMessageSent }: MessageFormProps) {
       <style>{`
         .message-form-input::placeholder,
         .message-form-textarea::placeholder {
-          color: color-mix(in srgb, var(--color-welcome-text) 55%, transparent) !important;
+          color: var(--color-welcome-text-soft) !important;
           opacity: 1 !important;
         }
       `}</style>
@@ -236,14 +244,19 @@ function MessageForm({ onSuccess, onMessageSent }: MessageFormProps) {
         style={cardStyle}
       >
         <div
-          className="pointer-events-none absolute inset-0 rounded-[inherit] bg-gradient-to-br from-white/35 via-white/8 to-transparent"
+          className="pointer-events-none absolute inset-0 rounded-[inherit] bg-gradient-to-br from-white/40 via-white/5 to-transparent"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-2 rounded-[1.5rem] border sm:inset-2.5"
+          style={{ borderColor: "color-mix(in srgb, var(--color-motif-medium) 45%, transparent)" }}
           aria-hidden
         />
 
         {isSubmitted && (
           <div
             className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
-            style={{ backgroundColor: IVORY }}
+            style={{ backgroundColor: PAPER }}
           >
             <p
               className={`${cinzel.className} font-semibold ${sectionType.subheader}`}
@@ -254,8 +267,9 @@ function MessageForm({ onSuccess, onMessageSent }: MessageFormProps) {
           </div>
         )}
 
-        <CardContent className="relative p-4 sm:p-5 md:p-6 lg:p-8">
+        <CardContent className="relative p-5 sm:p-6 md:p-8 lg:p-9">
           <div className="mb-4 text-center sm:mb-5 md:mb-6">
+            <CardOrnament />
             <h3
               className={`${theSeasons.className} ${sectionType.subheader} mb-1.5 font-semibold tracking-[0.08em] uppercase`}
               style={{ color: NAVY }}
@@ -277,7 +291,7 @@ function MessageForm({ onSuccess, onMessageSent }: MessageFormProps) {
             <div className="space-y-1.5 sm:space-y-2">
               <label
                 className={`${cinzel.className} ${sectionType.label} font-semibold uppercase tracking-[0.16em]`}
-                style={{ color: GOLD }}
+                style={{ color: ACCENT }}
               >
                 Your Name
               </label>
@@ -302,7 +316,7 @@ function MessageForm({ onSuccess, onMessageSent }: MessageFormProps) {
               <div className="flex items-center justify-between gap-2">
                 <label
                   className={`${cinzel.className} ${sectionType.label} font-semibold uppercase tracking-[0.16em]`}
-                  style={{ color: GOLD }}
+                  style={{ color: ACCENT }}
                 >
                   Your Message
                 </label>
@@ -339,10 +353,10 @@ function MessageForm({ onSuccess, onMessageSent }: MessageFormProps) {
             <Button
               type="submit"
               disabled={isSubmitting || !nameValue.trim() || !messageValue.trim()}
-              className={`${cinzel.className} group relative w-full rounded-full border px-5 py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.16em] shadow-[0_8px_18px_color-mix(in_srgb,var(--color-welcome-gold)_22%,transparent)] transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70 disabled:transform-none sm:py-3 sm:tracking-[0.18em]`}
+              className={`${cinzel.className} group relative w-full rounded-full border px-5 py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.16em] shadow-[0_12px_24px_-10px_color-mix(in_srgb,var(--color-welcome-navy)_60%,transparent)] transition-all duration-300 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70 disabled:transform-none sm:py-3 sm:tracking-[0.18em]`}
               style={{
-                background: NAV_GOLD,
-                borderColor: "transparent",
+                background: DEEP_GRADIENT,
+                borderColor: "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)",
                 color: IVORY,
               }}
             >
@@ -442,7 +456,7 @@ export function Messages() {
             Share a short note, wish, or prayer for {coupleDisplayName}. Every message becomes part of our story.
           </p>
           <div className="mt-4 flex items-center justify-center sm:mt-5">
-            <span className="h-px w-16 sm:w-24 md:w-32" style={goldDividerStyle} />
+            <span className="h-px w-16 sm:w-24 md:w-32" style={lightLineStyle} />
           </div>
         </SilkTextGlow>
 
@@ -464,12 +478,12 @@ export function Messages() {
             </h3>
             <p
               className={`font-goudy-italic ${sectionType.text}`}
-              style={{ color: "#F3E6C0", textShadow: silkBodyShadow }}
+              style={{ color: "var(--color-motif-cream)", textShadow: silkBodyShadow }}
             >
               Warm words from family and friends
             </p>
-            <div className="mt-4 flex items-center justify-center sm:mt-5">
-              <span className="h-px w-16 sm:w-24 md:w-32" style={goldDividerStyle} />
+            <div className="mt-4 sm:mt-5">
+              <OutsideDivider />
             </div>
           </SilkTextGlow>
 

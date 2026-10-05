@@ -148,25 +148,25 @@
   
 /* ==========================================
    MOTIF COLORS
-   Theme: Champagne Beige Brown
-   Champagne + Ivory + Beige + Mocha + Cocoa
+   Theme: Sage Green Botanical
+   Ivory + Sage + Olive + Deep Forest
    ========================================== */
 
 /* Background / Linen */
---color-motif-cream:     #F3E9D7; /* Soft beige */
---color-motif-yellow:    #B89562; /* Muted champagne gold */
---color-motif-soft:      #FAF6EE; /* Warm ivory */
+--color-motif-cream: #F4F5EA; /* Soft ivory */
+--color-motif-yellow: #9EAF91; /* Muted sage */
+--color-motif-soft: #FBFCF7; /* Warm white */
 
-/* Warm Brown Accents */
---color-motif-accent:    #8A6246; /* Warm mocha */
---color-motif-deep:      #6B4632; /* Deep cocoa brown */
---color-motif-medium:    #B7A18A; /* Soft taupe */
+/* Sage Green Accents */
+--color-motif-accent: #718566; /* Olive sage */
+--color-motif-deep: #4F674D; /* Deep botanical green */
+--color-motif-medium: #AAB9A0; /* Soft sage */
 
 /* Floral Accent */
---color-motif-blush:     #D8C1A5; /* Champagne beige */
+--color-motif-blush: #C3CFB8; /* Sage beige */
 
 /* Neutral / Paper */
---color-motif-silver:    #E8D5B5; /* Warm champagne */
+--color-motif-silver: #DDE5D4; /* Pale sage */
 
 
 /* ==========================================
@@ -195,24 +195,24 @@
    ========================================== */
 
 /* Main body text */
---color-welcome-text: #6B4632; /* Warm cocoa */
+--color-welcome-text: #4F674D; /* Deep sage */
 
 /* Secondary / softer text */
 --color-welcome-text-soft:
     color-mix(
         in srgb,
-        #6B4632 65%,
+        #4F674D 65%,
         white
     );
 
 /* Small headings */
---color-welcome-heading: #8A6246; /* Warm mocha */
+--color-welcome-heading: #718566; /* Olive sage */
 
 /* Script / romantic accent */
---color-welcome-script: #B89562; /* Champagne gold */
+--color-welcome-script: #718566; /* Elegant sage */
 
 /* Main hero heading */
---color-welcome-navy: #3F2A20; /* Deep espresso */
+--color-welcome-navy: #304A34; /* Deep forest */
 
 
 /* ==========================================
@@ -220,16 +220,22 @@
    ========================================== */
 
 /* Buttons */
---color-welcome-green: #6B4632; /* Cocoa brown */
+--color-welcome-green: #4F674D; /* Deep botanical */
 
 /* Decorative botanical lines */
---color-welcome-botanical: #8A6246; /* Warm mocha */
+--color-welcome-botanical: #718566; /* Olive sage */
 
 /* Gold decorative details */
---color-welcome-gold: #B89562; /* Champagne gold */
+--color-welcome-gold: #9EAF91; /* Muted sage */
 
 /* Floral accents */
---color-welcome-blush: #D8C1A5; /* Soft champagne beige */
+--color-welcome-blush: #C3CFB8; /* Soft sage beige */
+
+/* Couple-name mask lockup (loader, hero, sections) */
+--couple-name-fill: var(--color-welcome-navy);
+--couple-name-fill-mid: var(--color-motif-deep);
+--couple-name-fill-accent: var(--color-welcome-heading);
+--couple-name-fill-soft: var(--color-motif-soft);
   /* ─────────────────────────────────────────────────────────── */
   --font-imperial-script: "Imperial Script", cursive;
   --font-anastasia-script: "CoupleAnastasia";
@@ -296,14 +302,15 @@ html {
   font-style: normal;
 }
 
-/* Couple-name lockup — public/Details/coupleName.png filled with forest green. */
+/* Couple-name lockup — mask image URL set inline; fill from motif tokens. */
 .couple-name-lockup {
   display: block;
-  width: 100%;
-  aspect-ratio: 1672 / 940;
-  background-color: #5c6e46;
-  -webkit-mask-image: url("/Details/coupleName.png");
-  mask-image: url("/Details/coupleName.png");
+  background: linear-gradient(
+    118deg,
+    var(--couple-name-fill) 0%,
+    var(--couple-name-fill-mid) 48%,
+    var(--couple-name-fill-accent) 100%
+  );
   -webkit-mask-size: contain;
   mask-size: contain;
   -webkit-mask-repeat: no-repeat;

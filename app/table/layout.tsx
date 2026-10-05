@@ -1,9 +1,8 @@
 import type { Metadata } from "next"
-import { siteConfig } from "@/content/site"
+import { siteConfig, canonicalSiteUrl } from "@/content/site"
 import { TABLE_FINDER_PATH } from "@/lib/table-finder"
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://paul-and-ana.weddinginvitationrsvp.com/"
-const canonicalUrl = `${siteUrl.replace(/\/$/, "")}${TABLE_FINDER_PATH}`
+const canonicalUrl = `${canonicalSiteUrl}${TABLE_FINDER_PATH}`
 const coupleNames = `${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname}`
 
 export const metadata: Metadata = {

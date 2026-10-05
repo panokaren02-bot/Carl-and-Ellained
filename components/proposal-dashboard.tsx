@@ -210,10 +210,10 @@ ${groom} & ${bride}`
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="overflow-hidden rounded-2xl border border-[#E5E7EB] bg-gradient-to-br from-[#FFF8F0] via-white to-[#F9FAFB] p-6 shadow-sm sm:p-8">
+      <div className="overflow-hidden rounded-2xl border border-[#E5E7EB] bg-gradient-to-br from-[#FBFCF7] via-white to-[#F9FAFB] p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#A67C52]/15 text-[#8B6F47]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#718566]/15 text-[#4F674D]">
               <Heart className="h-6 w-6" />
             </div>
             <div>
@@ -229,7 +229,7 @@ ${groom} & ${bride}`
           <Link
             href="/"
             target="_blank"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#6B4423] shadow-sm transition-colors hover:bg-[#FFF8F0]"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#304A34] shadow-sm transition-colors hover:bg-[#FBFCF7]"
           >
             <ExternalLink className="h-4 w-4" />
             Preview Site
@@ -238,27 +238,27 @@ ${groom} & ${bride}`
 
         <div className="mt-6 flex flex-wrap gap-3">
           <div className="flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs text-[#6B7280]">
-            <Users className="h-3.5 w-3.5 text-[#A67C52]" />
+            <Users className="h-3.5 w-3.5 text-[#718566]" />
             <span>
-              <strong className="text-[#6B4423]">
+              <strong className="text-[#304A34]">
                 {isCountsLoading ? "…" : filledEntourageCount}
               </strong>{" "}
               names · {PROPOSAL_ENTOURAGE_ROLE_SLOTS} entourage roles
             </span>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs text-[#6B7280]">
-            <Crown className="h-3.5 w-3.5 text-[#A67C52]" />
+            <Crown className="h-3.5 w-3.5 text-[#718566]" />
             <span>
-              <strong className="text-[#6B4423]">
+              <strong className="text-[#304A34]">
                 {isCountsLoading ? "…" : filledSponsorCount}
               </strong>{" "}
               names · {PROPOSAL_SPONSOR_ROLE_SLOTS} sponsor roles
             </span>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs text-[#6B7280]">
-            <Link2 className="h-3.5 w-3.5 text-[#A67C52]" />
+            <Link2 className="h-3.5 w-3.5 text-[#718566]" />
             <span>
-              <strong className="text-[#6B4423]">{PROPOSAL_ROLES.length}</strong> proposal links
+              <strong className="text-[#304A34]">{PROPOSAL_ROLES.length}</strong> proposal links
             </span>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-dashed border-[#E5E7EB] bg-white/80 px-3 py-1.5 text-[10px] text-[#9CA3AF]">
@@ -276,8 +276,8 @@ ${groom} & ${bride}`
               onClick={() => setCategoryTab(tab)}
               className={`cursor-pointer rounded-full border px-4 py-2 text-xs font-semibold tracking-wide uppercase transition-all ${
                 categoryTab === tab
-                  ? "border-[#A67C52] bg-[#A67C52] text-white shadow-sm"
-                  : "border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#D4B5A0] hover:text-[#6B4423]"
+                  ? "border-[#718566] bg-[#718566] text-white shadow-sm"
+                  : "border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#C3CFB8] hover:text-[#304A34]"
               }`}
             >
               {tab === "all" ? "All Roles" : tab}
@@ -292,7 +292,7 @@ ${groom} & ${bride}`
             placeholder="Search role..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border border-[#E5E7EB] bg-white py-2.5 pr-4 pl-10 text-sm shadow-sm focus:ring-2 focus:ring-[#A67C52]/30 focus:outline-none"
+            className="w-full rounded-xl border border-[#E5E7EB] bg-white py-2.5 pr-4 pl-10 text-sm shadow-sm focus:ring-2 focus:ring-[#718566]/30 focus:outline-none"
           />
         </div>
       </div>
@@ -313,14 +313,14 @@ ${groom} & ${bride}`
             return (
               <div
                 key={role.id}
-                className="group flex flex-col rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm transition-all hover:border-[#D4B5A0]/60 hover:shadow-md"
+                className="group flex flex-col rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm transition-all hover:border-[#C3CFB8]/60 hover:shadow-md"
               >
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h4 className="text-base font-semibold text-[#111827]">{role.title}</h4>
                     <p className="mt-0.5 text-xs text-[#9CA3AF]">{role.roleCategory}</p>
                   </div>
-                  <span className="shrink-0 rounded-full border border-[#E5E7EB] bg-[#FFF8F0] px-2 py-0.5 text-[9px] font-bold tracking-widest text-[#8B6F47] uppercase">
+                  <span className="shrink-0 rounded-full border border-[#E5E7EB] bg-[#FBFCF7] px-2 py-0.5 text-[9px] font-bold tracking-widest text-[#4F674D] uppercase">
                     {role.category}
                   </span>
                 </div>
@@ -339,7 +339,7 @@ ${groom} & ${bride}`
                     className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-2.5 text-xs font-semibold transition-all ${
                       isCopied
                         ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-[#E5E7EB] bg-white text-[#6B4423] hover:bg-[#FFF8F0]"
+                        : "border-[#E5E7EB] bg-white text-[#304A34] hover:bg-[#FBFCF7]"
                     }`}
                   >
                     {isCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
@@ -348,7 +348,7 @@ ${groom} & ${bride}`
 
                   <button
                     onClick={() => openInviteModal(role)}
-                    className="cursor-pointer rounded-lg border border-[#A67C52]/30 bg-[#FFF8F0] px-3 py-2.5 text-xs font-semibold text-[#8B6F47] transition-all hover:border-[#A67C52] hover:bg-[#A67C52] hover:text-white"
+                    className="cursor-pointer rounded-lg border border-[#718566]/30 bg-[#FBFCF7] px-3 py-2.5 text-xs font-semibold text-[#4F674D] transition-all hover:border-[#718566] hover:bg-[#718566] hover:text-white"
                     title="Create personalized invitation"
                   >
                     <Send className="h-4 w-4 inline sm:mr-1" />
@@ -358,7 +358,7 @@ ${groom} & ${bride}`
                   <Link
                     href={`/will-you-be-proposal/${role.id}`}
                     target="_blank"
-                    className="rounded-lg border border-[#E5E7EB] bg-white p-2.5 text-[#6B7280] transition-all hover:bg-[#F9FAFB] hover:text-[#6B4423]"
+                    className="rounded-lg border border-[#E5E7EB] bg-white p-2.5 text-[#6B7280] transition-all hover:bg-[#F9FAFB] hover:text-[#304A34]"
                     title="Open proposal page"
                   >
                     <ExternalLink className="h-4 w-4" />
@@ -378,10 +378,10 @@ ${groom} & ${bride}`
         }}
       >
         <DialogContent className="flex w-full max-w-lg flex-col gap-0 overflow-hidden border-[#E5E7EB] bg-white p-0 sm:max-w-xl">
-          <div className="border-b border-[#F3F4F6] bg-gradient-to-r from-[#FFF8F0] to-white px-6 py-5 pr-12">
+          <div className="border-b border-[#F3F4F6] bg-gradient-to-r from-[#FBFCF7] to-white px-6 py-5 pr-12">
             <DialogHeader className="space-y-1 text-left">
-              <DialogTitle className="flex items-center gap-2 text-[#6B4423]">
-                <Sparkles className="h-5 w-5 text-[#A67C52]" />
+              <DialogTitle className="flex items-center gap-2 text-[#304A34]">
+                <Sparkles className="h-5 w-5 text-[#718566]" />
                 Personal Special Invitation
               </DialogTitle>
               <DialogDescription className="text-sm text-[#6B7280]">
@@ -394,8 +394,8 @@ ${groom} & ${bride}`
 
           <div className="min-w-0 space-y-4 px-6 py-5">
             {selectedInviteRole && (
-              <div className="rounded-xl border border-[#E5E7EB] bg-[#FFF8F0] px-4 py-3">
-                <p className="text-[10px] font-bold tracking-widest text-[#8B6F47] uppercase">
+              <div className="rounded-xl border border-[#E5E7EB] bg-[#FBFCF7] px-4 py-3">
+                <p className="text-[10px] font-bold tracking-widest text-[#4F674D] uppercase">
                   Role offer
                 </p>
                 <p className={`${proposalMixedTextInter.className} mt-1 text-base font-semibold text-[#111827]`}>
@@ -407,7 +407,7 @@ ${groom} & ${bride}`
 
             <div className="min-w-0">
               <label className="mb-1.5 block text-xs font-semibold tracking-wider text-[#6B7280] uppercase">
-                Guest name <span className="text-[#A67C52]">*</span>
+                Guest name <span className="text-[#718566]">*</span>
               </label>
               <input
                 type="text"
@@ -417,7 +417,7 @@ ${groom} & ${bride}`
                   setInviteeName(e.target.value)
                   if (e.target.value.trim()) setInviteNameError("")
                 }}
-                className={`${proposalMixedTextInter.className} box-border w-full min-w-0 rounded-xl border border-[#E5E7EB] px-4 py-2.5 text-sm font-normal not-italic focus:ring-2 focus:ring-[#A67C52]/30 focus:outline-none`}
+                className={`${proposalMixedTextInter.className} box-border w-full min-w-0 rounded-xl border border-[#E5E7EB] px-4 py-2.5 text-sm font-normal not-italic focus:ring-2 focus:ring-[#718566]/30 focus:outline-none`}
               />
               <p className={`${proposalMixedTextInter.className} mt-1.5 text-xs font-normal text-[#9CA3AF]`}>
                 Shown on the proposal as &ldquo;
@@ -454,8 +454,8 @@ ${groom} & ${bride}`
             </div>
 
             {selectedInviteRole && (
-              <div className="min-w-0 rounded-xl border border-[#E5E7EB] bg-[#FFF8F0] px-4 py-3">
-                <p className="text-[10px] font-semibold tracking-wider text-[#8B6F47] uppercase">
+              <div className="min-w-0 rounded-xl border border-[#E5E7EB] bg-[#FBFCF7] px-4 py-3">
+                <p className="text-[10px] font-semibold tracking-wider text-[#4F674D] uppercase">
                   Personal proposal link
                 </p>
                 <p className="mt-1 break-all font-mono text-xs text-[#6B7280]">
@@ -469,7 +469,7 @@ ${groom} & ${bride}`
             <button
               type="button"
               onClick={closeInviteModal}
-              className="cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-xs font-semibold tracking-wide text-[#6B7280] uppercase hover:text-[#6B4423]"
+              className="cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-xs font-semibold tracking-wide text-[#6B7280] uppercase hover:text-[#304A34]"
             >
               Cancel
             </button>
@@ -477,7 +477,7 @@ ${groom} & ${bride}`
               <button
                 type="button"
                 onClick={handleCopyPersonalLink}
-                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#A67C52]/40 bg-white px-4 py-2.5 text-xs font-semibold tracking-wide text-[#6B4423] uppercase transition-all hover:bg-[#FFF8F0]"
+                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#718566]/40 bg-white px-4 py-2.5 text-xs font-semibold tracking-wide text-[#304A34] uppercase transition-all hover:bg-[#FBFCF7]"
               >
                 {copiedPersonalLink ? (
                   <Check className="h-3.5 w-3.5" />
@@ -489,7 +489,7 @@ ${groom} & ${bride}`
               <button
                 type="button"
                 onClick={handleCopyInviteText}
-                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#A67C52] bg-[#A67C52] px-5 py-2.5 text-xs font-semibold tracking-wide text-white uppercase transition-all hover:bg-[#8B6F47]"
+                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#718566] bg-[#718566] px-5 py-2.5 text-xs font-semibold tracking-wide text-white uppercase transition-all hover:bg-[#4F674D]"
               >
                 {copiedInviteText ? (
                   <Check className="h-3.5 w-3.5" />

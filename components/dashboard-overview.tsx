@@ -71,8 +71,8 @@ export function DashboardOverview({ stats, weddingBrief }: DashboardOverviewProp
           icon={<Users className="h-6 w-6" />}
           value={stats.guestGroups}
           label="Guest Groups"
-          iconBgColor="bg-[#D4B5A0]/20"
-          iconColor="text-[#8B6F47]"
+          iconBgColor="bg-[#C3CFB8]/20"
+          iconColor="text-[#4F674D]"
         />
         <StatCard
           icon={<Table className="h-6 w-6" />}
@@ -128,7 +128,7 @@ export function DashboardOverview({ stats, weddingBrief }: DashboardOverviewProp
       <TableFinderQrCard />
 
       {/* Wedding Brief Card */}
-      <div className="bg-gradient-to-br from-[#8B6F47] to-[#6B5335] rounded-2xl p-8 shadow-lg">
+      <div className="bg-gradient-to-br from-[#4F674D] to-[#304A34] rounded-2xl p-8 shadow-lg">
         <div className="flex items-center gap-3 mb-4">
           <Plane className="h-6 w-6 text-white" />
           <h2 className="text-2xl font-serif font-bold text-white">{brief.title}</h2>

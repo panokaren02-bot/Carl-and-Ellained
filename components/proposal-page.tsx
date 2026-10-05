@@ -80,7 +80,7 @@ const aboveTheBeyond = localFont({
   variable: "--font-above-beyond",
 })
 
-const IVORY = "#fffaf4"
+const IVORY = "var(--color-motif-soft)"
 const CHAMPAGNE = "var(--color-welcome-gold)"
 const GOLD_BRIGHT = "var(--color-welcome-gold)"
 const INK = "var(--color-welcome-navy)"
@@ -136,7 +136,7 @@ const cardStyle: CSSProperties = {
   borderWidth: "1px",
   borderStyle: "solid",
   boxShadow:
-    "0 10px 28px color-mix(in srgb, var(--color-welcome-gold) 12%, transparent), inset 0 1px 0 rgb(255 250 244 / 70%)",
+    "0 10px 28px color-mix(in srgb, var(--color-welcome-gold) 12%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
 }
 
 const primaryBtnStyle: CSSProperties = {
@@ -164,23 +164,24 @@ const labelStyle = (color: string, extra?: CSSProperties): CSSProperties => ({
 })
 
 function ProposalCornerDecorations() {
+  const decos = useSiteConfig().proposal.decos
   return (
     <>
       <div className="pointer-events-none absolute left-0 top-0 z-[5]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/deco/left-top-deco.png" alt="" aria-hidden className={CORNER_DECO_CLASS} />
+        {decos.topLeft ? <img src={decos.topLeft} alt="" aria-hidden className={CORNER_DECO_CLASS} /> : null}
       </div>
       <div className="pointer-events-none absolute right-0 top-0 z-[5]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/deco/right-top-deco.png" alt="" aria-hidden className={CORNER_DECO_CLASS} />
+        {decos.topRight ? <img src={decos.topRight} alt="" aria-hidden className={CORNER_DECO_CLASS} /> : null}
       </div>
       <div className="pointer-events-none absolute bottom-0 left-0 z-[5]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/deco/left-bottom-deco.png" alt="" aria-hidden className={CORNER_DECO_CLASS} />
+        {decos.bottomLeft ? <img src={decos.bottomLeft} alt="" aria-hidden className={CORNER_DECO_CLASS} /> : null}
       </div>
       <div className="pointer-events-none absolute bottom-0 right-0 z-[5]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/deco/right-bottom-deco.png" alt="" aria-hidden className={CORNER_DECO_CLASS} />
+        {decos.bottomRight ? <img src={decos.bottomRight} alt="" aria-hidden className={CORNER_DECO_CLASS} /> : null}
       </div>
     </>
   )
@@ -497,10 +498,10 @@ function CoupleNameImage({
       className={`relative mx-auto aspect-[4/5] w-full max-w-[min(88vw,16rem)] sm:max-w-[14rem] md:max-w-xs ${className}`}
     >
       <Image
-        src="/deco/coupleimage.png"
+        src="/deco/coupleimage.webp"
         alt={`${groom} and ${bride}`}
         fill
-        className="object-contain drop-shadow-[0_10px_28px_rgba(45,67,79,0.14)]"
+        className="object-contain drop-shadow-[0_10px_28px_rgba(48,74,52,0.16)]"
         sizes="(max-width: 640px) 88vw, 320px"
         priority
       />
@@ -968,7 +969,7 @@ function ProposalAskSection({
           aria-hidden
         />
         <Image
-          src="/deco/coupleimage.png"
+          src="/deco/coupleimage.webp"
           alt="The couple"
           fill
           className="object-contain object-bottom drop-shadow-[0_14px_32px_color-mix(in_srgb,var(--color-welcome-navy)_10%,transparent)]"
@@ -1208,7 +1209,7 @@ function ProposalPageInner({ role }: ProposalPageProps) {
     >
       <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.22]" aria-hidden>
         <Suspense fallback={<div className="h-full w-full" style={{ background: sectionBackground }} />}>
-          <Silk speed={6} scale={1} color="#B89562" noiseIntensity={0} rotation={0.25} />
+          <Silk speed={6} scale={1} color="#9EAF91" noiseIntensity={0} rotation={0.25} />
         </Suspense>
       </div>
 
@@ -1289,7 +1290,7 @@ function ProposalPageInner({ role }: ProposalPageProps) {
                 />
 
                 {validationError && flowState === "question" && (
-                  <p className="text-center text-xs font-medium text-rose-600">{validationError}</p>
+                  <p className="text-center text-xs font-medium text-[var(--color-motif-deep)]">{validationError}</p>
                 )}
 
                 <ProposalAskSection
@@ -1384,7 +1385,7 @@ function ProposalPageInner({ role }: ProposalPageProps) {
                     }}
                   />
                   {validationError && (
-                    <p className="mt-2 flex items-center gap-1 text-xs font-medium text-rose-500">
+                    <p className="mt-2 flex items-center gap-1 text-xs font-medium text-[var(--color-motif-accent)]">
                       <span>⚠️</span> {validationError}
                     </p>
                   )}

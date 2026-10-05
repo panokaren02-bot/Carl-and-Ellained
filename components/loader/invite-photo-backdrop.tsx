@@ -112,14 +112,28 @@ export function PhotoMarquee({
   );
 }
 
-/** Fixed photo marquee + forest veil — mobile invitation continuity from loading. */
-export function InvitePhotoBackdrop({ className = '' }: { className?: string }) {
+/** Fixed photo marquee + veil — continuity from loading screen (photos display only). */
+export function InvitePhotoBackdrop({
+  className = '',
+  photos,
+}: {
+  className?: string;
+  photos?: readonly string[];
+}) {
   const reduceMotion = useReducedMotion();
   const copies = reduceMotion ? 1 : 2;
+  const resolved =
+    photos && photos.length > 0
+      ? photos
+      : LOADING_BG_PHOTOS.length > 0
+        ? LOADING_BG_PHOTOS
+        : MOBILE_BG_PHOTOS;
+
+  if (resolved.length === 0) return null;
 
   return (
     <div className={`invite-photo-backdrop ${className}`.trim()} aria-hidden="true">
-      <PhotoMarquee photos={MOBILE_BG_PHOTOS} copies={copies} variant="mobile" />
+      <PhotoMarquee photos={resolved} copies={copies} variant="mobile" />
       <div className="loading-screen__backdrop-veil" />
     </div>
   );

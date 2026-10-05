@@ -4,15 +4,12 @@ import localFont from "next/font/local"
 import { motion } from "motion/react"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { sectionType, welcomeTitleSize } from "@/lib/section-typography"
-import { sectionBackground, sectionPalette } from "@/lib/section-background"
 import { Cinzel } from "next/font/google"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
 })
-
-const C = sectionPalette
 
 const theSeasons = localFont({
   src: "../../Font/Fontspring-DEMO-theseasons-reg.otf",
@@ -74,11 +71,8 @@ function LayeredWelcomeTitle() {
         aria-hidden
         className={`${aboveTheBeyond.className} relative z-10 mx-auto block w-fit max-w-full px-1 leading-[0.88] sm:leading-[0.9]`}
         style={{
-          // marginTop: "var(--script-overlap)",
           fontSize: "var(--script-size)",
           color: "var(--color-welcome-green)",
-          textShadow:
-            "0 1px 0 color-mix(in srgb, var(--color-welcome-bg) 95%, white), 0 0 10px color-mix(in srgb, var(--color-welcome-bg) 65%, white)",
         }}
       >
         to our love story
@@ -97,46 +91,40 @@ export function Welcome() {
   return (
     <section
       id="welcome"
-      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative px-3 py-5 sm:px-5 sm:py-7 md:px-6 md:py-9`}
-      style={{ background: sectionBackground }}
+      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative px-4 py-10 sm:px-6 sm:py-14 md:px-8 md:py-16`}
     >
-      <div className="relative mx-auto w-full max-w-xl sm:max-w-2xl">
+      <div className="mx-auto w-full max-w-3xl">
         <motion.article
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.65, ease: [0.22, 0.61, 0.36, 1] }}
-          className="relative min-w-0 overflow-visible rounded-lg border px-4 pt-6 pb-10 @container/welcome sm:rounded-xl sm:px-7 sm:pt-7 sm:pb-12 md:rounded-2xl md:px-8 md:pt-8 md:pb-14"
+          className="relative @container/welcome overflow-visible rounded-xl border px-5 py-8 sm:rounded-2xl sm:px-9 sm:py-10 md:px-11 md:py-12"
           style={{
-            background: "var(--color-welcome-bg)",
-            borderColor: `color-mix(in srgb, ${C.forest} 14%, transparent)`,
+            borderColor: "color-mix(in srgb, var(--color-motif-deep) 16%, transparent)",
+            background: "color-mix(in srgb, var(--color-welcome-bg) 94%, transparent)",
             boxShadow:
-              `0 8px 28px color-mix(in srgb, ${C.forest} 7%, transparent), inset 0 1px 0 color-mix(in srgb, white 70%, transparent)`,
+              "0 8px 28px color-mix(in srgb, var(--color-motif-deep) 7%, transparent), inset 0 1px 0 color-mix(in srgb, var(--color-motif-soft) 85%, transparent)",
           }}
         >
           <div className="wedding-frame-inner hidden min-[400px]:block" aria-hidden />
 
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-5 top-0 h-px sm:inset-x-8"
+            className="pointer-events-none absolute inset-x-8 top-0 h-px sm:inset-x-10 md:inset-x-12"
             style={{
               background:
                 "linear-gradient(to right, transparent, var(--color-motif-yellow), transparent)",
             }}
           />
 
-          {/* Header */}
-          <header className="relative overflow-visible space-y-3 px-1 pt-4 pb-6 sm:space-y-3.5 sm:px-2 sm:pt-5 sm:pb-7 md:space-y-4 md:pt-6 md:pb-8">
-            <LayeredWelcomeTitle />
-            <div className="pt-2 sm:pt-2.5">
+          <div className="relative flex flex-col gap-8 sm:gap-9 md:gap-10">
+            <header className="space-y-3 pt-2 text-center sm:space-y-3.5 sm:pt-3 md:space-y-4 md:pt-4">
+              <LayeredWelcomeTitle />
               <OrnamentalDivider compact />
-            </div>
-          </header>
+            </header>
 
-          {/* Content */}
-          <div className="relative mx-4 space-y-5 text-center sm:mx-6 sm:space-y-6 md:mx-7 md:space-y-7">
-            {/* Scripture */}
-            <figure className="px-1 py-1 sm:px-2">
+            <figure className="mx-auto max-w-[36rem] text-center">
               <blockquote>
                 <p
                   className={`font-goudy-italic ${sectionType.textSnug}`}
@@ -155,9 +143,8 @@ export function Welcome() {
               </blockquote>
             </figure>
 
-            {/* Body */}
             <div
-              className={`font-goudy-italic space-y-3 px-1 text-center sm:space-y-3.5 sm:px-2 md:space-y-4 ${sectionType.textRelaxed}`}
+              className={`font-goudy-italic mx-auto max-w-[36rem] space-y-3 text-center sm:space-y-3.5 md:space-y-4 ${sectionType.textRelaxed}`}
               style={{ color: "var(--color-welcome-text)" }}
             >
               <p>
@@ -176,28 +163,24 @@ export function Welcome() {
               </p>
             </div>
 
-            {/* Bottom */}
-            <div className="space-y-5 pt-1 sm:space-y-6 sm:pt-2 md:space-y-7">
-              {/* Sign-off */}
-              <footer className="space-y-2 px-1 pt-4 pb-2 sm:space-y-2.5 sm:px-2 sm:pt-5 sm:pb-3 md:pt-6 md:pb-4">
-                <p
-                  className={`${aboveTheBeyond.className} ${sectionType.script}`}
-                  style={{
-                    color: "var(--color-welcome-green)",
-                    textShadow:
-                      "0 1px 0 color-mix(in srgb, var(--color-welcome-bg) 90%, white)",
-                  }}
-                >
-                  With all our love,
-                </p>
-                <p
-                  className={`${cinzel.className} ${sectionType.subheader} mb-3 font-semibold tracking-[0.12em] sm:mb-4 sm:tracking-[0.16em] md:mb-5 md:tracking-[0.18em]`}
-                  style={{ color: "var(--color-welcome-navy)" }}
-                >
-                  {groomName} &amp; {brideName}
-                </p>
-              </footer>
-            </div>
+            <footer className="space-y-2 border-t pt-8 text-center sm:space-y-2.5 sm:pt-9 md:pt-10"
+              style={{
+                borderColor: "color-mix(in srgb, var(--color-motif-deep) 12%, transparent)",
+              }}
+            >
+              <p
+                className={`${aboveTheBeyond.className} ${sectionType.script}`}
+                style={{ color: "var(--color-welcome-green)" }}
+              >
+                With all our love,
+              </p>
+              <p
+                className={`${cinzel.className} ${sectionType.subheader} font-semibold tracking-[0.12em] sm:tracking-[0.16em] md:tracking-[0.18em]`}
+                style={{ color: "var(--color-welcome-navy)" }}
+              >
+                {groomName} &amp; {brideName}
+              </p>
+            </footer>
           </div>
         </motion.article>
       </div>

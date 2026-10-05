@@ -24,14 +24,14 @@ const aboveTheBeyond = localFont({
   display: "swap",
 })
 
-const IVORY = "#fffaf4"
+const IVORY = "var(--color-motif-soft)"
 const GOLD = "var(--color-welcome-gold)"
 const NAVY = "var(--color-welcome-navy)"
 const SCRIPT = "var(--color-welcome-green)"
 const BODY = "var(--color-welcome-text)"
-const NAV_GOLD = "linear-gradient(180deg, #E8D5A3 0%, #CDB072 52%, #C4A265 100%)"
+const NAV_GOLD = "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)"
 const GOLD_BORDER = "color-mix(in srgb, var(--color-welcome-gold) 38%, transparent)"
-const QR_FG = "#5E5144"
+const QR_FG = "#304A34" // --color-welcome-navy
 const PRINT_QR_ID = "table-finder-qr-print"
 const DISPLAY_QR_ID = "table-finder-qr"
 
@@ -70,7 +70,7 @@ export function TableFinderQrCard() {
         background: IVORY,
         borderColor: GOLD_BORDER,
         boxShadow:
-          "0 10px 28px color-mix(in srgb, var(--color-welcome-gold) 12%, transparent), inset 0 1px 0 rgb(255 250 244 / 70%)",
+          "0 10px 28px color-mix(in srgb, var(--color-welcome-gold) 12%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
       }}
     >
       <div className="wedding-frame-inner hidden min-[400px]:block" aria-hidden />
@@ -100,7 +100,7 @@ export function TableFinderQrCard() {
                 className="h-auto w-full max-w-[196px]"
               />
             ) : (
-              <div className="h-[196px] w-[196px] animate-pulse rounded-md" style={{ backgroundColor: "color-mix(in srgb, #E8D5A3 28%, white)" }} />
+              <div className="h-[196px] w-[196px] animate-pulse rounded-md" style={{ backgroundColor: "color-mix(in srgb, var(--color-motif-silver) 28%, white)" }} />
             )}
           </div>
           <p

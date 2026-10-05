@@ -189,7 +189,7 @@ export function GuestRequests({ requests, onRefresh, onApproveRequest, isLoading
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search requests by name, email or phone..."
-            className="w-full pl-10 pr-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none transition-all"
           />
         </div>
       </div>
@@ -281,7 +281,7 @@ export function GuestRequests({ requests, onRefresh, onApproveRequest, isLoading
                   </Button>
                   <button
                     onClick={() => handleEditClick(request)}
-                    className="flex-1 lg:flex-none px-4 py-2 text-sm font-medium text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#6B4423] rounded-lg transition-colors border border-[#E5E7EB]"
+                    className="flex-1 lg:flex-none px-4 py-2 text-sm font-medium text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#304A34] rounded-lg transition-colors border border-[#E5E7EB]"
                     title="Edit request"
                   >
                     <Edit2 className="h-4 w-4 mx-auto lg:mr-2" />
@@ -326,7 +326,7 @@ export function GuestRequests({ requests, onRefresh, onApproveRequest, isLoading
                   type="text"
                   value={formData.Name}
                   onChange={(e) => setFormData({ ...formData, Name: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="Enter name"
                   readOnly
                 />
@@ -338,7 +338,7 @@ export function GuestRequests({ requests, onRefresh, onApproveRequest, isLoading
                   type="email"
                   value={formData.Email}
                   onChange={(e) => setFormData({ ...formData, Email: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="Enter email"
                 />
               </div>
@@ -349,7 +349,7 @@ export function GuestRequests({ requests, onRefresh, onApproveRequest, isLoading
                   type="tel"
                   value={formData.Phone}
                   onChange={(e) => setFormData({ ...formData, Phone: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="Enter phone"
                 />
               </div>
@@ -359,7 +359,7 @@ export function GuestRequests({ requests, onRefresh, onApproveRequest, isLoading
                 <select
                   value={formData.RSVP}
                   onChange={(e) => setFormData({ ...formData, RSVP: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                 >
                   <option value="">Pending</option>
                   <option value="Yes">Will Attend</option>
@@ -375,7 +375,7 @@ export function GuestRequests({ requests, onRefresh, onApproveRequest, isLoading
                   min="1"
                   value={formData.Guest}
                   onChange={(e) => setFormData({ ...formData, Guest: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="1"
                 />
               </div>
@@ -385,7 +385,7 @@ export function GuestRequests({ requests, onRefresh, onApproveRequest, isLoading
                 <textarea
                   value={formData.Message}
                   onChange={(e) => setFormData({ ...formData, Message: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#A67C52] focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
                   placeholder="Enter message"
                   rows={3}
                 />
@@ -405,7 +405,7 @@ export function GuestRequests({ requests, onRefresh, onApproveRequest, isLoading
               </Button>
               <Button
                 onClick={handleUpdateRequest}
-                className="flex-1 bg-gradient-to-r from-[#8B6F47] to-[#6B5335] hover:from-[#6B5335] hover:to-[#8B6F47] text-white"
+                className="flex-1 bg-gradient-to-r from-[#4F674D] to-[#304A34] hover:from-[#304A34] hover:to-[#4F674D] text-white"
               >
                 Update Request
               </Button>

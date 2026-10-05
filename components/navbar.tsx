@@ -91,41 +91,46 @@ export function Navbar() {
 
   const menuItems = useMemo(() => navLinks.map((l) => ({ label: l.label, ariaLabel: `Go to ${l.label}`, link: l.href })), [])
 
+  const monogramSrc = siteConfig.couple.monogram || NAV_MONOGRAM
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out ${
         isScrolled
-          ? "shadow-[0_12px_32px_rgba(91,74,55,0.22)]"
-          : "shadow-[0_6px_18px_rgba(91,74,55,0.12)]"
+          ? "shadow-[0_12px_28px_color-mix(in_srgb,var(--color-welcome-navy)_22%,transparent)]"
+          : "shadow-[0_6px_16px_color-mix(in_srgb,var(--color-welcome-navy)_12%,transparent)]"
       }`}
       style={{
         background:
-          "linear-gradient(180deg, #CDB072 0%, #C4A265 40%, #A98B52 100%)",
-        borderBottom: "1px solid color-mix(in srgb, #8A6F3E 45%, transparent)",
+          "linear-gradient(180deg, color-mix(in srgb, var(--color-motif-accent) 88%, white) 0%, var(--color-motif-accent) 42%, var(--color-motif-deep) 100%)",
+        borderBottom:
+          "1px solid color-mix(in srgb, var(--color-welcome-navy) 28%, transparent)",
       }}
     >
       {isScrolled && (
-        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-[color-mix(in_srgb,#7A6340_12%,transparent)] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/12 via-transparent to-[color-mix(in_srgb,var(--color-welcome-navy)_10%,transparent)] pointer-events-none" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/18 via-transparent to-[color-mix(in_srgb,#7A6340_16%,transparent)] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/14 via-transparent to-[color-mix(in_srgb,var(--color-welcome-navy)_14%,transparent)] pointer-events-none" />
       
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 relative">
-        <div className="flex justify-between items-center h-12 sm:h-14 md:h-16">
-          <Link href="#home" className="flex-shrink-0 group relative z-10">
-            <div className="relative h-9 w-14 sm:h-10 sm:w-16 md:h-12 md:w-[4.75rem]">
+      <div className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-8 relative">
+        <div className="flex justify-between items-center h-12 sm:h-14 md:h-16 gap-3">
+          <Link
+            href="#home"
+            className="flex-shrink-0 group relative z-10 flex items-center justify-center py-0 pl-1 pr-2.5 sm:pl-1.5 sm:pr-3 md:pl-2 md:pr-3.5 -ml-0.5 sm:ml-0 self-stretch"
+            aria-label={`${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname} — Home`}
+          >
+            <div className="relative h-[2.5rem] w-[3.2rem] sm:h-[2.85rem] sm:w-[3.65rem] md:h-[3.35rem] md:w-[4.15rem] shrink-0 my-0">
               <Image
-                src={NAV_MONOGRAM}
-                alt={`${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname}`}
+                src={monogramSrc}
+                alt=""
                 fill
-                className="object-contain group-hover:scale-110 group-active:scale-105 transition-all duration-500 drop-shadow-[0_2px_8px_rgba(42,34,28,0.35)] group-hover:drop-shadow-[0_4px_14px_rgba(255,250,244,0.45)]"
-                style={{
-                  filter: "brightness(0) invert(1)",
-                }}
+                sizes="(max-width: 768px) 51px, 67px"
+                priority
+                className="object-contain object-center p-0 group-hover:scale-105 group-active:scale-100 transition-transform duration-500 drop-shadow-[0_2px_6px_color-mix(in_srgb,var(--color-welcome-navy)_35%,transparent)]"
+                style={{ filter: "brightness(0) invert(1)" }}
               />
             </div>
-            
-            {/* Subtle background glow on hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl -z-10" />
+            <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[color-mix(in_srgb,var(--color-motif-soft)_18%,transparent)] blur-md -z-10" />
           </Link>
 
           <div className="hidden xl:flex gap-0.5 items-center">
@@ -137,20 +142,20 @@ export function Navbar() {
                   href={link.href}
                   className={`whitespace-nowrap px-2 py-2 text-xs lg:px-2.5 lg:text-sm ${cormorant.className} font-medium rounded-lg transition-all duration-500 relative group ${
                     isActive
-                      ? "text-[#B49A68] bg-white/95 backdrop-blur-md shadow-[0_6px_18px_rgba(42,34,28,0.16)] border border-white/80"
-                      : "text-white hover:text-white hover:bg-white/16 hover:border hover:border-white/35 hover:shadow-[0_6px_18px_rgba(42,34,28,0.12)] hover:scale-105 active:scale-95 bg-transparent border border-transparent"
+                      ? "text-[var(--color-motif-deep)] bg-[var(--color-motif-soft)] backdrop-blur-md shadow-[0_6px_16px_color-mix(in_srgb,var(--color-welcome-navy)_14%,transparent)] border border-[color-mix(in_srgb,var(--color-motif-soft)_85%,white)]"
+                      : "text-[var(--color-motif-soft)] hover:text-[var(--color-motif-soft)] hover:bg-white/14 hover:border hover:border-[color-mix(in_srgb,var(--color-motif-soft)_40%,transparent)] hover:shadow-[0_6px_14px_color-mix(in_srgb,var(--color-welcome-navy)_12%,transparent)] hover:scale-105 active:scale-95 bg-transparent border border-transparent"
                   }`}
                 >
                   {link.label}
                   <span
-                    className={`absolute bottom-0 left-0 h-0.5 bg-white transition-all duration-500 rounded-full ${
+                    className={`absolute bottom-0 left-0 h-0.5 bg-[var(--color-motif-silver)] transition-all duration-500 rounded-full ${
                       isActive
-                        ? "w-full shadow-[0_0_10px_rgba(255,250,244,0.7)]"
-                        : "w-0 group-hover:w-full group-hover:shadow-[0_0_8px_rgba(255,250,244,0.55)]"
+                        ? "w-full shadow-[0_0_8px_color-mix(in_srgb,var(--color-motif-soft)_65%,transparent)]"
+                        : "w-0 group-hover:w-full group-hover:shadow-[0_0_6px_color-mix(in_srgb,var(--color-motif-soft)_50%,transparent)]"
                     }`}
                   />
                   {isActive && (
-                    <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#B49A68] animate-pulse shadow-[0_0_6px_#B49A68]" />
+                    <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[var(--color-welcome-gold)] animate-pulse shadow-[0_0_6px_color-mix(in_srgb,var(--color-welcome-gold)_55%,transparent)]" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
                 </Link>
@@ -164,16 +169,16 @@ export function Navbar() {
               items={menuItems}
               socialItems={[]}
               displaySocials={false}
-              menuButtonColor="#fffaf4"
-              openMenuButtonColor="var(--color-welcome-gold)"
+              menuButtonColor="var(--color-motif-soft)"
+              openMenuButtonColor="var(--color-motif-deep)"
               changeMenuColorOnOpen={true}
               colors={[
                 "var(--color-motif-silver)",
-                "var(--color-welcome-gold)",
-                "var(--color-motif-cream)",
+                "var(--color-motif-blush)",
+                "var(--color-motif-medium)",
                 "var(--color-motif-soft)",
               ]}
-              accentColor="var(--color-welcome-gold)"
+              accentColor="var(--color-motif-accent)"
               isFixed={true}
               onMenuOpen={() => {}}
               onMenuClose={() => {}}

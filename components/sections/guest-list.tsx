@@ -19,6 +19,8 @@ import {
   UserPlus,
   Users,
   ChevronRight,
+  ChevronLeft,
+  Check,
 } from "lucide-react"
 import { Cinzel } from "next/font/google"
 import localFont from "next/font/local"
@@ -44,46 +46,73 @@ const aboveTheBeyond = localFont({
   variable: "--font-above-beyond",
 })
 
-const IVORY = "#fffaf4"
-const CHAMPAGNE = "#E8D5A3"
-const NAV_GOLD =
-  "linear-gradient(180deg, #E8D5A3 0%, #CDB072 52%, #C4A265 100%)"
-const LIGHT_OVERLAY = "color-mix(in srgb, #f7f3e9 42%, rgb(91 74 55 / 22%))"
+// Palette lives in globals.css → motif / welcome tokens.
+const IVORY = "var(--color-motif-soft)"
+const PAPER = "var(--color-welcome-bg-soft)"
+const DEEP_GRADIENT =
+  "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)"
+const SAGE_GRADIENT = "linear-gradient(145deg, var(--color-motif-medium) 0%, var(--color-motif-accent) 100%)"
+const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 55%, transparent)"
+// Forest-tinted veil behind modals
+const LIGHT_OVERLAY = "color-mix(in srgb, var(--color-welcome-navy) 38%, transparent)"
+const DARK_OVERLAY = "color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)"
 
 const palette = {
   body: "var(--color-welcome-text)",
   heading: "var(--color-welcome-navy)",
-  label: "var(--color-welcome-gold)",
-  accent: "var(--color-welcome-gold)",
+  label: "var(--color-motif-accent)",
+  accent: "var(--color-motif-accent)",
 } as const
 
 const modalCardStyle = {
-  background: IVORY,
-  borderColor: "color-mix(in srgb, #CDB072 42%, transparent)",
-  borderWidth: "1px",
-  borderStyle: "solid" as const,
+  background: `linear-gradient(180deg, ${PAPER} 0%, var(--color-motif-cream) 100%)`,
   boxShadow:
-    "0 18px 40px rgb(42 34 28 / 28%), inset 0 1px 0 rgb(255 250 244 / 70%)",
+    "0 30px 60px -24px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
 } as const
 
 const innerSurfaceStyle = {
-  background: `color-mix(in srgb, ${IVORY} 82%, ${CHAMPAGNE})`,
-  borderColor: "color-mix(in srgb, #CDB072 22%, transparent)",
+  background: "color-mix(in srgb, var(--color-motif-silver) 40%, var(--color-welcome-bg-soft))",
+  borderColor: HAIRLINE,
 } as const
 
-const modalInputClass = `w-full rounded-lg border bg-[#fffaf4] px-2.5 py-1.5 font-goudy-italic ${sectionType.text} transition-all duration-300 focus:ring-2 focus:ring-[color-mix(in_srgb,var(--color-welcome-gold)_28%,transparent)] sm:px-3 sm:py-2`
+const modalInputClass = `w-full rounded-lg border bg-[var(--color-motif-soft)] px-2.5 py-1.5 font-goudy-italic ${sectionType.text} transition-all duration-300 outline-none focus:border-[var(--color-motif-accent)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--color-motif-accent)_22%,transparent)] placeholder:text-[var(--color-welcome-text-soft)] sm:px-3 sm:py-2`
 
 const modalInputStyle = {
-  borderColor: "color-mix(in srgb, #CDB072 32%, transparent)",
+  borderColor: HAIRLINE,
   color: palette.heading,
 } as const
 
 const modalLabelClass = `font-goudy-italic mb-1.5 flex flex-wrap items-center gap-1.5 ${sectionType.text} font-semibold sm:mb-2 sm:gap-2`
 
 const dividerLineStyle = {
-  background:
-    "linear-gradient(to right, transparent, var(--color-welcome-gold), transparent)",
+  background: "linear-gradient(to right, transparent, var(--color-motif-medium), transparent)",
 } as const
+
+const primaryButtonStyle = {
+  background: DEEP_GRADIENT,
+  borderColor: "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)",
+  color: IVORY,
+  boxShadow: "0 12px 24px -10px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)",
+} as const
+
+const noticeStyle = {
+  background: "color-mix(in srgb, var(--color-motif-blush) 45%, var(--color-welcome-bg-soft))",
+  borderColor: "color-mix(in srgb, var(--color-motif-accent) 45%, transparent)",
+  color: "var(--color-welcome-navy)",
+} as const
+
+// "Hello {name}" → string with values, or React nodes when a value is a node
+function fill(template: string, values: Record<string, React.ReactNode>): React.ReactNode {
+  const parts = template.split(/(\{[a-zA-Z]+\})/)
+  return parts.map((part, i) => {
+    const key = part.match(/^\{([a-zA-Z]+)\}$/)?.[1]
+    return key && key in values ? <span key={i}>{values[key]}</span> : part
+  })
+}
+
+function fillText(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{([a-zA-Z]+)\}/g, (m, k) => (k in values ? String(values[k]) : m))
+}
 
 function HighlightedName({ name, query }: { name: string; query: string }) {
   const trimmed = query.trim()
@@ -97,7 +126,7 @@ function HighlightedName({ name, query }: { name: string; query: string }) {
   return (
     <>
       {name.slice(0, index)}
-      <span className="font-semibold" style={{ color: "var(--color-welcome-gold)" }}>
+      <span className="font-semibold" style={{ color: "var(--color-motif-deep)", background: "color-mix(in srgb, var(--color-motif-silver) 70%, transparent)" }}>
         {name.slice(index, index + trimmed.length)}
       </span>
       {name.slice(index + trimmed.length)}
@@ -159,6 +188,7 @@ async function loadGuestsFromApi(signal?: AbortSignal, reload = false): Promise<
 
 export function GuestList() {
   const siteConfig = useSiteConfig()
+  const copy = siteConfig.rsvp
   const [guests, setGuests] = useState<Guest[]>([])
   const [filteredGuests, setFilteredGuests] = useState<Guest[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -200,6 +230,7 @@ export function GuestList() {
   const phoneInputRef = useRef<HTMLInputElement>(null)
   const [isMounted, setIsMounted] = useState(false)
   const [showPhoneAlert, setShowPhoneAlert] = useState(false)
+  const [companionStep, setCompanionStep] = useState(0)
 
   useEffect(() => {
     setIsMounted(true)
@@ -270,7 +301,7 @@ export function GuestList() {
       } catch (error) {
         if (isAbortError(error)) return
         console.error("Error fetching guests:", error)
-        setError("Failed to load guest list")
+        setError(copy.messages.loadFailed)
         setTimeout(() => setError(null), 5000)
       } finally {
         if (!controller.signal.aborted) {
@@ -367,6 +398,7 @@ export function GuestList() {
     // Check if guest has already responded (status is confirmed or declined)
     setHasResponded(!!(guest.Status && (guest.Status === "confirmed" || guest.Status === "declined")))
     
+    setCompanionStep(0)
     setShowSearchModal(false)
     setShowModal(true)
   }
@@ -382,7 +414,7 @@ export function GuestList() {
     if (!selectedGuest) return
 
     if (!formData.RSVP) {
-      setError("Please select if you can attend")
+      setError(copy.messages.selectAttendance)
       setTimeout(() => setError(null), 5000)
       return
     }
@@ -424,14 +456,21 @@ export function GuestList() {
           payload && typeof payload === "object" && "error" in payload
             ? String((payload as { error?: unknown }).error || "").trim()
             : ""
+        // Don't show "thank you" when the sheet didn't save — let the guest try again
         console.warn("RSVP update response was not OK:", response.status, apiError)
+        setError(copy.messages.submitFailed)
+        setIsLoading(false)
+        return
       }
     } catch (error) {
       console.error("Error submitting RSVP:", error)
+      setError(copy.messages.submitFailed)
+      setIsLoading(false)
+      return
     }
 
     setError(null)
-    setSuccess("Thank you for your response!")
+    setSuccess(copy.messages.thankYou)
     setHasResponded(true)
     setSelectedGuest((prev) =>
       prev
@@ -451,12 +490,16 @@ export function GuestList() {
     setIsLoading(false)
   }
 
+  // With companions to enter, tighten the RSVP modal so everything fits on a phone screen
+  const isCompactRsvp = !hasResponded && formData.RSVP === "Yes" && companions.length > 0
+
   const handleCloseModal = () => {
     setShowModal(false)
     setSelectedGuest(null)
     setSearchQuery("")
     setFormData({ Name: "", Email: "", Phone: "", RSVP: "", Guest: "1", Message: "", Status: "pending" })
     setCompanions([])
+    setCompanionStep(0)
     setHasResponded(false)
     setError(null)
     setShowPhoneAlert(false)
@@ -482,7 +525,7 @@ export function GuestList() {
 
   const handleSubmitRequest = async () => {
     if (!requestFormData.Name) {
-      setError("Name is required")
+      setError(copy.messages.nameRequired)
       setTimeout(() => setError(null), 5000)
       return
     }
@@ -512,7 +555,7 @@ export function GuestList() {
         throw new Error("Failed to submit request")
       }
 
-      setRequestSuccess("Request submitted! We'll review and get back to you.")
+      setRequestSuccess(copy.messages.requestSubmitted)
       
       // Close modal and reset after showing success
       setTimeout(() => {
@@ -523,7 +566,7 @@ export function GuestList() {
       }, 3000)
     } catch (error) {
       console.error("Error submitting request:", error)
-      setError("Failed to submit request. Please try again.")
+      setError(copy.messages.requestFailed)
       setTimeout(() => setError(null), 5000)
     } finally {
       setIsLoading(false)
@@ -547,12 +590,24 @@ export function GuestList() {
     >
       <fieldset
         className="relative mx-auto w-full max-w-[22.5rem] overflow-visible rounded-[1.85rem] px-5 pb-8 pt-6 text-center @container/rsvp sm:max-w-[24rem] sm:px-7 sm:pb-9 sm:pt-7"
-        style={{
-          background: IVORY,
-          border: "1px solid color-mix(in srgb, var(--color-welcome-gold) 38%, transparent)",
-          boxShadow: "0 10px 28px color-mix(in srgb, var(--color-welcome-gold) 12%, transparent)",
-        }}
+        style={modalCardStyle}
       >
+        {/* Inner frame line */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-2 rounded-[1.5rem] border sm:inset-2.5"
+          style={{ borderColor: HAIRLINE }}
+        />
+        {copy.headerOrnament ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={copy.headerOrnament}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            className="relative mx-auto mb-3 block h-auto w-24 select-none sm:w-28"
+          />
+        ) : null}
         <h2
           className="welcome-title-lockup relative mx-auto w-full max-w-full text-center"
           style={
@@ -562,7 +617,7 @@ export function GuestList() {
             } as React.CSSProperties
           }
         >
-          <span className="sr-only">RSVP. Are you going?</span>
+          <span className="sr-only">{copy.title}. {copy.script}?</span>
           <span
             aria-hidden
             className={`${theSeasons.className} block uppercase leading-[0.9] tracking-[0.08em] min-[400px]:tracking-[0.11em] sm:tracking-[0.13em] md:tracking-[0.14em]`}
@@ -571,19 +626,18 @@ export function GuestList() {
               color: "var(--color-welcome-navy)",
             }}
           >
-            RSVP
+            {copy.title}
           </span>
           <span
             aria-hidden
             className={`${aboveTheBeyond.className} relative z-10 mx-auto mt-1.5 block w-fit max-w-full px-1 leading-[0.88] sm:mt-2 sm:leading-[0.9]`}
             style={{
               fontSize: "var(--script-size)",
-              color: "var(--color-welcome-green)",
-              textShadow:
-                "0 1px 0 color-mix(in srgb, var(--color-welcome-bg) 95%, white), 0 0 10px color-mix(in srgb, var(--color-welcome-bg) 65%, white)",
+              color: "var(--color-welcome-script)",
+              textShadow: "0 1px 0 var(--color-motif-soft)",
             }}
           >
-            Are you going
+            {copy.script}
             <span className={`${cinzel.className} relative -top-[0.06em] ml-[0.04em] inline-block font-normal`}>
               ?
             </span>
@@ -594,15 +648,15 @@ export function GuestList() {
           className={`font-goudy-italic mx-auto mt-3 max-w-[17.5rem] ${sectionType.textSnug} sm:mt-4`}
           style={{ color: "var(--color-welcome-text)" }}
         >
-          Kindly confirm your attendance so we may prepare a place for you at our celebration.
+          {copy.intro}
         </p>
 
         {siteConfig.details.rsvp.deadline ? (
           <p
             className={`${cinzel.className} ${sectionType.label} mx-auto mt-4 font-semibold uppercase tracking-[0.16em] sm:mt-5 sm:tracking-[0.18em]`}
-            style={{ color: "var(--color-welcome-gold)" }}
+            style={{ color: palette.accent }}
           >
-            RSVP Deadline
+            {copy.deadlineLabel}
             <span
               className={`${theSeasons.className} mt-2 block text-[1.45rem] font-normal normal-case leading-tight tracking-[0.04em] sm:text-[1.75rem] md:text-[1.95rem]`}
               style={{ color: "var(--color-welcome-navy)" }}
@@ -618,10 +672,10 @@ export function GuestList() {
             setSearchQuery("")
             setShowSearchModal(true)
           }}
-          className={`${cinzel.className} ${sectionType.label} mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-full px-6 py-2.5 font-semibold uppercase tracking-[0.12em] shadow-[0_8px_18px_color-mix(in_srgb,var(--color-welcome-gold)_22%,transparent)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98] sm:mt-6 sm:tracking-[0.14em]`}
-          style={{ background: NAV_GOLD, color: IVORY }}
+          className={`${cinzel.className} ${sectionType.label} mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-full px-6 py-2.5 font-semibold uppercase tracking-[0.12em] relative border transition-all duration-200 hover:scale-[1.03] hover:brightness-110 active:scale-[0.98] sm:mt-6 sm:tracking-[0.14em]`}
+          style={primaryButtonStyle}
         >
-          Tap here to respond
+          {copy.openButton}
         </button>
       </fieldset>
     </section>
@@ -641,7 +695,7 @@ export function GuestList() {
             onClick={(event) => event.stopPropagation()}
           >
             <div
-              className="relative overflow-hidden rounded-[1.35rem] border"
+              className="relative overflow-hidden rounded-[1.35rem]"
               style={modalCardStyle}
             >
               <div
@@ -649,13 +703,13 @@ export function GuestList() {
                 className="pointer-events-none absolute inset-x-6 top-0 h-px"
                 style={{
                   background:
-                    "linear-gradient(to right, transparent, var(--color-motif-yellow), transparent)",
+                    "linear-gradient(to right, transparent, var(--color-motif-accent), transparent)",
                 }}
               />
               <button
                 type="button"
                 onClick={() => setShowSearchModal(false)}
-                className="absolute right-3 top-3 z-10 rounded-full p-1.5 transition-colors hover:bg-black/5"
+                className="absolute right-3 top-3 z-10 rounded-full p-1.5 transition-colors hover:bg-[color-mix(in_srgb,var(--color-motif-silver)_70%,transparent)]"
                 style={{ color: palette.heading }}
                 aria-label="Close search"
               >
@@ -673,7 +727,7 @@ export function GuestList() {
                     } as CSSProperties
                   }
                 >
-                  <span className="sr-only">RSVP — Find your name</span>
+                  <span className="sr-only">{copy.search.title} — {copy.search.script}</span>
                   <span
                     aria-hidden
                     className={`${theSeasons.className} block uppercase leading-[0.78] tracking-[0.08em] min-[400px]:tracking-[0.11em] sm:tracking-[0.13em]`}
@@ -682,7 +736,7 @@ export function GuestList() {
                       color: palette.heading,
                     }}
                   >
-                    RSVP
+                    {copy.search.title}
                   </span>
                   <span
                     aria-hidden
@@ -692,37 +746,35 @@ export function GuestList() {
                       color: palette.accent,
                     }}
                   >
-                    Find your Name
+                    {copy.search.script}
                   </span>
                 </h2>
 
                 <div className="mx-auto mt-3 flex items-center justify-center gap-1.5 sm:mt-4">
                   <span className="h-px w-6 sm:w-8" style={dividerLineStyle} />
-                  <Heart className="h-3 w-3 sm:h-3.5 sm:w-3.5" style={{ color: "var(--color-welcome-gold)" }} aria-hidden />
+                  <Heart className="h-3 w-3 sm:h-3.5 sm:w-3.5" style={{ color: palette.accent, fill: palette.accent }} aria-hidden />
                   <span className="h-px w-6 sm:w-8" style={dividerLineStyle} />
                 </div>
 
                 <div ref={searchRef} className="relative mt-4 sm:mt-5">
                   <Search
                     className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2"
-                    style={{ color: "var(--color-welcome-gold)" }}
+                    style={{ color: palette.accent }}
                   />
                   <input
                     id="rsvp-name-search"
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Begin with your first name"
+                    placeholder={copy.search.placeholder}
                     autoFocus
                     autoComplete="off"
-                    className="w-full rounded-full border bg-[#fffaf4] py-2.5 pl-10 pr-4 font-goudy-italic text-[0.95rem] shadow-sm outline-none transition-all duration-200 placeholder:text-[color-mix(in_srgb,var(--color-welcome-text)_45%,transparent)] sm:py-3 sm:text-base"
+                    className="w-full rounded-full border bg-[var(--color-motif-soft)] py-2.5 pl-10 pr-4 font-goudy-italic text-[0.95rem] shadow-sm outline-none transition-all duration-200 placeholder:text-[var(--color-welcome-text-soft)] sm:py-3 sm:text-base"
                     style={{
-                      borderColor: searchQuery
-                        ? "var(--color-welcome-gold)"
-                        : "color-mix(in srgb, var(--color-motif-deep) 22%, transparent)",
+                      borderColor: searchQuery ? "var(--color-motif-accent)" : HAIRLINE,
                       color: palette.heading,
                       boxShadow: searchQuery
-                        ? "0 0 0 3px color-mix(in srgb, var(--color-welcome-gold) 22%, transparent)"
+                        ? "0 0 0 3px color-mix(in srgb, var(--color-motif-accent) 20%, transparent)"
                         : undefined,
                     }}
                   />
@@ -733,20 +785,20 @@ export function GuestList() {
                 <div
                   className="border-t px-5 py-4 text-center sm:px-6 sm:py-5"
                   style={{
-                    borderColor: "color-mix(in srgb, var(--color-motif-deep) 10%, transparent)",
-                    background: "var(--color-welcome-bg-soft)",
+                    borderColor: HAIRLINE,
+                    background: innerSurfaceStyle.background,
                   }}
                 >
                   <RefreshCw
                     className="mx-auto mb-2 h-4 w-4 animate-spin"
-                    style={{ color: "var(--color-welcome-gold)" }}
+                    style={{ color: palette.accent }}
                     aria-hidden
                   />
                   <p
                     className={`font-goudy-italic ${sectionType.textSnug}`}
                     style={{ color: palette.body }}
                   >
-                    Preparing the guest list. We&apos;ll keep trying until names appear.
+                    {copy.search.loading}
                   </p>
                 </div>
               )}
@@ -755,8 +807,8 @@ export function GuestList() {
                 <div
                   className="border-t"
                   style={{
-                    borderColor: "color-mix(in srgb, #CDB072 28%, transparent)",
-                    background: `color-mix(in srgb, ${IVORY} 82%, ${CHAMPAGNE})`,
+                    borderColor: HAIRLINE,
+                    background: IVORY,
                   }}
                 >
                   {filteredGuests.slice(0, 6).map((guest, index) => (
@@ -765,16 +817,16 @@ export function GuestList() {
                       type="button"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => handleSearchSelect(guest)}
-                      className="group flex w-full items-center gap-3 border-b px-5 py-3 text-left last:border-b-0 hover:bg-[color-mix(in_srgb,#fffaf4_55%,#E8D5A3)] sm:px-6 sm:py-3.5"
+                      className="group flex w-full items-center gap-3 border-b px-5 py-3 text-left last:border-b-0 transition-colors hover:bg-[color-mix(in_srgb,var(--color-motif-silver)_55%,transparent)] sm:px-6 sm:py-3.5"
                       style={{
-                        borderColor: "color-mix(in srgb, #CDB072 22%, transparent)",
+                        borderColor: HAIRLINE,
                       }}
                     >
                       <div
                         className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full sm:h-9 sm:w-9"
-                        style={{ background: NAV_GOLD }}
+                        style={{ background: SAGE_GRADIENT }}
                       >
-                        <User className="h-3.5 w-3.5 text-[#fffaf4] sm:h-4 sm:w-4" />
+                        <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: IVORY }} />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div
@@ -794,16 +846,16 @@ export function GuestList() {
                       </div>
                       <ChevronRight
                         className="h-4 w-4 flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
-                        style={{ color: "var(--color-welcome-gold)" }}
+                        style={{ color: palette.accent }}
                       />
                     </button>
                   ))}
                   {filteredGuests.length > 6 && (
                     <p
                       className={`${cinzel.className} px-5 py-2.5 text-center text-[0.62rem] font-medium tracking-[0.14em] sm:px-6`}
-                      style={{ color: "var(--color-welcome-gold)" }}
+                      style={{ color: palette.accent }}
                     >
-                      Keep typing to refine results
+                      {copy.search.refine}
                     </p>
                   )}
                 </div>
@@ -813,29 +865,29 @@ export function GuestList() {
                 <div
                   className="border-t px-5 py-4 sm:px-6 sm:py-5"
                   style={{
-                    borderColor: "color-mix(in srgb, var(--color-motif-deep) 10%, transparent)",
-                    background: "var(--color-welcome-bg-soft)",
+                    borderColor: HAIRLINE,
+                    background: innerSurfaceStyle.background,
                   }}
                 >
                   <div className="mb-3 flex items-start gap-3">
                     <div
                       className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full"
-                      style={{ background: NAV_GOLD }}
+                      style={{ background: SAGE_GRADIENT }}
                     >
-                      <UserPlus className="h-4 w-4 text-[#fffaf4]" />
+                      <UserPlus className="h-4 w-4" style={{ color: IVORY }} />
                     </div>
                     <div className="flex-1">
                       <h4
                         className={`${cinzel.className} text-[0.78rem] font-semibold tracking-[0.08em]`}
                         style={{ color: palette.heading }}
                       >
-                        Not finding your name?
+                        {copy.search.notFoundTitle}
                       </h4>
                       <p
                         className={`font-goudy-italic mt-1 ${sectionType.textSnug}`}
                         style={{ color: palette.body }}
                       >
-                        We&apos;d love to have you with us. Send a request to join the celebration.
+                        {copy.search.notFoundText}
                       </p>
                     </div>
                   </div>
@@ -845,11 +897,11 @@ export function GuestList() {
                       setRequestFormData({ ...requestFormData, Name: searchQuery })
                       setShowRequestModal(true)
                     }}
-                    className={`${cinzel.className} flex w-full items-center justify-center rounded-full py-2.5 text-[0.72rem] font-semibold tracking-[0.12em] text-[#fffaf4] transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]`}
-                    style={{ background: NAV_GOLD }}
+                    className={`${cinzel.className} flex w-full items-center justify-center rounded-full py-2.5 text-[0.72rem] font-semibold tracking-[0.12em] border transition-all duration-200 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98]`}
+                    style={primaryButtonStyle}
                   >
                     <UserPlus className="mr-2 h-3.5 w-3.5" />
-                    Request to Join
+                    {copy.search.requestButton}
                   </button>
                 </div>
               )}
@@ -867,25 +919,29 @@ export function GuestList() {
           onClick={handleCloseModal}
         >
           <div
-            className="relative mx-1 flex w-full max-w-md flex-col overflow-visible rounded-xl animate-in zoom-in-95 duration-300 @container/guest-modal sm:mx-2 sm:max-w-lg sm:rounded-2xl md:mx-4"
+            className="relative mx-1 flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-2xl animate-in zoom-in-95 duration-300 @container/guest-modal sm:mx-2 sm:max-h-[calc(100dvh-2rem)] sm:max-w-lg md:mx-4"
             style={modalCardStyle}
             onClick={(e) => e.stopPropagation()}
           >
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-5 top-0 h-px sm:inset-x-8"
+              className="pointer-events-none absolute inset-x-5 top-0 z-10 h-px sm:inset-x-8"
               style={{
                 background:
-                  "linear-gradient(to right, transparent, var(--color-motif-yellow), transparent)",
+                  "linear-gradient(to right, transparent, var(--color-motif-accent), transparent)",
               }}
             />
 
             {/* Modal Header */}
-            <div className="relative flex-shrink-0 px-4 pb-4 pt-5 text-center sm:px-6 sm:pb-5 sm:pt-6">
+            <div
+              className={`relative flex-shrink-0 px-4 text-center sm:px-6 ${
+                isCompactRsvp ? "pb-2.5 pt-4" : "pb-4 pt-5 sm:pb-5 sm:pt-6"
+              }`}
+            >
               {!hasResponded && (
                 <button
                   onClick={handleCloseModal}
-                  className="absolute right-2 top-2 rounded-full p-1 transition-colors hover:bg-black/5 sm:right-3 sm:top-3 sm:p-1.5"
+                  className="absolute right-2 top-2 rounded-full p-1 transition-colors hover:bg-[color-mix(in_srgb,var(--color-motif-silver)_70%,transparent)] sm:right-3 sm:top-3 sm:p-1.5"
                   style={{ color: palette.heading }}
                   aria-label="Close"
                 >
@@ -893,18 +949,20 @@ export function GuestList() {
                 </button>
               )}
 
-              <div className="mx-auto mb-4 flex items-center justify-center gap-1.5 sm:mb-5">
-                <span className="h-px w-6 sm:w-10" style={dividerLineStyle} />
-                <Heart className="h-3 w-3 sm:h-3.5 sm:w-3.5" style={{ color: palette.accent }} aria-hidden />
-                <span className="h-px w-6 sm:w-10" style={dividerLineStyle} />
-              </div>
+              {!isCompactRsvp && (
+                <div className="mx-auto mb-4 flex items-center justify-center gap-1.5 sm:mb-5">
+                  <span className="h-px w-6 sm:w-10" style={dividerLineStyle} />
+                  <Heart className="h-3 w-3 sm:h-3.5 sm:w-3.5" style={{ color: palette.accent }} aria-hidden />
+                  <span className="h-px w-6 sm:w-10" style={dividerLineStyle} />
+                </div>
+              )}
 
               <h3
                 className="welcome-title-lockup relative mx-auto w-full max-w-full text-center"
                 style={
                   {
-                    "--title-size": modalTitleSize.main,
-                    "--script-size": modalTitleSize.script,
+                    "--title-size": isCompactRsvp ? "clamp(1.1rem, 5.5vw, 1.6rem)" : modalTitleSize.main,
+                    "--script-size": isCompactRsvp ? "clamp(0.95rem, 4.6vw, 1.35rem)" : modalTitleSize.script,
                   } as CSSProperties
                 }
               >
@@ -912,60 +970,70 @@ export function GuestList() {
                   className={`${theSeasons.className} block uppercase leading-[0.78] tracking-[0.08em] min-[400px]:tracking-[0.11em] sm:tracking-[0.13em] pb-1 sm:pb-1.5`}
                   style={{ fontSize: "var(--title-size)", color: palette.heading }}
                 >
-                  You are Invited
+                  {copy.invite.title}
                 </span>
                 <span
                   aria-hidden
-                  className={`${aboveTheBeyond.className} mx-auto block w-fit max-w-full px-1 leading-[0.88] sm:leading-[0.9] mt-2 sm:mt-2.5 md:mt-3`}
+                  className={`${aboveTheBeyond.className} mx-auto block w-fit max-w-full px-1 leading-[0.88] sm:leading-[0.9] ${
+                    isCompactRsvp ? "mt-1" : "mt-2 sm:mt-2.5 md:mt-3"
+                  }`}
                   style={{
                     fontSize: "var(--script-size)",
                     color: palette.accent,
                   }}
                 >
-                  {selectedGuest?.Name || "to our celebration"}
+                  {selectedGuest?.Name || copy.invite.scriptFallback}
                 </span>
               </h3>
 
+              {!isCompactRsvp && (
+                <p
+                  className={`font-goudy-italic mx-auto mt-4 max-w-md sm:mt-5 ${sectionType.textSnug}`}
+                  style={{ color: palette.body }}
+                >
+                  {fill(copy.invite.greeting, {
+                    name: <span style={{ color: palette.heading }}>{selectedGuest?.Name}</span>,
+                  })}
+                </p>
+              )}
               <p
-                className={`font-goudy-italic mx-auto mt-4 max-w-md sm:mt-5 ${sectionType.textSnug}`}
+                className={`font-goudy-italic mx-auto ${isCompactRsvp ? "mt-1 text-[0.8rem]" : `mt-2 ${sectionType.text}`}`}
                 style={{ color: palette.body }}
               >
-                Hello <span style={{ color: palette.heading }}>{selectedGuest?.Name}</span>, you are
-                invited to our wedding!
-              </p>
-              <p
-                className={`font-goudy-italic mx-auto mt-2 ${sectionType.text}`}
-                style={{ color: palette.body }}
-              >
-                We&apos;ve reserved{" "}
-                <span className="font-semibold" style={{ color: palette.accent }}>
-                  {selectedGuest?.AllowedGuests || 1}
-                </span>{" "}
-                {selectedGuest?.AllowedGuests === 1 ? "seat" : "seats"} for you.
+                {fill(copy.invite.seats, {
+                  count: (
+                    <>
+                      <span className="font-semibold" style={{ color: palette.accent }}>
+                        {selectedGuest?.AllowedGuests || 1}
+                      </span>{" "}
+                      {(selectedGuest?.AllowedGuests || 1) === 1 ? copy.invite.seatSingular : copy.invite.seatPlural}
+                    </>
+                  ),
+                })}
               </p>
             </div>
 
             {/* Modal Content */}
-            <div className="px-4 pb-4 sm:px-6 sm:pb-5 md:px-7 md:pb-6">
+            <div className="flex min-h-0 flex-1 flex-col">
                 {hasResponded ? (
-                  <div className="py-3 text-center sm:py-4 md:py-6">
+                  <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 py-3 text-center sm:px-6 sm:py-4 md:px-7 md:py-6">
                     <div
                       className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full sm:mb-4 sm:h-14 sm:w-14 md:h-16 md:w-16"
-                      style={{ backgroundColor: palette.accent }}
+                      style={{ background: DEEP_GRADIENT }}
                     >
-                      <CheckCircle className="h-6 w-6 text-white sm:h-7 sm:w-7 md:h-8 md:w-8" />
+                      <CheckCircle className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8" style={{ color: IVORY }} />
                     </div>
                     <h4
                       className={`${theSeasons.className} mb-2 uppercase tracking-[0.12em] sm:text-lg md:text-xl ${sectionType.subheader}`}
                       style={{ color: palette.heading }}
                     >
-                      Thank You for Responding!
+                      {copy.responded.title}
                     </h4>
                     <p
                       className={`font-goudy-italic mb-4 px-2 ${sectionType.text}`}
                       style={{ color: palette.body }}
                     >
-                      We&apos;ve received your RSVP and look forward to celebrating with you!
+                      {copy.responded.text}
                     </p>
                     <div
                       className="space-y-2.5 rounded-lg border p-3 sm:space-y-3 sm:p-4"
@@ -974,17 +1042,17 @@ export function GuestList() {
                       <div className="mb-1.5 flex items-center justify-center gap-2 sm:mb-2">
                         {selectedGuest?.RSVP === "Yes" && (
                           <>
-                            <CheckCircle className="h-4 w-4 text-green-600 sm:h-5 sm:w-5" />
-                            <span className="font-goudy-italic text-xs font-semibold text-green-600 sm:text-sm">
-                              You&apos;re Attending!
+                            <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: "var(--color-motif-deep)" }} />
+                            <span className="font-goudy-italic text-xs font-semibold sm:text-sm" style={{ color: "var(--color-motif-deep)" }}>
+                              {copy.responded.attending}
                             </span>
                           </>
                         )}
                         {selectedGuest?.RSVP === "No" && (
                           <>
-                            <XCircle className="h-4 w-4 text-red-600 sm:h-5 sm:w-5" />
-                            <span className="font-goudy-italic text-xs font-semibold text-red-600 sm:text-sm">
-                              Unable to Attend
+                            <XCircle className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: "var(--color-welcome-text-soft)" }} />
+                            <span className="font-goudy-italic text-xs font-semibold sm:text-sm" style={{ color: palette.body }}>
+                              {copy.responded.declined}
                             </span>
                           </>
                         )}
@@ -996,7 +1064,7 @@ export function GuestList() {
                               className={`font-goudy-italic mb-1 ${sectionType.label} font-medium`}
                               style={{ color: palette.label }}
                             >
-                              Number of Guests
+                              {copy.responded.guestCountLabel}
                             </p>
                             <p
                               className={`${theSeasons.className} text-lg sm:text-xl md:text-2xl`}
@@ -1020,14 +1088,10 @@ export function GuestList() {
                     </div>
                     <button
                       onClick={handleCloseModal}
-                      className={`${cinzel.className} mt-4 rounded-sm border px-6 py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.2em] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md sm:mt-5 sm:px-8 sm:py-3 md:mt-6`}
-                      style={{
-                        backgroundColor: palette.accent,
-                        borderColor: "color-mix(in srgb, var(--color-welcome-navy) 35%, transparent)",
-                        color: "var(--color-welcome-bg)",
-                      }}
+                      className={`${cinzel.className} mt-4 rounded-full border px-8 py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.2em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 sm:mt-5 sm:px-10 sm:py-3 md:mt-6`}
+                      style={primaryButtonStyle}
                     >
-                      Close
+                      {copy.responded.closeButton}
                     </button>
                   </div>
                 ) : (
@@ -1037,12 +1101,14 @@ export function GuestList() {
                       e.preventDefault()
                       handleSubmitRSVP()
                     }}
-                    className="space-y-2.5 sm:space-y-3 md:space-y-4"
+                    className="flex min-h-0 flex-1 flex-col"
                   >
+                  {/* Body — fits on screen; scrolls only as a last resort on very short screens */}
+                  <div className={`min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 md:px-7 ${isCompactRsvp ? "space-y-2.5" : "space-y-2.5 sm:space-y-3 md:space-y-4"}`}>
                     <div>
                       <label className={modalLabelClass} style={{ color: palette.heading }}>
                         <Sparkles className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" style={{ color: palette.accent }} />
-                        <span>Can you attend? *</span>
+                        <span>{copy.form.attendLabel}</span>
                       </label>
                       <div className="grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-3">
                         <button
@@ -1050,19 +1116,18 @@ export function GuestList() {
                           onClick={() =>
                             setFormData((prev) => ({ ...prev, RSVP: "Yes", Guest: "1" }))
                           }
-                          className={`relative rounded-lg border-2 p-2 transition-all duration-300 sm:p-2.5 md:p-3 lg:p-4 ${
+                          className={`relative rounded-lg border-2 transition-all duration-300 ${isCompactRsvp ? "p-2" : "p-2 sm:p-2.5 md:p-3 lg:p-4"} ${
                             formData.RSVP === "Yes"
                               ? "scale-[1.02] shadow-md"
-                              : "bg-white hover:shadow-sm"
+                              : "hover:shadow-sm"
                           }`}
                           style={
                             formData.RSVP === "Yes"
                               ? {
                                   borderColor: palette.accent,
-                                  backgroundColor:
-                                    "color-mix(in srgb, var(--color-welcome-gold) 14%, white)",
+                                  backgroundColor: "color-mix(in srgb, var(--color-motif-silver) 70%, var(--color-motif-soft))",
                                 }
-                              : { borderColor: innerSurfaceStyle.borderColor }
+                              : { borderColor: HAIRLINE, backgroundColor: IVORY }
                           }
                         >
                           <div className="flex items-center justify-center gap-1.5 sm:gap-2">
@@ -1077,123 +1142,209 @@ export function GuestList() {
                               className="font-goudy-italic text-xs font-semibold sm:text-sm"
                               style={{ color: palette.heading }}
                             >
-                              Yes!
+                              {copy.form.yes}
                             </span>
                           </div>
                         </button>
                         <button
                           type="button"
                           onClick={() => setFormData((prev) => ({ ...prev, RSVP: "No" }))}
-                          className={`relative rounded-lg border-2 p-2 transition-all duration-300 sm:p-2.5 md:p-3 lg:p-4 ${
-                            formData.RSVP === "No"
-                              ? "scale-[1.02] border-red-500 bg-red-50 shadow-md"
-                              : "border-[color-mix(in_srgb,var(--color-motif-deep)_10%,transparent)] bg-white hover:shadow-sm"
+                          className={`relative rounded-lg border-2 transition-all duration-300 ${isCompactRsvp ? "p-2" : "p-2 sm:p-2.5 md:p-3 lg:p-4"} ${
+                            formData.RSVP === "No" ? "scale-[1.02] shadow-md" : "hover:shadow-sm"
                           }`}
+                          style={
+                            formData.RSVP === "No"
+                              ? {
+                                  borderColor: "var(--color-welcome-text-soft)",
+                                  backgroundColor: "color-mix(in srgb, var(--color-motif-blush) 45%, var(--color-motif-soft))",
+                                }
+                              : { borderColor: HAIRLINE, backgroundColor: IVORY }
+                          }
                         >
                           <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                             <XCircle
-                              className={`h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5 ${
-                                formData.RSVP === "No" ? "text-red-600" : "text-[color-mix(in_srgb,var(--color-welcome-text)_45%,transparent)]"
-                              }`}
+                              className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5"
+                              style={{ color: formData.RSVP === "No" ? palette.heading : "var(--color-welcome-text-soft)" }}
                             />
                             <span
-                              className={`font-goudy-italic text-xs font-semibold sm:text-sm ${
-                                formData.RSVP === "No" ? "text-red-600" : ""
-                              }`}
-                              style={formData.RSVP !== "No" ? { color: palette.heading } : undefined}
+                              className="font-goudy-italic text-xs font-semibold sm:text-sm"
+                              style={{ color: palette.heading }}
                             >
-                              Sorry, No
+                              {copy.form.no}
                             </span>
                           </div>
                         </button>
                       </div>
                     </div>
 
-                    {formData.RSVP === "Yes" && companions.length > 0 && (
-                      <div className="space-y-2.5 sm:space-y-3">
-                        <label className={modalLabelClass} style={{ color: palette.heading }}>
-                          <Users className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" style={{ color: palette.accent }} />
-                          <span>Who&apos;s Coming With You?</span>
-                        </label>
-                        <p
-                          className={`font-goudy-italic -mt-1 sm:-mt-1.5 ${sectionType.label}`}
-                          style={{ color: palette.body }}
-                        >
-                          Please provide names and relationships for your{" "}
-                          <span className="font-semibold" style={{ color: palette.heading }}>
-                            {companions.length}
-                          </span>{" "}
-                          additional {companions.length === 1 ? "guest" : "guests"}
-                        </p>
-                        {companions.map((companion, index) => (
-                          <div
-                            key={index}
-                            className="space-y-2 rounded-lg border p-2.5 sm:space-y-2.5 sm:p-3"
-                            style={innerSurfaceStyle}
-                          >
-                            <div className="mb-1 flex items-center gap-1.5 sm:mb-1.5">
-                              <User className="h-3 w-3 sm:h-3.5 sm:w-3.5" style={{ color: palette.accent }} />
-                              <span
-                                className={`font-goudy-italic ${sectionType.label} font-semibold`}
-                                style={{ color: palette.heading }}
-                              >
-                                Guest {index + 2}
-                              </span>
-                            </div>
-                            <div className="space-y-1.5 sm:space-y-2">
-                              <div>
-                                <label
-                                  className={`font-goudy-italic mb-1 block ${sectionType.label} font-medium`}
-                                  style={{ color: palette.label }}
-                                >
-                                  Full Name
-                                </label>
-                                <input
-                                  type="text"
-                                  value={companion.name}
-                                  onChange={(e) => {
-                                    const newCompanions = [...companions]
-                                    newCompanions[index] = { ...newCompanions[index], name: e.target.value }
-                                    setCompanions(newCompanions)
-                                  }}
-                                  placeholder={`Name of guest ${index + 2}`}
-                                  className={modalInputClass}
-                                  style={modalInputStyle}
-                                />
-                              </div>
-                              <div>
-                                <label
-                                  className={`font-goudy-italic mb-1 block ${sectionType.label} font-medium`}
-                                  style={{ color: palette.label }}
-                                >
-                                  Relationship with {selectedGuest?.Name || "Primary Guest"}
-                                </label>
-                                <input
-                                  type="text"
-                                  value={companion.relationship}
-                                  onChange={(e) => {
-                                    const newCompanions = [...companions]
-                                    newCompanions[index] = {
-                                      ...newCompanions[index],
-                                      relationship: e.target.value,
-                                    }
-                                    setCompanions(newCompanions)
-                                  }}
-                                  placeholder="e.g., Spouse, Friend, Child, Parent"
-                                  className={modalInputClass}
-                                  style={modalInputStyle}
-                                />
-                              </div>
-                            </div>
+                    {formData.RSVP === "Yes" && companions.length > 0 && (() => {
+                      const step = Math.min(companionStep, companions.length - 1)
+                      const current = companions[step]
+                      const doneCount = companions.filter((c) => c.name.trim() !== "").length
+                      const updateCompanion = (patch: Partial<{ name: string; relationship: string }>) => {
+                        setCompanions((prev) => {
+                          const next = [...prev]
+                          next[step] = { ...next[step], ...patch }
+                          return next
+                        })
+                      }
+                      const pillBase = `${cinzel.className} inline-flex items-center gap-0.5 rounded-full px-2.5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em]`
+                      const outlineButton = {
+                        color: palette.heading,
+                        borderColor: "color-mix(in srgb, var(--color-motif-accent) 55%, transparent)",
+                        background: IVORY,
+                      }
+                      return (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <label className={`${modalLabelClass} !mb-0`} style={{ color: palette.heading }}>
+                              <Users className="h-3.5 w-3.5 flex-shrink-0" style={{ color: palette.accent }} />
+                              <span>{copy.form.companionsLabel}</span>
+                            </label>
+                            <span
+                              className={`${cinzel.className} shrink-0 text-[0.6rem] font-semibold uppercase tracking-[0.12em]`}
+                              style={{ color: palette.accent }}
+                            >
+                              {fillText(copy.form.companionsAdded, { done: doneCount, total: companions.length })}
+                            </span>
                           </div>
-                        ))}
-                      </div>
-                    )}
+
+                          {/* Guest tabs — tap to jump; a check shows once a name is entered */}
+                          {companions.length > 1 && (
+                            <div className="flex flex-wrap gap-1" role="tablist" aria-label={copy.form.companionsLabel}>
+                              {companions.map((c, i) => {
+                                const active = i === step
+                                const filled = c.name.trim() !== ""
+                                return (
+                                  <button
+                                    key={i}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={active}
+                                    onClick={() => setCompanionStep(i)}
+                                    className={`${cinzel.className} inline-flex h-7 min-w-7 items-center justify-center rounded-full border px-1.5 text-[0.62rem] font-semibold transition-all duration-200`}
+                                    style={
+                                      active
+                                        ? { background: DEEP_GRADIENT, color: IVORY, borderColor: "transparent" }
+                                        : filled
+                                          ? {
+                                              background: "color-mix(in srgb, var(--color-motif-silver) 75%, var(--color-motif-soft))",
+                                              color: palette.heading,
+                                              borderColor: "color-mix(in srgb, var(--color-motif-accent) 45%, transparent)",
+                                            }
+                                          : { background: IVORY, color: "var(--color-welcome-text-soft)", borderColor: HAIRLINE }
+                                    }
+                                    aria-label={fillText(copy.form.companionTitle, { n: i + 2 })}
+                                  >
+                                    {filled && !active ? <Check className="h-3 w-3" aria-hidden /> : i + 2}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+
+                          {/* One companion at a time keeps the modal short */}
+                          <div className="space-y-2 rounded-xl border p-2.5" style={innerSurfaceStyle}>
+                            <span className="inline-flex items-center gap-1.5">
+                              <User className="h-3 w-3" style={{ color: palette.accent }} />
+                              <span className={`font-goudy-italic ${sectionType.label} font-semibold`} style={{ color: palette.heading }}>
+                                {fillText(copy.form.companionProgress, { n: step + 2, total: companions.length + 1 })}
+                              </span>
+                            </span>
+                            <div className="grid grid-cols-1 gap-1.5 min-[380px]:grid-cols-2">
+                              <input
+                                type="text"
+                                value={current.name}
+                                onChange={(e) => updateCompanion({ name: e.target.value })}
+                                placeholder={fillText(copy.form.companionNamePlaceholder, { n: step + 2 })}
+                                aria-label={copy.form.companionNameLabel}
+                                className={modalInputClass}
+                                style={modalInputStyle}
+                              />
+                              <input
+                                type="text"
+                                value={current.relationship}
+                                onChange={(e) => updateCompanion({ relationship: e.target.value })}
+                                placeholder={fillText(copy.form.relationshipLabel, {
+                                  name: selectedGuest?.Name?.split(" ")[0] || copy.form.relationshipFallbackName,
+                                })}
+                                aria-label={fillText(copy.form.relationshipLabel, {
+                                  name: selectedGuest?.Name || copy.form.relationshipFallbackName,
+                                })}
+                                className={modalInputClass}
+                                style={modalInputStyle}
+                              />
+                            </div>
+                            {copy.form.relationshipOptions.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {copy.form.relationshipOptions.map((option) => {
+                                  const picked = current.relationship.trim().toLowerCase() === option.toLowerCase()
+                                  return (
+                                    <button
+                                      key={option}
+                                      type="button"
+                                      onClick={() => updateCompanion({ relationship: option })}
+                                      className="font-goudy-italic rounded-full border px-2 py-0.5 text-[0.72rem] leading-tight transition-colors duration-200"
+                                      style={
+                                        picked
+                                          ? {
+                                              background: "color-mix(in srgb, var(--color-motif-accent) 18%, var(--color-motif-soft))",
+                                              borderColor: palette.accent,
+                                              color: palette.heading,
+                                            }
+                                          : { background: IVORY, borderColor: HAIRLINE, color: palette.body }
+                                      }
+                                    >
+                                      {option}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            )}
+                            {companions.length > 1 && (
+                              <div className="flex items-center justify-between gap-2 pt-0.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setCompanionStep(Math.max(0, step - 1))}
+                                  disabled={step === 0}
+                                  className={`${pillBase} transition-opacity disabled:opacity-30`}
+                                  style={{ color: palette.heading }}
+                                >
+                                  <ChevronLeft className="h-3.5 w-3.5" aria-hidden />
+                                  {copy.form.prevButton}
+                                </button>
+                                {step < companions.length - 1 ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => setCompanionStep(step + 1)}
+                                    className={`${pillBase} border transition-all hover:brightness-110`}
+                                    style={outlineButton}
+                                  >
+                                    {copy.form.nextButton}
+                                    <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => phoneInputRef.current?.focus()}
+                                    className={`${pillBase} border`}
+                                    style={outlineButton}
+                                  >
+                                    <Phone className="h-3 w-3" aria-hidden />
+                                    {copy.form.phoneLabel.replace(/\s*\*$/, "")}
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
 
                     <div>
                       <label className={modalLabelClass} htmlFor="rsvp-phone" style={{ color: palette.heading }}>
                         <Phone className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" style={{ color: palette.accent }} />
-                        <span>Phone Number *</span>
+                        <span>{copy.form.phoneLabel}</span>
                       </label>
                       <input
                         ref={phoneInputRef}
@@ -1205,12 +1356,12 @@ export function GuestList() {
                         autoComplete="tel"
                         inputMode="tel"
                         aria-required="true"
-                        placeholder="09XX XXX XXXX"
+                        placeholder={copy.form.phonePlaceholder}
                         className={modalInputClass}
                         style={modalInputStyle}
                       />
                       <p
-                        className={`font-goudy-italic mt-1.5 flex items-start gap-1.5 ${sectionType.label} leading-snug`}
+                        className={`font-goudy-italic mt-1.5 items-start gap-1.5 ${sectionType.label} leading-snug ${isCompactRsvp ? "hidden" : "flex"}`}
                         style={{ color: palette.body }}
                       >
                         <ShieldCheck
@@ -1219,51 +1370,51 @@ export function GuestList() {
                           aria-hidden
                         />
                         <span>
-                          For wedding updates only. Your number stays private and will never be shown to
-                          other guests.
+                          {copy.form.phoneNote}
                         </span>
                       </p>
                     </div>
 
-                    <div className="pt-2 sm:pt-3">
+                  </div>
+
+                  {/* Sticky footer — Submit is always visible */}
+                  <div
+                    className="flex-shrink-0 space-y-2 border-t px-4 pb-4 pt-3 sm:px-6 sm:pb-5 md:px-7"
+                    style={{ borderColor: HAIRLINE, background: "color-mix(in srgb, var(--color-motif-cream) 92%, transparent)" }}
+                  >
+                    {error && !success && (
+                      <div className="rounded-lg border px-2.5 py-1.5" style={noticeStyle}>
+                        <div className="flex items-center gap-1.5">
+                          <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" style={{ color: "var(--color-motif-deep)" }} />
+                          <span className={`font-goudy-italic font-semibold ${sectionType.label}`}>{error}</span>
+                        </div>
+                      </div>
+                    )}
+                    <div>
                       <button
                         type="submit"
                         disabled={isLoading}
-                        className={`${cinzel.className} flex w-full items-center justify-center gap-1.5 rounded-sm border py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.2em] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-70 sm:gap-2 sm:py-3`}
-                        style={{
-                          backgroundColor: palette.accent,
-                          borderColor: "color-mix(in srgb, var(--color-welcome-navy) 35%, transparent)",
-                          color: "var(--color-welcome-bg)",
-                        }}
+                        className={`${cinzel.className} flex w-full items-center justify-center gap-1.5 rounded-full border py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.2em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 disabled:opacity-70 sm:gap-2 sm:py-3`}
+                        style={primaryButtonStyle}
                       >
                         {isLoading ? (
                           <>
                             <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
-                            <span className="text-xs sm:text-sm">Submitting...</span>
+                            <span className="text-xs sm:text-sm">{copy.form.submitting}</span>
                           </>
                         ) : (
                           <>
                             <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                            <span className="text-xs sm:text-sm">Submit RSVP</span>
+                            <span className="text-xs sm:text-sm">{copy.form.submit}</span>
                           </>
                         )}
                       </button>
                     </div>
+                  </div>
                   </form>
                 )}
               </div>
 
-              {/* Error message */}
-              {error && !success && !hasResponded && (
-                <div className="px-2 sm:px-2.5 md:px-4 lg:px-6 xl:px-8 pb-2 sm:pb-2.5 md:pb-4 lg:pb-6">
-                  <div className="bg-red-50 border-2 border-red-200 rounded-xl p-2 sm:p-2.5 md:p-3 lg:p-4">
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-red-600 flex-shrink-0" />
-                      <span className={`text-red-600 font-semibold ${sectionType.text}`}>{error}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>,
         document.body
@@ -1271,7 +1422,8 @@ export function GuestList() {
 
       {isMounted && showPhoneAlert && createPortal(
         <div
-          className="fixed inset-0 z-[10050] flex items-center justify-center bg-black/55 p-5 backdrop-blur-md animate-in fade-in duration-200 sm:p-8"
+          className="fixed inset-0 z-[10050] flex items-center justify-center p-5 backdrop-blur-md animate-in fade-in duration-200 sm:p-8"
+          style={{ background: DARK_OVERLAY }}
           onClick={handleClosePhoneAlert}
           role="presentation"
         >
@@ -1288,16 +1440,15 @@ export function GuestList() {
                 aria-hidden
                 className="h-[3px] w-full"
                 style={{
-                  background:
-                    "linear-gradient(to right, transparent, var(--color-welcome-gold), transparent)",
+                  background: DEEP_GRADIENT,
                 }}
               />
               <div className="px-6 pb-6 pt-6 text-center">
                 <div
                   className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full"
-                  style={{ backgroundColor: palette.accent }}
+                  style={{ background: DEEP_GRADIENT }}
                 >
-                  <Phone className="h-6 w-6 text-white" strokeWidth={2} />
+                  <Phone className="h-6 w-6" style={{ color: IVORY }} strokeWidth={2} />
                 </div>
 
                 <h4
@@ -1305,7 +1456,7 @@ export function GuestList() {
                   className={`${theSeasons.className} mb-2 text-base uppercase tracking-[0.12em]`}
                   style={{ color: palette.heading }}
                 >
-                  A phone number is needed
+                  {copy.phoneAlert.title}
                 </h4>
 
                 <div
@@ -1313,15 +1464,9 @@ export function GuestList() {
                   className={`font-goudy-italic space-y-2.5 ${sectionType.text} leading-relaxed`}
                   style={{ color: palette.body }}
                 >
-                  <p>
-                    We ask for your number so we can reach you with important updates — seating,
-                    timing, or anything you may need on the day.
-                  </p>
-                  <p>
-                    Your number will not appear on this invitation, and it will not be shared with
-                    other guests. It is kept private and used only by us and our coordinators to
-                    take care of you.
-                  </p>
+                  {copy.phoneAlert.paragraphs.map((text, i) => (
+                    <p key={i}>{text}</p>
+                  ))}
                 </div>
 
                 <div className="my-4 flex items-center gap-3">
@@ -1333,10 +1478,10 @@ export function GuestList() {
                 <button
                   type="button"
                   onClick={handleClosePhoneAlert}
-                  className={`${cinzel.className} inline-flex min-h-11 w-full items-center justify-center rounded-full px-6 py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.16em] transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]`}
-                  style={{ background: NAV_GOLD, color: IVORY }}
+                  className={`${cinzel.className} inline-flex min-h-11 w-full items-center justify-center rounded-full px-6 py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.16em] border transition-all duration-200 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98]`}
+                  style={primaryButtonStyle}
                 >
-                  Add my number
+                  {copy.phoneAlert.button}
                 </button>
               </div>
             </div>
@@ -1347,15 +1492,17 @@ export function GuestList() {
 
         {/* RSVP Success — rendered outside RSVP modal to escape transform stacking context */}
         {isMounted && success && createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-5 backdrop-blur-md animate-in fade-in duration-200 sm:p-8">
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-5 backdrop-blur-md animate-in fade-in duration-200 sm:p-8"
+            style={{ background: DARK_OVERLAY }}
+          >
             <div className="w-full max-w-sm animate-in zoom-in-95 duration-200">
               <div className="overflow-hidden rounded-2xl" style={modalCardStyle}>
                 <div
                   aria-hidden
                   className="h-[3px] w-full"
                   style={{
-                    background:
-                      "linear-gradient(to right, transparent, var(--color-welcome-gold), transparent)",
+                    background: DEEP_GRADIENT,
                   }}
                 />
                 <div className="px-6 pb-6 pt-6 text-center">
@@ -1364,14 +1511,14 @@ export function GuestList() {
                       className="absolute h-14 w-14 animate-ping rounded-full"
                       style={{
                         animationDuration: "2.5s",
-                        backgroundColor: "color-mix(in srgb, var(--color-welcome-gold) 20%, transparent)",
+                        backgroundColor: "color-mix(in srgb, var(--color-motif-accent) 22%, transparent)",
                       }}
                     />
                     <div
                       className="relative flex h-12 w-12 items-center justify-center rounded-full shadow-md"
-                      style={{ backgroundColor: palette.accent }}
+                      style={{ background: DEEP_GRADIENT }}
                     >
-                      <CheckCircle className="h-6 w-6 text-white" strokeWidth={2} />
+                      <CheckCircle className="h-6 w-6" style={{ color: IVORY }} strokeWidth={2} />
                     </div>
                   </div>
 
@@ -1379,22 +1526,22 @@ export function GuestList() {
                     className={`${theSeasons.className} mb-1 text-base uppercase tracking-[0.12em]`}
                     style={{ color: palette.heading }}
                   >
-                    RSVP Confirmed
+                    {copy.success.title}
                   </h4>
 
                   {formData.RSVP === "Yes" && (
                     <p className="font-goudy-italic text-sm leading-snug" style={{ color: palette.body }}>
-                      We&apos;re thrilled you&apos;ll be joining us — your spot is saved!
+                      {copy.success.attending}
                     </p>
                   )}
                   {formData.RSVP === "No" && (
                     <p className="font-goudy-italic text-sm leading-snug" style={{ color: palette.body }}>
-                      We&apos;ll miss you, but thank you for letting us know.
+                      {copy.success.declined}
                     </p>
                   )}
                   {!formData.RSVP && (
                     <p className="font-goudy-italic text-sm leading-snug" style={{ color: palette.body }}>
-                      Thank you for your response!
+                      {copy.success.neutral}
                     </p>
                   )}
 
@@ -1405,8 +1552,7 @@ export function GuestList() {
                   </div>
 
                   <p className="font-goudy-italic mb-4 text-sm leading-relaxed" style={{ color: palette.body }}>
-                    Before you go, leave a message for the couple — your words will be a cherished memory
-                    they can always look back on.
+                    {copy.success.messagePrompt}
                   </p>
 
                   <a
@@ -1421,15 +1567,11 @@ export function GuestList() {
                         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
                       }, 100)
                     }}
-                    className={`${cinzel.className} mb-3 inline-flex w-full items-center justify-center gap-2 rounded-sm border py-3 ${sectionType.label} font-semibold uppercase tracking-[0.2em] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]`}
-                    style={{
-                      backgroundColor: palette.accent,
-                      borderColor: "color-mix(in srgb, var(--color-welcome-navy) 35%, transparent)",
-                      color: "var(--color-welcome-bg)",
-                    }}
+                    className={`${cinzel.className} mb-3 inline-flex w-full items-center justify-center gap-2 rounded-full border py-3 ${sectionType.label} font-semibold uppercase tracking-[0.2em] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 active:scale-[0.98]`}
+                    style={primaryButtonStyle}
                   >
                     <MessageSquare className="h-3 w-3 flex-shrink-0" />
-                    Leave a Message
+                    {copy.success.messageButton}
                   </a>
 
                   <button
@@ -1442,7 +1584,7 @@ export function GuestList() {
                     className={`font-goudy-italic ${sectionType.label} tracking-wide transition-colors duration-200`}
                     style={{ color: palette.body }}
                   >
-                    Maybe later — close
+                    {copy.success.laterButton}
                   </button>
                 </div>
               </div>
@@ -1468,14 +1610,14 @@ export function GuestList() {
                 className="pointer-events-none absolute inset-x-5 top-0 h-px sm:inset-x-8"
                 style={{
                   background:
-                    "linear-gradient(to right, transparent, var(--color-motif-yellow), transparent)",
+                    "linear-gradient(to right, transparent, var(--color-motif-accent), transparent)",
                 }}
               />
 
               <div className="relative flex-shrink-0 px-4 pb-4 pt-5 text-center sm:px-6 sm:pb-5 sm:pt-6">
                 <button
                   onClick={handleCloseRequestModal}
-                  className="absolute right-2 top-2 rounded-full p-1 transition-colors hover:bg-black/5 sm:right-3 sm:top-3 sm:p-1.5"
+                  className="absolute right-2 top-2 rounded-full p-1 transition-colors hover:bg-[color-mix(in_srgb,var(--color-motif-silver)_70%,transparent)] sm:right-3 sm:top-3 sm:p-1.5"
                   style={{ color: palette.heading }}
                   aria-label="Close"
                 >
@@ -1501,7 +1643,7 @@ export function GuestList() {
                     className={`${theSeasons.className} block uppercase leading-[0.78] tracking-[0.08em] min-[400px]:tracking-[0.11em] sm:tracking-[0.13em] pb-1 sm:pb-1.5`}
                     style={{ fontSize: "var(--title-size)", color: palette.heading }}
                   >
-                    Request
+                    {copy.request.title}
                   </span>
                   <span
                     aria-hidden
@@ -1511,7 +1653,7 @@ export function GuestList() {
                       color: palette.accent,
                     }}
                   >
-                    to join us
+                    {copy.request.script}
                   </span>
                 </h3>
 
@@ -1519,14 +1661,11 @@ export function GuestList() {
                   className={`font-goudy-italic mx-auto mt-4 max-w-md sm:mt-5 ${sectionType.textSnug}`}
                   style={{ color: palette.body }}
                 >
-                  {requestFormData.Name ? (
-                    <>
-                      Hi <span style={{ color: palette.heading }}>{requestFormData.Name}</span> — want to
-                      celebrate with us? Send a request!
-                    </>
-                  ) : (
-                    <>Want to celebrate with us? Send a request!</>
-                  )}
+                  {requestFormData.Name
+                    ? fill(copy.request.greetingNamed, {
+                        name: <span style={{ color: palette.heading }}>{requestFormData.Name}</span>,
+                      })
+                    : copy.request.greeting}
                 </p>
               </div>
 
@@ -1541,7 +1680,7 @@ export function GuestList() {
                   <div>
                     <label className={modalLabelClass} style={{ color: palette.heading }}>
                       <User className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" style={{ color: palette.accent }} />
-                      <span>Full Name *</span>
+                      <span>{copy.request.nameLabel}</span>
                     </label>
                     <input
                       type="text"
@@ -1549,7 +1688,7 @@ export function GuestList() {
                       value={requestFormData.Name}
                       onChange={(e) => setRequestFormData({ ...requestFormData, Name: e.target.value })}
                       required
-                      placeholder="Enter your full name"
+                      placeholder={copy.request.namePlaceholder}
                       className={modalInputClass}
                       style={modalInputStyle}
                     />
@@ -1558,9 +1697,9 @@ export function GuestList() {
                   <div>
                     <label className={modalLabelClass} style={{ color: palette.heading }}>
                       <Mail className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" style={{ color: palette.accent }} />
-                      <span>Email Address</span>
+                      <span>{copy.request.emailLabel}</span>
                       <span className={`${sectionType.label} font-normal`} style={{ color: palette.body }}>
-                        (Optional)
+                        {copy.request.optional}
                       </span>
                     </label>
                     <input
@@ -1568,7 +1707,7 @@ export function GuestList() {
                       name="Email"
                       value={requestFormData.Email}
                       onChange={(e) => setRequestFormData({ ...requestFormData, Email: e.target.value })}
-                      placeholder="your.email@example.com"
+                      placeholder={copy.request.emailPlaceholder}
                       className={modalInputClass}
                       style={modalInputStyle}
                     />
@@ -1577,9 +1716,9 @@ export function GuestList() {
                   <div>
                     <label className={modalLabelClass} style={{ color: palette.heading }}>
                       <Phone className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" style={{ color: palette.accent }} />
-                      <span>Phone Number</span>
+                      <span>{copy.request.phoneLabel}</span>
                       <span className={`${sectionType.label} font-normal`} style={{ color: palette.body }}>
-                        (Optional)
+                        {copy.request.optional}
                       </span>
                     </label>
                     <input
@@ -1587,7 +1726,7 @@ export function GuestList() {
                       name="Phone"
                       value={requestFormData.Phone}
                       onChange={(e) => setRequestFormData({ ...requestFormData, Phone: e.target.value })}
-                      placeholder="+63 912 345 6789"
+                      placeholder={copy.request.phonePlaceholder}
                       className={modalInputClass}
                       style={modalInputStyle}
                     />
@@ -1596,7 +1735,7 @@ export function GuestList() {
                   <div>
                     <label className={modalLabelClass} style={{ color: palette.heading }}>
                       <Users className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" style={{ color: palette.accent }} />
-                      <span>Number of Guests *</span>
+                      <span>{copy.request.guestsLabel}</span>
                     </label>
                     <input
                       type="number"
@@ -1605,7 +1744,7 @@ export function GuestList() {
                       onChange={(e) => setRequestFormData({ ...requestFormData, Guest: e.target.value })}
                       min="1"
                       required
-                      placeholder="How many guests?"
+                      placeholder={copy.request.guestsPlaceholder}
                       className={modalInputClass}
                       style={modalInputStyle}
                     />
@@ -1614,16 +1753,16 @@ export function GuestList() {
                   <div>
                     <label className={modalLabelClass} style={{ color: palette.heading }}>
                       <MessageSquare className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" style={{ color: palette.accent }} />
-                      <span>Message</span>
+                      <span>{copy.request.messageLabel}</span>
                       <span className={`${sectionType.label} font-normal`} style={{ color: palette.body }}>
-                        (Optional)
+                        {copy.request.optional}
                       </span>
                     </label>
                     <textarea
                       name="Message"
                       value={requestFormData.Message}
                       onChange={(e) => setRequestFormData({ ...requestFormData, Message: e.target.value })}
-                      placeholder="Share why you'd like to join..."
+                      placeholder={copy.request.messagePlaceholder}
                       rows={3}
                       className={`${modalInputClass} resize-none`}
                       style={modalInputStyle}
@@ -1634,22 +1773,18 @@ export function GuestList() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className={`${cinzel.className} flex w-full items-center justify-center gap-1.5 rounded-sm border py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.2em] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-70 sm:gap-2 sm:py-3`}
-                      style={{
-                        backgroundColor: palette.accent,
-                        borderColor: "color-mix(in srgb, var(--color-welcome-navy) 35%, transparent)",
-                        color: "var(--color-welcome-bg)",
-                      }}
+                      className={`${cinzel.className} flex w-full items-center justify-center gap-1.5 rounded-full border py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.2em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 disabled:opacity-70 sm:gap-2 sm:py-3`}
+                      style={primaryButtonStyle}
                     >
                       {isLoading ? (
                         <>
                           <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
-                          <span className="text-xs sm:text-sm">Submitting...</span>
+                          <span className="text-xs sm:text-sm">{copy.request.submitting}</span>
                         </>
                       ) : (
                         <>
                           <UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                          <span className="text-xs sm:text-sm">Send Request</span>
+                          <span className="text-xs sm:text-sm">{copy.request.submit}</span>
                         </>
                       )}
                     </button>
@@ -1667,23 +1802,23 @@ export function GuestList() {
                       <div className="absolute inset-0 rounded-full border-2 border-motif-deep/20 animate-ping" />
                       <div className="absolute inset-0 rounded-full border-2 border-motif-deep/30" />
                       {/* Icon container */}
-                      <div className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-full flex items-center justify-center shadow-xl">
-                        <CheckCircle className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 lg:h-10 lg:w-10 text-white" strokeWidth={2.5} />
+                      <div className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center shadow-xl" style={{ background: DEEP_GRADIENT }}>
+                        <CheckCircle className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 lg:h-10 lg:w-10" style={{ color: IVORY }} strokeWidth={2.5} />
                       </div>
                     </div>
                     
                     {/* Title */}
-                    <h4 className={`mb-2 font-serif font-bold text-motif-deep sm:mb-3 ${sectionType.subheader}`}>
-                      Request Sent!
+                    <h4 className={`${theSeasons.className} mb-2 uppercase tracking-[0.12em] sm:mb-3 ${sectionType.subheader}`} style={{ color: palette.heading }}>
+                      {copy.request.sentTitle}
                     </h4>
                     
                     {/* Message */}
                     <div className="space-y-1 sm:space-y-1.5 mb-2 sm:mb-3">
-                      <p className={`text-motif-deep/95 font-medium ${sectionType.text}`}>
-                        We've received your request
+                      <p className={`font-goudy-italic font-medium ${sectionType.text}`} style={{ color: palette.body }}>
+                        {copy.request.sentText}
                       </p>
-                      <p className={`text-motif-deep/85 ${sectionType.label}`}>
-                        We'll review it and get back to you soon
+                      <p className={`font-goudy-italic ${sectionType.label}`} style={{ color: "var(--color-welcome-text-soft)" }}>
+                        {copy.request.sentSubtext}
                       </p>
                     </div>
                     
@@ -1691,7 +1826,7 @@ export function GuestList() {
                     <div className="flex items-center justify-center gap-1 sm:gap-1.5 mt-2 sm:mt-3">
                       <div className="w-0.5 h-0.5 sm:w-1 sm:h-1 bg-motif-deep/60 rounded-full animate-pulse" />
                       <p className={`text-motif-deep/70 ${sectionType.label}`}>
-                        This will close automatically
+                        {copy.request.autoClose}
                       </p>
                       <div className="w-0.5 h-0.5 sm:w-1 sm:h-1 bg-motif-deep/60 rounded-full animate-pulse" />
                     </div>
@@ -1702,10 +1837,10 @@ export function GuestList() {
               {/* Error message */}
               {error && !requestSuccess && (
                 <div className="px-2 sm:px-2.5 md:px-4 lg:px-6 xl:px-8 pb-2 sm:pb-2.5 md:pb-4 lg:pb-6">
-                  <div className="bg-red-50 border-2 border-red-200 rounded-xl p-2 sm:p-2.5 md:p-3 lg:p-4">
+                  <div className="rounded-xl border p-2 sm:p-2.5 md:p-3 lg:p-4" style={noticeStyle}>
                     <div className="flex items-center gap-1.5 sm:gap-2">
-                      <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-red-600 flex-shrink-0" />
-                      <span className={`text-red-600 font-semibold ${sectionType.text}`}>{error}</span>
+                      <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" style={{ color: "var(--color-motif-deep)" }} />
+                      <span className={`font-goudy-italic font-semibold ${sectionType.text}`}>{error}</span>
                     </div>
                   </div>
                 </div>
@@ -1718,10 +1853,13 @@ export function GuestList() {
       {/* Floating Status Messages (outside modals) */}
       {success && !showModal && !showRequestModal && !requestSuccess && (
         <div className="fixed top-16 sm:top-20 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-2 sm:mx-4">
-          <div className="bg-green-50 border-2 border-green-200 rounded-xl p-2 sm:p-3 md:p-4 shadow-lg animate-in slide-in-from-top">
+          <div
+            className="rounded-xl border p-2 shadow-lg animate-in slide-in-from-top sm:p-3 md:p-4"
+            style={{ ...modalCardStyle, borderColor: HAIRLINE }}
+          >
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-600" />
-              <span className={`text-green-600 font-semibold ${sectionType.text}`}>{success}</span>
+              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" style={{ color: "var(--color-motif-deep)" }} />
+              <span className={`font-goudy-italic font-semibold ${sectionType.text}`} style={{ color: palette.heading }}>{success}</span>
             </div>
           </div>
         </div>

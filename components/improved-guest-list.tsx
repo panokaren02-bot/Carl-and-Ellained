@@ -258,8 +258,8 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
     <div className="space-y-6">
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="bg-white rounded-lg p-4 border border-[#E5DACE] shadow-sm">
-          <div className="text-2xl font-bold text-[#8C6B4F]">{stats.total}</div>
+        <div className="bg-white rounded-lg p-4 border border-[#DDE5D4] shadow-sm">
+          <div className="text-2xl font-bold text-[#4F674D]">{stats.total}</div>
           <div className="text-xs text-gray-500 uppercase tracking-wide">Total Invitations</div>
         </div>
         <div className="bg-green-50 rounded-lg p-4 border border-green-200 shadow-sm">
@@ -291,7 +291,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
           <input 
             type="text" 
             placeholder="Search by name, role, or companion..." 
-            className="w-full pl-10 pr-4 py-2.5 border border-[#E5DACE] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#BFA27C]"
+            className="w-full pl-10 pr-4 py-2.5 border border-[#DDE5D4] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9EAF91]"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -301,7 +301,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
           <select 
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="border border-[#E5DACE] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#BFA27C] text-sm"
+            className="border border-[#DDE5D4] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9EAF91] text-sm"
           >
             <option value="all">All Status</option>
             <option value="confirmed">Confirmed</option>
@@ -312,7 +312,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
           <select 
             value={String(vipFilter)}
             onChange={(e) => setVipFilter(e.target.value === 'all' ? 'all' : e.target.value === 'true')}
-            className="border border-[#E5DACE] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#BFA27C] text-sm"
+            className="border border-[#DDE5D4] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9EAF91] text-sm"
           >
             <option value="all">All Guests</option>
             <option value="true">VIP Only</option>
@@ -323,7 +323,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
             onClick={handleExportCSV}
             variant="outline"
             size="sm"
-            className="border-[#E5DACE] text-[#8C6B4F] hover:bg-[#F3E5CF]"
+            className="border-[#DDE5D4] text-[#4F674D] hover:bg-[#DDE5D4]"
           >
             <Download className="w-4 h-4 mr-2" />
             Export
@@ -331,7 +331,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
 
           <Button 
             onClick={() => { resetForm(); setShowModal(true); }}
-            className="bg-[#8C6B4F] text-white hover:bg-[#6E4C3A]"
+            className="bg-[#4F674D] text-white hover:bg-[#304A34]"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Guest
@@ -340,10 +340,10 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
       </div>
 
       {/* Guest Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-[#E5DACE] overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-[#DDE5D4] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-[#F3E5CF] text-[#6E4C3A]">
+            <thead className="bg-[#DDE5D4] text-[#304A34]">
               <tr>
                 <th className="px-6 py-3 font-semibold uppercase text-xs">Name & Companions</th>
                 <th className="px-6 py-3 font-semibold uppercase text-xs">Role</th>
@@ -354,7 +354,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                 <th className="px-6 py-3 font-semibold uppercase text-xs text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E5DACE]">
+            <tbody className="divide-y divide-[#DDE5D4]">
               {filteredGuests.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
@@ -374,7 +374,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                         {guest.companions && guest.companions.length > 0 && (
                           <div className="mt-1 space-y-0.5">
                             {guest.companions.map((c, i) => (
-                              <div key={i} className="flex items-center space-x-1 text-[10px] text-[#8C6B4F] italic leading-tight">
+                              <div key={i} className="flex items-center space-x-1 text-[10px] text-[#4F674D] italic leading-tight">
                                 <UsersIcon className="w-2.5 h-2.5" />
                                 <span>{c.name || 'Unnamed'} ({c.relationship || 'Companion'})</span>
                               </div>
@@ -392,7 +392,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                       {guest.contact && <div className="text-gray-500">{guest.contact}</div>}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="text-sm font-semibold text-[#8C6B4F]">{guest.allowedGuests}</span>
+                      <span className="text-sm font-semibold text-[#4F674D]">{guest.allowedGuests}</span>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span className="px-2 py-1 bg-gray-100 rounded text-xs font-bold text-gray-600">
@@ -442,16 +442,16 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
             {isSaving && (
               <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-50 rounded-2xl">
                 <div className="text-center">
-                  <div className="w-16 h-16 border-4 border-[#E5DACE] border-t-[#8C6B4F] rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-lg font-semibold text-[#8C6B4F]">Saving Guest...</p>
+                  <div className="w-16 h-16 border-4 border-[#DDE5D4] border-t-[#4F674D] rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-lg font-semibold text-[#4F674D]">Saving Guest...</p>
                   <p className="text-sm text-gray-500 mt-2">Please wait while we save the information</p>
                 </div>
               </div>
             )}
 
-            <div className="p-6 border-b border-[#E5DACE] flex justify-between items-center bg-[#FDFBF7] sticky top-0 z-20">
+            <div className="p-6 border-b border-[#DDE5D4] flex justify-between items-center bg-[#FBFCF7] sticky top-0 z-20">
               <div>
-                <h2 className="text-xl font-bold font-serif text-[#6E4C3A]">
+                <h2 className="text-xl font-bold font-serif text-[#304A34]">
                   {editingGuest ? 'Edit Invitation' : 'Create Invitation'}
                 </h2>
                 <p className="text-xs text-gray-400 mt-1">
@@ -471,7 +471,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Primary Guest Section */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-[#8C6B4F] uppercase border-b border-[#E5DACE] pb-2">
+                  <h3 className="text-sm font-bold text-[#4F674D] uppercase border-b border-[#DDE5D4] pb-2">
                     Primary Guest Information
                   </h3>
                   <div className="space-y-3">
@@ -485,7 +485,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                         onChange={e => setFormName(e.target.value)} 
                         type="text" 
                         placeholder="Enter guest's full name"
-                        className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#BFA27C] outline-none" 
+                        className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
                       />
                     </div>
                     <div className="space-y-1">
@@ -497,7 +497,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                         onChange={e => setFormRole(e.target.value)} 
                         type="text" 
                         placeholder="e.g., Friend, Family, Colleague (optional)"
-                        className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#BFA27C] outline-none" 
+                        className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -508,7 +508,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                           onChange={e => setFormEmail(e.target.value)} 
                           type="email" 
                           placeholder="email@example.com"
-                          className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#BFA27C] outline-none" 
+                          className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
                         />
                       </div>
                       <div className="space-y-1">
@@ -518,7 +518,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                           onChange={e => setFormContact(e.target.value)} 
                           type="text" 
                           placeholder="+1234567890"
-                          className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#BFA27C] outline-none" 
+                          className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
                         />
                       </div>
                     </div>
@@ -529,7 +529,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                         onChange={e => setFormAddedBy(e.target.value)} 
                         type="text" 
                         placeholder="e.g., Bride, Groom, Family"
-                        className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#BFA27C] outline-none" 
+                        className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
                       />
                       <p className="text-[10px] text-gray-400">Track who added this guest to the list</p>
                     </div>
@@ -538,7 +538,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
 
                 {/* Attendance & RSVP Section */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-[#8C6B4F] uppercase border-b border-[#E5DACE] pb-2">
+                  <h3 className="text-sm font-bold text-[#4F674D] uppercase border-b border-[#DDE5D4] pb-2">
                     Attendance & RSVP
                   </h3>
                   <div className="space-y-3">
@@ -552,7 +552,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                         value={formAllowedGuests} 
                         onChange={e => setFormAllowedGuests(parseInt(e.target.value) || 1)} 
                         type="number" 
-                        className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#BFA27C] outline-none font-bold text-lg text-[#8C6B4F]" 
+                        className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none font-bold text-lg text-[#4F674D]" 
                       />
                       <p className="text-[10px] text-gray-400">Total number of people this guest can bring (default: 1)</p>
                     </div>
@@ -563,7 +563,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                       <select 
                         value={formStatus} 
                         onChange={e => setFormStatus(e.target.value as GuestStatus)} 
-                        className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#BFA27C] outline-none"
+                        className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none"
                       >
                         <option value="pending">⏳ Waiting for Response</option>
                         <option value="confirmed">✅ Attendance Confirmed</option>
@@ -578,7 +578,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                           onChange={e => setFormTable(e.target.value)} 
                           type="text" 
                           placeholder="e.g., T1, VIP-A"
-                          className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#BFA27C] outline-none" 
+                          className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
                         />
                       </div>
                       <div className="flex items-center space-x-2 pt-7">
@@ -587,9 +587,9 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                           type="checkbox" 
                           checked={formIsVip} 
                           onChange={e => setFormIsVip(e.target.checked)} 
-                          className="w-4 h-4 text-[#8C6B4F] border-gray-300 rounded focus:ring-[#BFA27C]" 
+                          className="w-4 h-4 text-[#4F674D] border-gray-300 rounded focus:ring-[#9EAF91]" 
                         />
-                        <label htmlFor="vip-check" className="text-xs font-bold text-[#6E4C3A] cursor-pointer flex items-center gap-1">
+                        <label htmlFor="vip-check" className="text-xs font-bold text-[#304A34] cursor-pointer flex items-center gap-1">
                           <Star className="w-3 h-3" />
                           VIP Guest
                         </label>
@@ -601,8 +601,8 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
 
               {/* Dynamic Companion Inputs */}
               {formAllowedGuests > 1 && (
-                <div className="bg-[#FDFBF7] p-5 rounded-xl border border-[#E5DACE] space-y-4">
-                  <div className="flex items-center space-x-2 text-[#8C6B4F]">
+                <div className="bg-[#FBFCF7] p-5 rounded-xl border border-[#DDE5D4] space-y-4">
+                  <div className="flex items-center space-x-2 text-[#4F674D]">
                     <UsersIcon className="w-5 h-5" />
                     <h3 className="text-sm font-bold uppercase tracking-tight">
                       Additional Guests ({formAllowedGuests - 1} {formAllowedGuests - 1 === 1 ? 'slot' : 'slots'})
@@ -614,7 +614,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                   
                   <div className="space-y-4">
                     {formCompanions.map((comp, idx) => (
-                      <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-4 border-b border-[#E5DACE] last:border-0 last:pb-0">
+                      <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-4 border-b border-[#DDE5D4] last:border-0 last:pb-0">
                         <div className="space-y-1">
                           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                             Guest {idx + 2} Full Name
@@ -624,7 +624,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                             onChange={e => handleCompanionChange(idx, 'name', e.target.value)} 
                             placeholder={`Full name of guest ${idx + 2} (optional)`}
                             type="text" 
-                            className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#BFA27C] outline-none text-sm" 
+                            className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#9EAF91] outline-none text-sm" 
                           />
                         </div>
                         <div className="space-y-1">
@@ -636,7 +636,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                             onChange={e => handleCompanionChange(idx, 'relationship', e.target.value)} 
                             placeholder="e.g., Spouse, Friend, Child (optional)"
                             type="text" 
-                            className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#BFA27C] outline-none text-sm" 
+                            className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#9EAF91] outline-none text-sm" 
                           />
                         </div>
                       </div>
@@ -655,24 +655,24 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                   onChange={e => setFormMessage(e.target.value)} 
                   rows={4} 
                   placeholder="Share your excitement, well wishes, or any special message..."
-                  className="w-full border border-[#E5DACE] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#BFA27C] outline-none resize-none"
+                  className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none resize-none"
                 ></textarea>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end space-x-3 pt-6 border-t border-[#E5DACE]">
+              <div className="flex justify-end space-x-3 pt-6 border-t border-[#DDE5D4]">
                 <Button 
                   type="button" 
                   onClick={() => { setShowModal(false); resetForm(); }}
                   variant="outline"
-                  className="px-8 py-2 border-[#E5DACE] text-gray-600 hover:bg-gray-50"
+                  className="px-8 py-2 border-[#DDE5D4] text-gray-600 hover:bg-gray-50"
                   disabled={isSaving}
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit" 
-                  className="px-10 py-2 bg-[#8C6B4F] text-white hover:bg-[#6E4C3A] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-10 py-2 bg-[#4F674D] text-white hover:bg-[#304A34] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSaving}
                 >
                   {isSaving ? (
@@ -700,7 +700,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
             </div>
             <div className="p-6 text-center">
               <p className="text-lg text-gray-700 mb-2">
-                <span className="font-semibold text-[#8C6B4F]">{savedGuestName}</span> has been successfully {operationType === 'delete' ? 'deleted' : operationType === 'edit' ? 'updated' : 'added'}!
+                <span className="font-semibold text-[#4F674D]">{savedGuestName}</span> has been successfully {operationType === 'delete' ? 'deleted' : operationType === 'edit' ? 'updated' : 'added'}!
               </p>
               <p className="text-sm text-gray-500 mb-6">
                 {operationType === 'delete' 
@@ -709,7 +709,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
               </p>
               <Button 
                 onClick={handleSuccessModalClose}
-                className="w-full bg-[#8C6B4F] text-white hover:bg-[#6E4C3A] py-3 text-base font-semibold"
+                className="w-full bg-[#4F674D] text-white hover:bg-[#304A34] py-3 text-base font-semibold"
               >
                 Perfect! Close
               </Button>
@@ -723,8 +723,8 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-8">
             <div className="text-center">
-              <div className="w-16 h-16 border-4 border-[#E5DACE] border-t-[#8C6B4F] rounded-full animate-spin mx-auto mb-4"></div>
-              <h3 className="text-xl font-bold text-[#6E4C3A] mb-2">
+              <div className="w-16 h-16 border-4 border-[#DDE5D4] border-t-[#4F674D] rounded-full animate-spin mx-auto mb-4"></div>
+              <h3 className="text-xl font-bold text-[#304A34] mb-2">
                 {operationType === 'delete' ? 'Deleting Guest' : 'Processing'}...
               </h3>
               <p className="text-sm text-gray-500">Please wait while we process your request</p>

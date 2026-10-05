@@ -4,15 +4,14 @@ import { Great_Vibes, Inter, Imperial_Script, Cinzel } from "next/font/google"
 import localFont from "next/font/local"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
-import { siteConfig } from "@/content/site"
+import { siteConfig, canonicalSiteUrl } from "@/content/site"
 import { ClientLayout } from "@/components/client-layout"
 import { LOADING_BG_PHOTOS } from "@/lib/loading-bg-photos"
 import { anastasiaScript } from "@/lib/fonts"
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://adrean-and-brendel.weddinginvitationrsvp.com/"
-const canonicalUrl = siteUrl.replace(/\/$/, "")
-  const desktopHero = "/frontboxes/new-linkPreview.jpg"
-const mobileHero = "/frontboxes/new-linkPreview.jpg"
+const canonicalUrl = canonicalSiteUrl
+const desktopHero = siteConfig.linkPreviewImage
+const mobileHero = siteConfig.linkPreviewImage
 const eventImageUrl = `${canonicalUrl}${desktopHero}`
 const OG_IMAGE_FALLBACK = `${canonicalUrl}${desktopHero}`
 
@@ -204,13 +203,6 @@ export default function RootLayout({
           type="font/ttf"
           crossOrigin="anonymous"
         />
-        <link
-          rel="preload"
-          href="/fonts/AnastasiaScript Regular.ttf"
-          as="font"
-          type="font/ttf"
-          crossOrigin="anonymous"
-        />
         {LOADING_BG_PHOTOS.slice(0, 3).map((href, index) => (
           <link
             key={href}
@@ -223,8 +215,6 @@ export default function RootLayout({
         ))}
         <link rel="preload" as="image" href={mobileHero} media="(max-width: 767px)" />
         <link rel="preload" as="image" href={desktopHero} media="(min-width: 768px)" />
-        <link rel="preload" as="image" href="/Details/ceremony.png" />
-        <link rel="preload" as="image" href="/Details/reception.png" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body

@@ -3,12 +3,13 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { createPortal } from "react-dom"
 import Image from "next/image"
+import Link from "next/link"
 import localFont from "next/font/local"
 import { X, ChevronLeft, ChevronRight, Camera } from "lucide-react"
 import { Cinzel } from "next/font/google"
 import { Section } from "@/components/section"
 import { sectionType } from "@/lib/section-typography"
-import { sectionBackground } from "@/lib/section-background"
+import { useSiteConfig } from "@/hooks/use-site-config"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -27,28 +28,66 @@ const aboveTheBeyond = localFont({
   variable: "--font-above-beyond",
 })
 
-const GOLD = "var(--color-welcome-gold)"
-const NAVY = "var(--color-welcome-navy)"
-const SCRIPT = "var(--color-welcome-green)"
-const BODY = "var(--color-welcome-text)"
-
-const goldDividerStyle = {
-  background: "linear-gradient(to right, transparent, var(--color-welcome-gold), transparent)",
+// Palette lives in globals.css → motif / welcome tokens.
+const C = {
+  title: "var(--color-welcome-navy)",
+  script: "var(--color-welcome-script)",
+  eyebrow: "var(--color-motif-accent)",
+  body: "var(--color-welcome-text)",
+  soft: "var(--color-welcome-text-soft)",
+  accent: "var(--color-motif-accent)",
+  deep: "var(--color-motif-deep)",
+  paper: "var(--color-welcome-bg-soft)",
+  light: "var(--color-motif-soft)",
 } as const
 
-const goldDividerStyleLeft = {
-  background: "linear-gradient(to left, transparent, var(--color-welcome-gold), transparent)",
+const sectionBg = `
+  radial-gradient(760px 420px at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 70%, transparent) 0%, transparent 65%),
+  radial-gradient(520px 360px at 0% 100%, color-mix(in srgb, var(--color-motif-blush) 35%, transparent) 0%, transparent 60%),
+  radial-gradient(520px 360px at 100% 100%, color-mix(in srgb, var(--color-motif-blush) 35%, transparent) 0%, transparent 60%),
+  linear-gradient(180deg, var(--color-welcome-bg-soft) 0%, var(--color-motif-cream) 100%)
+`.trim()
+
+const lineRight = {
+  background: "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-motif-accent) 60%, transparent))",
 } as const
+const lineLeft = {
+  background: "linear-gradient(to left, transparent, color-mix(in srgb, var(--color-motif-accent) 60%, transparent))",
+} as const
+
+const frameStyle: React.CSSProperties = {
+  background: C.paper,
+  border: "1px solid color-mix(in srgb, var(--color-motif-medium) 70%, transparent)",
+  boxShadow: "0 14px 30px -18px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)",
+}
+
+const innerFrameStyle: React.CSSProperties = {
+  boxShadow: "inset 0 0 0 1px color-mix(in srgb, var(--color-motif-soft) 70%, transparent)",
+}
+
+const badgeStyle: React.CSSProperties = {
+  backgroundColor: "color-mix(in srgb, var(--color-motif-deep) 75%, transparent)",
+  color: C.light,
+}
 
 const CORNER_DECO_CLASS =
-  "block h-auto w-auto max-w-[165px] sm:max-w-[245px] md:max-w-[350px] lg:max-w-[425px] xl:max-w-[500px] select-none"
+  "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
 
-function OutsideDivider() {
+function DecoImg({ src, className }: { src: string; className: string }) {
   return (
-    <div className="flex items-center justify-center gap-1.5">
-      <span className="h-px w-6 sm:w-10" style={goldDividerStyle} />
-      <span className="h-0.5 w-0.5 rounded-full sm:h-1 sm:w-1" style={{ background: GOLD }} aria-hidden />
-      <span className="h-px w-6 sm:w-10" style={goldDividerStyleLeft} />
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} loading="lazy" decoding="async" alt="" aria-hidden="true" className={className} />
+  )
+}
+
+function DiamondDivider({ children }: { children?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <span className="h-px w-10 sm:w-16 md:w-20" style={lineRight} />
+      {children ?? (
+        <span className="h-1.5 w-1.5 rotate-45" style={{ background: C.accent }} aria-hidden />
+      )}
+      <span className="h-px w-10 sm:w-16 md:w-20" style={lineLeft} />
     </div>
   )
 }
@@ -58,7 +97,7 @@ const galleryTitleSize = {
   script: "clamp(0.95rem, 4.8vw, 2.7rem)",
 } as const
 
-function GalleryTitle() {
+function GalleryTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <h2
       className="welcome-title-lockup relative mx-auto w-full max-w-full text-center"
@@ -69,50 +108,37 @@ function GalleryTitle() {
         } as React.CSSProperties
       }
     >
-      <span className="sr-only">Gallery — our favorite moments</span>
+      <span className="sr-only">{title} — {subtitle}</span>
       <span
         aria-hidden
         className={`${theSeasons.className} block uppercase leading-[0.9] tracking-[0.04em] min-[400px]:tracking-[0.08em] sm:tracking-[0.12em] md:tracking-[0.14em]`}
-        style={{
-          fontSize: "var(--title-size)",
-          color: NAVY,
-        }}
+        style={{ fontSize: "var(--title-size)", color: C.title }}
       >
-        Gallery
+        {title}
       </span>
       <span
         aria-hidden
         className={`${aboveTheBeyond.className} relative z-10 mx-auto mt-1.5 block w-fit max-w-full px-1 leading-[0.88] sm:mt-2 sm:leading-[0.9]`}
         style={{
           fontSize: "var(--script-size)",
-          color: SCRIPT,
-          textShadow:
-            "0 1px 0 color-mix(in srgb, var(--color-welcome-bg) 95%, white), 0 0 10px color-mix(in srgb, var(--color-welcome-bg) 65%, white)",
+          color: C.script,
+          textShadow: "0 1px 0 var(--color-motif-soft)",
         }}
       >
-        our favorite moments
+        {subtitle}
       </span>
     </h2>
   )
 }
 
-const galleryItems = [
-  { image: "/mobile-background/couple (1).webp", text: " " },
-  { image: "/mobile-background/couple (2).webp", text: " " },
-  { image: "/mobile-background/couple (3).webp", text: " " },
-  { image: "/mobile-background/couple (4).webp", text: " " },
-  { image: "/mobile-background/couple (5).webp", text: " " },
-  { image: "/mobile-background/couple (6).webp", text: " " },
-  { image: "/mobile-background/couple (7).webp", text: " " },
-  { image: "/mobile-background/couple (8).webp", text: " " },
-  { image: "/mobile-background/couple (9).webp", text: " " },
-  { image: "/mobile-background/couple (10).webp", text: " " },
-
-]
+type GalleryItem = { image: string; text: string }
 
 export function Gallery() {
+  const { gallery } = useSiteConfig()
+  const galleryItems: GalleryItem[] = gallery.images
+  const decos = gallery.decos
 
-  const [selectedImage, setSelectedImage] = useState<(typeof galleryItems)[0] | null>(null)
+  const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isMounted, setIsMounted] = useState(false)
@@ -138,7 +164,7 @@ export function Gallery() {
     resetZoom()
   }, [resetZoom])
 
-  const openLightbox = useCallback((item: (typeof galleryItems)[0], index: number) => {
+  const openLightbox = useCallback((item: GalleryItem, index: number) => {
     if (pointerStart.current.dragging) return
     setSelectedImage(item)
     setCurrentIndex(index)
@@ -174,7 +200,7 @@ export function Gallery() {
       return newIndex
     })
     resetZoom()
-  }, [resetZoom])
+  }, [resetZoom, galleryItems])
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -214,99 +240,80 @@ export function Gallery() {
       const prev = new window.Image()
       prev.src = galleryItems[(currentIndex - 1 + galleryItems.length) % galleryItems.length].image
     }
-  }, [selectedImage, currentIndex])
+  }, [selectedImage, currentIndex, galleryItems])
 
   const clamp = (val: number, min: number, max: number) => Math.min(max, Math.max(min, val))
 
   return (
     <div
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full`}
-      style={{ background: sectionBackground }}
+      style={{ background: sectionBg }}
     >
       <Section
         id="gallery"
-        className="relative z-10 overflow-hidden pt-8 pb-8 sm:pt-10 sm:pb-10 md:pt-12 md:pb-12 lg:pt-14 lg:pb-14"
+        className="relative z-10 overflow-hidden pt-14 pb-10 sm:pt-16 sm:pb-12 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20"
       >
         {/* Corner decorations */}
         <div className="pointer-events-none absolute left-0 top-0 z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/deco/left-top-deco.png"
-            alt=""
-            aria-hidden="true"
-            className={CORNER_DECO_CLASS}
-          />
+          <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
         </div>
         <div className="pointer-events-none absolute right-0 top-0 z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/deco/right-top-deco.png"
-            alt=""
-            aria-hidden="true"
-            className={CORNER_DECO_CLASS}
-          />
+          <DecoImg src={decos.topRight} className={CORNER_DECO_CLASS} />
         </div>
         <div className="pointer-events-none absolute bottom-0 left-0 z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/deco/left-bottom-deco.png"
-            alt=""
-            aria-hidden="true"
-            className={CORNER_DECO_CLASS}
-          />
+          <DecoImg src={decos.bottomLeft} className={CORNER_DECO_CLASS} />
         </div>
         <div className="pointer-events-none absolute bottom-0 right-0 z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/deco/right-bottom-deco.png"
-            alt=""
-            aria-hidden="true"
-            className={CORNER_DECO_CLASS}
-          />
+          <DecoImg src={decos.bottomRight} className={CORNER_DECO_CLASS} />
         </div>
 
       {/* Header */}
       <div className="relative z-20 mx-auto mb-8 max-w-5xl px-3 text-center sm:mb-10 sm:px-4 md:mb-12">
-        <div className="mx-auto mb-4 sm:mb-5 md:mb-6">
-          <OutsideDivider />
-        </div>
+        <DecoImg
+          src={decos.headerOrnament}
+          className="mx-auto mb-3 block h-auto w-28 select-none sm:mb-4 sm:w-36 md:w-44"
+        />
+        <DiamondDivider />
         <p
-          className={`${cinzel.className} mx-auto mt-4 max-w-[20rem] px-2 text-[0.6875rem] font-semibold leading-snug tracking-[0.12em] min-[400px]:max-w-none min-[400px]:text-[0.75rem] min-[400px]:tracking-[0.16em] sm:mt-6 sm:text-[0.9375rem] sm:tracking-[0.2em] md:text-base md:tracking-[0.22em]`}
-          style={{ color: GOLD }}
+          className={`${cinzel.className} mx-auto mt-4 max-w-[20rem] px-2 text-[0.6875rem] font-semibold leading-snug tracking-[0.12em] uppercase min-[400px]:max-w-none min-[400px]:text-[0.75rem] min-[400px]:tracking-[0.16em] sm:mt-5 sm:text-[0.9375rem] sm:tracking-[0.2em] md:text-base md:tracking-[0.22em]`}
+          style={{ color: C.eyebrow }}
         >
-          Our Moments
+          {gallery.eyebrow}
         </p>
         <div className="mx-auto mt-3 sm:mt-4 md:mt-5">
-          <GalleryTitle />
+          <GalleryTitle title={gallery.title} subtitle={gallery.subtitle} />
         </div>
         <p
           className={`font-goudy-italic mx-auto mt-4 max-w-xl px-2 sm:mt-5 md:mt-6 ${sectionType.textRelaxed}`}
-          style={{ color: BODY }}
+          style={{ color: C.body }}
         >
-          From our first chapter to this beautiful season of commitment — every moment has been a
-          testament to love, faith, and grace.
+          {gallery.description}
         </p>
 
-        <div className="mt-4 flex items-center justify-center gap-1.5 sm:mt-5">
-          <span className="h-px w-8 sm:w-12 md:w-16" style={goldDividerStyle} />
-          <Camera
-            className="h-3.5 w-3.5 sm:h-4 sm:w-4"
-            style={{ color: GOLD }}
-            aria-hidden
-          />
-          <span className="h-px w-8 sm:w-12 md:w-16" style={goldDividerStyleLeft} />
+        <div className="mt-5 sm:mt-6">
+          <DiamondDivider>
+            <span
+              className="flex h-7 w-7 items-center justify-center rounded-full sm:h-8 sm:w-8"
+              style={{
+                border: "1px solid color-mix(in srgb, var(--color-motif-accent) 55%, transparent)",
+                background: C.paper,
+              }}
+            >
+              <Camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: C.accent }} aria-hidden />
+            </span>
+          </DiamondDivider>
         </div>
       </div>
 
-      {/* Gallery content — images outside container */}
+      {/* Gallery content */}
       <div className="relative z-20 w-full max-w-6xl mx-auto px-6 sm:px-10 md:px-12 pb-2 sm:pb-3">
         {isLoading ? (
           <div className="flex items-center justify-center h-64 sm:h-80 md:h-96">
             <div
               className="h-12 w-12 animate-spin rounded-full border-[3px]"
               style={{
-                borderColor: "color-mix(in srgb, var(--color-welcome-gold) 30%, transparent)",
-                borderTopColor: GOLD,
+                borderColor: "color-mix(in srgb, var(--color-motif-accent) 25%, transparent)",
+                borderTopColor: C.accent,
               }}
             />
           </div>
@@ -315,49 +322,33 @@ export function Gallery() {
             {/* Mobile: swipeable sliding gallery (scroll-snap carousel) */}
             <div className="sm:hidden">
               <div
-                className="flex gap-3 overflow-x-auto px-1 pb-3 snap-x snap-mandatory scroll-px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex gap-3 overflow-x-auto px-1 pt-1 pb-4 snap-x snap-mandatory scroll-px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 aria-label="Gallery carousel"
               >
                 {galleryItems.map((item, index) => (
                   <button
                     key={item.image + index}
                     type="button"
-                    className="group relative snap-center shrink-0 w-[82%] overflow-hidden rounded-lg transition-all duration-300"
+                    className="group relative snap-center shrink-0 w-[80%] rounded-xl p-1.5 transition-transform duration-300 active:scale-[0.98]"
+                    style={frameStyle}
                     onPointerDown={handleThumbPointerDown}
                     onPointerMove={handleThumbPointerMove}
                     onClick={() => openLightbox(item, index)}
                     aria-label={`Open image ${index + 1}`}
                   >
-                    <div
-                      className="absolute -inset-0.5 rounded-lg opacity-0 blur-sm transition-opacity duration-300 group-active:opacity-100"
-                      style={{
-                        background:
-                          "color-mix(in srgb, var(--color-welcome-gold) 32%, transparent)",
-                      }}
-                    />
-
                     <div className="relative aspect-[3/4] overflow-hidden rounded-lg">
                       <Image
                         src={item.image}
                         alt={item.text || `Gallery image ${index + 1}`}
                         fill
-                        sizes="82vw"
-                        className="object-cover transition-transform duration-500 group-active:scale-[1.02]"
+                        sizes="80vw"
+                        className="object-cover"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-active:opacity-100 transition-opacity duration-300" />
+                      <div className="pointer-events-none absolute inset-0 rounded-lg" style={innerFrameStyle} />
                     </div>
 
-                    <div
-                      className="absolute top-2 right-2 rounded-full px-2 py-1 backdrop-blur-sm"
-                      style={{
-                        backgroundColor:
-                          "color-mix(in srgb, var(--color-welcome-navy) 65%, transparent)",
-                      }}
-                    >
-                      <span
-                        className="text-xs font-medium"
-                        style={{ color: "var(--color-welcome-bg)" }}
-                      >
+                    <div className="absolute top-3.5 right-3.5 rounded-full px-2 py-0.5 backdrop-blur-sm" style={badgeStyle}>
+                      <span className="text-[11px] font-medium tracking-wider">
                         {index + 1}/{galleryItems.length}
                       </span>
                     </div>
@@ -366,55 +357,49 @@ export function Gallery() {
               </div>
 
               <p
-                className={`${cinzel.className} mt-2 text-center tracking-[0.16em] uppercase ${sectionType.label}`}
-                style={{ color: GOLD }}
+                className={`${cinzel.className} mt-1 text-center tracking-[0.2em] uppercase ${sectionType.label}`}
+                style={{ color: C.eyebrow }}
               >
                 Swipe to explore
               </p>
             </div>
 
-            {/* Tablet/Desktop: grid */}
-            <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 lg:gap-6">
+            {/* Tablet/Desktop: framed grid with a gentle stagger */}
+            <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 lg:gap-6 lg:pb-8">
               {galleryItems.map((item, index) => (
                 <button
                   key={item.image + index}
                   type="button"
-                  className="group relative w-full overflow-hidden rounded-xl transition-all duration-300"
+                  className={`group relative w-full rounded-xl p-1.5 transition-all duration-300 hover:-translate-y-1 ${index % 2 === 1 ? "lg:translate-y-8 lg:hover:translate-y-7" : ""}`}
+                  style={frameStyle}
                   onPointerDown={handleThumbPointerDown}
                   onPointerMove={handleThumbPointerMove}
                   onClick={() => openLightbox(item, index)}
                   aria-label={`Open image ${index + 1}`}
                 >
-                  <div
-                    className="absolute -inset-0.5 rounded-xl opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100"
-                    style={{
-                      background:
-                        "color-mix(in srgb, var(--color-welcome-gold) 28%, transparent)",
-                    }}
-                  />
-
-                  <div className="relative aspect-[3/4] md:aspect-square overflow-hidden rounded-xl">
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-lg">
                     <Image
                       src={item.image}
                       alt={item.text || `Gallery image ${index + 1}`}
                       fill
                       sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div
+                      className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      style={{
+                        background:
+                          "linear-gradient(to top, color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), transparent 55%)",
+                      }}
+                    />
+                    <div className="pointer-events-none absolute inset-0 rounded-lg" style={innerFrameStyle} />
                   </div>
 
                   <div
-                    className="absolute top-2 right-2 rounded-full px-2 py-1 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100"
-                    style={{
-                      backgroundColor:
-                        "color-mix(in srgb, var(--color-welcome-navy) 65%, transparent)",
-                    }}
+                    className="absolute top-3.5 right-3.5 rounded-full px-2 py-0.5 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100"
+                    style={badgeStyle}
                   >
-                    <span
-                      className="text-xs font-medium"
-                      style={{ color: "var(--color-welcome-bg)" }}
-                    >
+                    <span className="text-[11px] font-medium tracking-wider">
                       {index + 1}/{galleryItems.length}
                     </span>
                   </div>
@@ -422,12 +407,31 @@ export function Gallery() {
               ))}
             </div>
 
+            <div className="mt-10 flex justify-center sm:mt-12 md:mt-14">
+              <Link
+                href={gallery.buttonHref}
+                className={`${cinzel.className} inline-flex items-center justify-center rounded-full border px-8 py-3 text-[0.625rem] font-semibold uppercase tracking-[0.18em] transition-all duration-300 hover:scale-[1.03] hover:brightness-110 active:scale-[0.98] sm:text-[0.6875rem] sm:tracking-[0.22em]`}
+                style={{
+                  background: "var(--color-welcome-green)",
+                  borderColor: "color-mix(in srgb, var(--color-motif-medium) 70%, transparent)",
+                  color: C.light,
+                  boxShadow: "0 10px 22px -10px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)",
+                }}
+              >
+                {gallery.buttonText}
+              </Link>
+            </div>
+
             <p
-              className={`font-goudy-italic mx-auto mt-10 max-w-lg px-2 text-center leading-relaxed sm:mt-12 md:mt-14 ${sectionType.textRelaxed}`}
-              style={{ color: BODY }}
+              className={`font-goudy-italic mx-auto mt-6 max-w-lg px-2 text-center leading-relaxed sm:mt-8 ${sectionType.textRelaxed}`}
+              style={{ color: C.soft }}
             >
-              More pictures will be added as we gather the rest of our favorite moments. Please check back — this gallery is still growing.
+              {gallery.footnote}
             </p>
+            <DecoImg
+              src={decos.footerVine}
+              className="mx-auto mt-6 block h-auto w-56 select-none opacity-90 sm:mt-8 sm:w-72 md:w-96"
+            />
           </>
         )}
       </div>
@@ -435,7 +439,8 @@ export function Gallery() {
 
       {isMounted && selectedImage && createPortal(
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-3 backdrop-blur-sm animate-in fade-in duration-200 sm:p-6"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-3 backdrop-blur-sm animate-in fade-in duration-200 sm:p-6"
+          style={{ background: "color-mix(in srgb, var(--color-welcome-navy) 35%, black 65%)" }}
           role="dialog"
           aria-modal="true"
           aria-label="Gallery lightbox"
@@ -504,11 +509,11 @@ export function Gallery() {
               <div
                 className="pointer-events-auto rounded-full border px-4 py-2 backdrop-blur-md"
                 style={{
-                  backgroundColor: "rgba(0,0,0,0.45)",
-                  borderColor: "color-mix(in srgb, var(--color-welcome-gold) 50%, transparent)",
+                  backgroundColor: "color-mix(in srgb, var(--color-motif-deep) 55%, transparent)",
+                  borderColor: "color-mix(in srgb, var(--color-motif-silver) 50%, transparent)",
                 }}
               >
-                <span className="text-sm font-medium sm:text-base" style={{ color: "var(--color-welcome-bg)" }}>
+                <span className="text-sm font-medium sm:text-base" style={{ color: C.light }}>
                   {currentIndex + 1} / {galleryItems.length}
                 </span>
               </div>

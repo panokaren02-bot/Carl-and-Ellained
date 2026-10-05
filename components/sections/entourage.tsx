@@ -9,7 +9,6 @@ import { Cinzel } from "next/font/google"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { fetchUntilReady, isAbortError } from "@/lib/fetch-until-ready"
 import { fetchInvitationList } from "@/lib/invitation-data"
-import { sectionBackground } from "@/lib/section-background"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -28,49 +27,55 @@ const aboveTheBeyond = localFont({
   variable: "--font-above-beyond",
 })
 
-const IVORY = "#fffaf4"
-const GOLD = "var(--color-welcome-gold)"
+// Palette lives in globals.css → motif / welcome tokens.
+const PAPER = "var(--color-welcome-bg-soft)"
+const ACCENT = "var(--color-motif-accent)"
 const NAVY = "var(--color-welcome-navy)"
-const SCRIPT = "var(--color-welcome-green)"
+const SCRIPT = "var(--color-welcome-script)"
 const BODY = "var(--color-welcome-text)"
-const GOLD_BORDER = "color-mix(in srgb, var(--color-welcome-gold) 38%, transparent)"
-const GOLD_BORDER_SOFT = "color-mix(in srgb, var(--color-welcome-gold) 22%, transparent)"
+const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)"
 
-const goldDividerStyle = {
-  background: "linear-gradient(to right, transparent, var(--color-welcome-gold), transparent)",
+const sectionBg = `
+  radial-gradient(820px 460px at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 75%, transparent) 0%, transparent 65%),
+  radial-gradient(560px 380px at 0% 60%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
+  radial-gradient(560px 380px at 100% 85%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
+  linear-gradient(180deg, var(--color-welcome-bg-soft) 0%, var(--color-motif-cream) 100%)
+`.trim()
+
+const dividerLineStyle = {
+  background: "linear-gradient(to right, transparent, var(--color-motif-medium), transparent)",
 } as const
-
-const goldDividerStyleLeft = {
-  background: "linear-gradient(to left, transparent, var(--color-welcome-gold), transparent)",
-} as const
-
-const dividerLineStyle = goldDividerStyle
 
 const cardStyle = {
-  background: IVORY,
-  borderColor: GOLD_BORDER,
-  borderWidth: "1px",
-  borderStyle: "solid",
+  background: `linear-gradient(180deg, ${PAPER} 0%, var(--color-motif-cream) 100%)`,
   boxShadow:
-    "0 10px 28px color-mix(in srgb, var(--color-welcome-gold) 12%, transparent), inset 0 1px 0 rgb(255 250 244 / 70%)",
+    "0 26px 56px -30px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
 } as const
 
 const CORNER_DECO_CLASS =
-  "block h-auto w-auto max-w-[165px] sm:max-w-[245px] md:max-w-[350px] lg:max-w-[425px] xl:max-w-[500px] select-none"
+  "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
 
 const palette = {
   body: BODY,
   heading: NAVY,
-  label: GOLD,
-  accent: GOLD,
+  label: ACCENT,
+  accent: ACCENT,
 } as const
+
+function DecoImg({ src, className }: { src: string; className: string }) {
+  if (!src) return null
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} loading="lazy" decoding="async" alt="" aria-hidden="true" className={className} />
+  )
+}
 
 function OutsideDivider() {
   return (
-    <div className="flex items-center justify-center gap-1.5">
-      <span className="h-px w-6 sm:w-10" style={goldDividerStyle} />
-      <span className="h-0.5 w-0.5 rounded-full sm:h-1 sm:w-1" style={{ background: GOLD }} aria-hidden />
-      <span className="h-px w-6 sm:w-10" style={goldDividerStyleLeft} />
+    <div className="flex items-center justify-center gap-2">
+      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-medium))" }} />
+      <span className="h-1.5 w-1.5 rotate-45" style={{ background: ACCENT }} aria-hidden />
+      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-medium))" }} />
     </div>
   )
 }
@@ -163,26 +168,26 @@ function MixedFontText({
   )
 }
 
-function CouplePromiseMark() {
+function CouplePromiseMark({ kicker, line }: { kicker: string; line: string }) {
   return (
     <div className="-mt-3 mb-4 text-center sm:-mt-4 sm:mb-5 md:-mt-5 md:mb-6">
       <p
         className={`${cinzel.className} text-[0.5625rem] font-semibold uppercase tracking-[0.2em] sm:text-[0.625rem] sm:tracking-[0.24em] md:text-[0.6875rem] md:tracking-[0.28em]`}
-        style={{ color: GOLD }}
+        style={{ color: ACCENT }}
       >
-        Together as one
+        {kicker}
       </p>
       <p
         className={`font-goudy-italic mx-auto mt-1.5 max-w-[16rem] text-xs sm:text-sm sm:mt-2`}
         style={{ color: BODY }}
       >
-        The beginning of our forever
+        {line}
       </p>
     </div>
   )
 }
 
-function EntourageTitle() {
+function EntourageTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <h2
       className="welcome-title-lockup relative mx-auto w-full max-w-full text-center"
@@ -193,7 +198,7 @@ function EntourageTitle() {
         } as React.CSSProperties
       }
     >
-      <span className="sr-only">Wedding Entourage — standing with us</span>
+      <span className="sr-only">{title} — {subtitle}</span>
       <span
         aria-hidden
         className={`${theSeasons.className} block uppercase leading-[0.9] tracking-[0.04em] min-[400px]:tracking-[0.08em] sm:tracking-[0.12em] md:tracking-[0.14em]`}
@@ -202,7 +207,7 @@ function EntourageTitle() {
           color: NAVY,
         }}
       >
-        Wedding Entourage
+        {title}
       </span>
       <span
         aria-hidden
@@ -210,11 +215,10 @@ function EntourageTitle() {
         style={{
           fontSize: "var(--script-size)",
           color: SCRIPT,
-          textShadow:
-            "0 1px 0 color-mix(in srgb, var(--color-welcome-bg) 95%, white)",
+          textShadow: "0 1px 0 var(--color-motif-soft)",
         }}
       >
-        standing with us
+        {subtitle}
       </span>
     </h2>
   )
@@ -404,6 +408,8 @@ async function loadSponsorsFromApi(signal?: AbortSignal): Promise<PrincipalSpons
 
 export function Entourage() {
   const siteConfig = useSiteConfig()
+  const content = siteConfig.entourage
+  const { decos } = content
   const groomName = siteConfig.couple.groom
   const brideName = siteConfig.couple.bride
   const [entourage, setEntourage] = useState<EntourageMember[]>([])
@@ -533,7 +539,7 @@ export function Entourage() {
       >
         {typeof children === "string" ? (
           <MixedFontText
-            text={children}
+            text={content.headingLabels[children] ?? children}
             specialClassName="font-goudy-italic normal-case tracking-normal"
           />
         ) : (
@@ -566,7 +572,7 @@ export function Entourage() {
       >
         <div
           className="absolute inset-0 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 rounded-md"
-          style={{ background: `linear-gradient(to right, transparent, color-mix(in srgb, ${GOLD} 18%, transparent), transparent)` }}
+          style={{ background: "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-motif-silver) 70%, transparent), transparent)" }}
         />
         <p
           className={`${theSeasons.className} relative ${textAlign} transition-all duration-300 max-w-full break-words`}
@@ -657,74 +663,55 @@ export function Entourage() {
     <div
       ref={sectionRef}
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full`}
-      style={{ background: sectionBackground }}
+      style={{ background: sectionBg }}
     >
       <Section
         id="entourage"
         className="relative z-10 overflow-hidden pt-8 pb-8 sm:pt-10 sm:pb-10 md:pt-12 md:pb-12 lg:pt-14 lg:pb-14"
       >
+        {/* Corner decorations (from site.ts) */}
         <div className="pointer-events-none absolute left-0 top-0 z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/deco/left-top-deco.png"
-            alt=""
-            aria-hidden="true"
-            className={CORNER_DECO_CLASS}
-          />
+          <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
         </div>
         <div className="pointer-events-none absolute right-0 top-0 z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/deco/right-top-deco.png"
-            alt=""
-            aria-hidden="true"
-            className={CORNER_DECO_CLASS}
-          />
+          <DecoImg src={decos.topRight} className={CORNER_DECO_CLASS} />
         </div>
         <div className="pointer-events-none absolute bottom-0 left-0 z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/deco/left-bottom-deco.png"
-            alt=""
-            aria-hidden="true"
-            className={CORNER_DECO_CLASS}
-          />
+          <DecoImg src={decos.bottomLeft} className={CORNER_DECO_CLASS} />
         </div>
         <div className="pointer-events-none absolute bottom-0 right-0 z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/deco/right-bottom-deco.png"
-            alt=""
-            aria-hidden="true"
-            className={CORNER_DECO_CLASS}
-          />
+          <DecoImg src={decos.bottomRight} className={CORNER_DECO_CLASS} />
         </div>
 
       <div className={`relative z-20 mx-auto mb-8 max-w-5xl px-3 text-center @container/entourage sm:mb-10 sm:px-4 md:mb-12 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}>
+        <DecoImg
+          src={decos.headerOrnament}
+          className="mx-auto mb-3 block h-auto w-28 select-none sm:mb-4 sm:w-36 md:w-44"
+        />
         <div className="mx-auto mb-4 sm:mb-5 md:mb-6">
           <OutsideDivider />
         </div>
         <p
           className={`${cinzel.className} mx-auto max-w-[20rem] px-2 text-[0.625rem] font-semibold leading-snug tracking-[0.12em] min-[400px]:max-w-none min-[400px]:text-[0.6875rem] min-[400px]:tracking-[0.16em] sm:text-[0.8125rem] sm:tracking-[0.2em] md:text-sm md:tracking-[0.22em]`}
-          style={{ color: GOLD }}
+          style={{ color: ACCENT }}
         >
-          Our People
+          {content.eyebrow}
         </p>
         <div className="mx-auto mt-3 sm:mt-4 md:mt-5">
-          <EntourageTitle />
+          <EntourageTitle title={content.title} subtitle={content.subtitle} />
         </div>
 
         <p
           className="font-goudy-italic mx-auto mt-4 max-w-xl px-2 text-sm leading-relaxed sm:mt-5 sm:text-base md:mt-6"
           style={{ color: BODY }}
         >
-          Honoring those who stand with us on our special day
+          {content.description}
         </p>
 
         <div className="mt-4 flex items-center justify-center sm:mt-5">
           <span
             className="h-px w-16 sm:w-24 md:w-32"
-            style={goldDividerStyle}
+            style={dividerLineStyle}
           />
         </div>
       </div>
@@ -741,7 +728,7 @@ export function Entourage() {
           >
             <div
               className="pointer-events-none absolute inset-3 z-30 rounded-t-full sm:inset-4 md:inset-5"
-              style={{ border: `1px solid ${GOLD_BORDER_SOFT}` }}
+              style={{ border: `1px solid ${HAIRLINE}` }}
               aria-hidden
             />
 
@@ -750,9 +737,7 @@ export function Entourage() {
               <div className="flex items-center justify-center py-24 sm:py-28 md:py-32">
                 <div className="text-center">
                   <p className={`font-goudy-italic ${ct.body}`} style={{ color: palette.body }}>
-                    {isRetrying
-                      ? "Still gathering the wedding party. Trying again..."
-                      : "Loading entourage..."}
+                    {isRetrying ? content.retryingText : content.loadingText}
                   </p>
                 </div>
               </div>
@@ -760,29 +745,29 @@ export function Entourage() {
               <div className="flex items-center justify-center py-24 sm:py-28 md:py-32">
                 <div className="text-center">
                   <p className={`font-goudy-italic ${ct.bodyLg} mb-3`} style={{ color: palette.body }}>
-                    {error}
+                    {content.errorText}
                   </p>
                   <button
                     onClick={() => void loadPartyUntilReady()}
                     className={`${cinzel.className} ${ct.body} underline transition-colors duration-200 hover:opacity-80`}
                     style={{ color: palette.accent }}
                   >
-                    Try again
+                    {content.retryText}
                   </button>
                 </div>
               </div>
             ) : (
             <>
-              <CouplePromiseMark />
+              <CouplePromiseMark kicker={content.coupleKicker} line={content.coupleLine} />
               <div className="mb-2 sm:mb-2.5 md:mb-3">
-                <SectionTitle>The Couple</SectionTitle>
+                <SectionTitle>{content.coupleHeading}</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-1.5 sm:gap-x-3 md:gap-x-5 gap-y-1 sm:gap-y-1.5">
                   <div className="px-0.5 sm:px-1 md:px-1.5 min-w-0">
                     <NameItem
                       member={{
                         name: groomName,
                         roleCategory: "The Couple",
-                        roleTitle: "Groom",
+                        roleTitle: content.groomRole,
                         email: "",
                       }}
                       align="right"
@@ -794,7 +779,7 @@ export function Entourage() {
                       member={{
                         name: brideName,
                         roleCategory: "The Couple",
-                        roleTitle: "Bride",
+                        roleTitle: content.brideRole,
                         email: "",
                       }}
                       align="left"
@@ -1510,6 +1495,10 @@ export function Entourage() {
           </div>
         </div>
         </div>
+        <DecoImg
+          src={decos.footerVine}
+          className="relative z-20 mx-auto mt-10 block h-auto w-56 select-none opacity-90 sm:mt-12 sm:w-72 md:w-96"
+        />
       </div>
       </Section>
     </div>
