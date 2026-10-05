@@ -8,7 +8,7 @@ import { sectionType } from "@/lib/section-typography"
 import { Cinzel } from "next/font/google"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { fetchUntilReady, isAbortError } from "@/lib/fetch-until-ready"
-import { fetchInvitationList } from "@/lib/invitation-data"
+import { fetchInvitationList, readCachedInvitationList } from "@/lib/invitation-data"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -391,19 +391,43 @@ function sortBrideParents(members: EntourageMember[]): EntourageMember[] {
   })
 }
 
-async function loadEntourageFromApi(signal?: AbortSignal): Promise<EntourageMember[]> {
-  const data = await fetchInvitationList<Record<string, unknown>>("/api/entourage", { signal })
+function toEntourageMembers(data: Record<string, unknown>[]): EntourageMember[] {
   return data
     .map((row) => entourageMemberFromApi(row))
     .filter((member) => member.name.trim())
     .filter((member) => !isCoupleMember(member))
 }
 
-async function loadSponsorsFromApi(signal?: AbortSignal): Promise<PrincipalSponsor[]> {
-  const data = await fetchInvitationList<Record<string, unknown>>("/api/principal-sponsor", { signal })
+function toPrincipalSponsors(data: Record<string, unknown>[]): PrincipalSponsor[] {
   return data
     .map((row) => principalSponsorFromApi(row))
     .filter((sponsor) => sponsor.malePrincipalSponsor.trim() || sponsor.femalePrincipalSponsor.trim())
+}
+
+async function loadEntourageFromApi(signal?: AbortSignal, reload = false): Promise<EntourageMember[]> {
+  const data = await fetchInvitationList<Record<string, unknown>>("/api/entourage", { signal, reload })
+  return toEntourageMembers(data)
+}
+
+async function loadSponsorsFromApi(signal?: AbortSignal, reload = false): Promise<PrincipalSponsor[]> {
+  // Sponsors are optional — never block the entourage on them
+  try {
+    const data = await fetchInvitationList<Record<string, unknown>>("/api/principal-sponsor", { signal, reload })
+    return toPrincipalSponsors(data)
+  } catch (error) {
+    if (isAbortError(error)) throw error
+    console.warn("Failed to load principal sponsors:", error)
+    return []
+  }
+}
+
+function readCachedParty() {
+  const members = readCachedInvitationList<Record<string, unknown>>("/api/entourage")
+  const sponsors = readCachedInvitationList<Record<string, unknown>>("/api/principal-sponsor")
+  return {
+    members: members ? toEntourageMembers(members) : [],
+    sponsors: sponsors ? toPrincipalSponsors(sponsors) : [],
+  }
 }
 
 export function Entourage() {
@@ -420,51 +444,57 @@ export function Entourage() {
   const [isVisible, setIsVisible] = useState(false)
   const sectionRef = useRef<HTMLDivElement>(null)
 
-  const loadPartyUntilReady = async (signal?: AbortSignal, { replace = true } = {}) => {
-    if (replace) {
+  const loadParty = async (signal?: AbortSignal, { reload = false } = {}) => {
+    const cached = readCachedParty()
+    const hasCached = cached.members.length > 0
+    if (hasCached) {
+      // Show the last known list right away; refresh quietly in the background
+      setEntourage(cached.members)
+      setSponsors(cached.sponsors)
+      setIsLoading(false)
+    } else {
       setIsLoading(true)
-      setError(null)
     }
+    setError(null)
     setIsRetrying(false)
+
     try {
       const [members, sponsorList] = await Promise.all([
         fetchUntilReady({
           signal,
-          load: loadEntourageFromApi,
+          load: (s) => loadEntourageFromApi(s, reload),
           isReady: (list) => list.length > 0,
+          maxAttempts: 4,
+          maxDelayMs: 3000,
           onRetry: () => setIsRetrying(true),
         }),
-        fetchUntilReady({
-          signal,
-          load: loadSponsorsFromApi,
-          isReady: () => true,
-          onRetry: () => setIsRetrying(true),
-        }),
+        loadSponsorsFromApi(signal, reload),
       ])
+      if (signal?.aborted) return
       setEntourage(members)
       setSponsors(sponsorList)
       setError(null)
-      setIsRetrying(false)
     } catch (err: unknown) {
       if (isAbortError(err)) return
       console.error("Failed to load entourage:", err)
-      if (replace) {
-        setError("Unable to load entourage")
-      }
+      if (!hasCached) setError("Unable to load entourage")
     } finally {
       if (!signal?.aborted) {
         setIsLoading(false)
+        setIsRetrying(false)
       }
     }
   }
 
   useEffect(() => {
     const controller = new AbortController()
-    void loadPartyUntilReady(controller.signal)
+    void loadParty(controller.signal)
 
+    let updateTimer: ReturnType<typeof setTimeout> | undefined
     const handleEntourageUpdate = () => {
-      setTimeout(() => {
-        void loadPartyUntilReady(undefined, { replace: false })
+      clearTimeout(updateTimer)
+      updateTimer = setTimeout(() => {
+        void loadParty(controller.signal, { reload: true })
       }, 1000)
     }
 
@@ -472,6 +502,7 @@ export function Entourage() {
 
     return () => {
       controller.abort()
+      clearTimeout(updateTimer)
       window.removeEventListener("entourageUpdated", handleEntourageUpdate)
     }
   }, [])
@@ -748,7 +779,7 @@ export function Entourage() {
                     {content.errorText}
                   </p>
                   <button
-                    onClick={() => void loadPartyUntilReady()}
+                    onClick={() => void loadParty(undefined, { reload: true })}
                     className={`${cinzel.className} ${ct.body} underline transition-colors duration-200 hover:opacity-80`}
                     style={{ color: palette.accent }}
                   >

@@ -27,7 +27,7 @@ import localFont from "next/font/local"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { modalTitleSize, sectionType, welcomeTitleSize } from "@/lib/section-typography"
 import { fetchUntilReady, isAbortError } from "@/lib/fetch-until-ready"
-import { fetchInvitationList, invalidateInvitationData } from "@/lib/invitation-data"
+import { fetchInvitationList, invalidateInvitationData, readCachedInvitationList } from "@/lib/invitation-data"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -195,6 +195,8 @@ export function GuestList() {
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isFetchingGuests, setIsFetchingGuests] = useState(true)
+  const [guestsLoadFailed, setGuestsLoadFailed] = useState(false)
+  const guestsLoadRef = useRef<AbortController | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [requestSuccess, setRequestSuccess] = useState<string | null>(null)
@@ -284,35 +286,52 @@ export function GuestList() {
     }
   }, [selectedGuest, formData.RSVP])
 
-  // Fetch guests on mount and retry until the list is ready to display
-  useEffect(() => {
+  // Load guests: show the last known list instantly, then refresh with bounded retries
+  const loadGuests = async ({ reload = false } = {}) => {
+    guestsLoadRef.current?.abort()
     const controller = new AbortController()
+    guestsLoadRef.current = controller
 
-    const load = async () => {
-      setIsFetchingGuests(true)
-      try {
-        const mappedGuests = await fetchUntilReady({
-          signal: controller.signal,
-          load: loadGuestsFromApi,
-          isReady: (list) => list.length > 0,
-        })
-        setGuests(mappedGuests)
-        setError(null)
-      } catch (error) {
-        if (isAbortError(error)) return
-        console.error("Error fetching guests:", error)
-        setError(copy.messages.loadFailed)
-        setTimeout(() => setError(null), 5000)
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsFetchingGuests(false)
-        }
+    const cached = readCachedInvitationList<ApiGuest>("/api/guests")
+    const cachedGuests = cached ? mapApiGuests(cached) : []
+    if (cachedGuests.length > 0) {
+      setGuests(cachedGuests)
+    }
+    setIsFetchingGuests(cachedGuests.length === 0)
+    setGuestsLoadFailed(false)
+
+    try {
+      const mappedGuests = await fetchUntilReady({
+        signal: controller.signal,
+        load: (signal) => loadGuestsFromApi(signal, reload),
+        isReady: (list) => list.length > 0,
+        maxAttempts: 4,
+        maxDelayMs: 3000,
+      })
+      setGuests(mappedGuests)
+    } catch (error) {
+      if (isAbortError(error)) return
+      console.error("Error fetching guests:", error)
+      if (cachedGuests.length === 0) setGuestsLoadFailed(true)
+    } finally {
+      if (guestsLoadRef.current === controller) {
+        guestsLoadRef.current = null
+        setIsFetchingGuests(false)
       }
     }
+  }
 
-    void load()
-    return () => controller.abort()
+  useEffect(() => {
+    void loadGuests()
+    return () => guestsLoadRef.current?.abort()
   }, [])
+
+  // Opening the search after a failed load tries again automatically
+  useEffect(() => {
+    if (showSearchModal && guestsLoadFailed && !isFetchingGuests) {
+      void loadGuests({ reload: true })
+    }
+  }, [showSearchModal])
 
   // Filter guests based on search query with real-time auto-suggestion
   // Shows suggestions for ANY letter typed (even just 1 character)
@@ -438,6 +457,7 @@ export function GuestList() {
         headers: {
           "Content-Type": "application/json",
         },
+        signal: AbortSignal.timeout(30_000),
         body: JSON.stringify({
           id: String(selectedGuest.id),
           name: formData.Name,
@@ -781,6 +801,32 @@ export function GuestList() {
                 </div>
               </div>
 
+              {guestsLoadFailed && guests.length === 0 && !isFetchingGuests && (
+                <div
+                  className="border-t px-5 py-4 text-center sm:px-6 sm:py-5"
+                  style={{
+                    borderColor: HAIRLINE,
+                    background: innerSurfaceStyle.background,
+                  }}
+                >
+                  <p
+                    className={`font-goudy-italic mb-2 ${sectionType.textSnug}`}
+                    style={{ color: palette.body }}
+                  >
+                    {copy.messages.loadFailed}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void loadGuests({ reload: true })}
+                    className={`${cinzel.className} inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-[0.68rem] font-semibold tracking-[0.12em] transition-all duration-200 hover:brightness-110`}
+                    style={primaryButtonStyle}
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" aria-hidden />
+                    Try again
+                  </button>
+                </div>
+              )}
+
               {isFetchingGuests && guests.length === 0 && (
                 <div
                   className="border-t px-5 py-4 text-center sm:px-6 sm:py-5"
@@ -861,7 +907,7 @@ export function GuestList() {
                 </div>
               )}
 
-              {searchQuery.trim() && filteredGuests.length === 0 && !isFetchingGuests && (
+              {searchQuery.trim() && filteredGuests.length === 0 && !isFetchingGuests && !(guestsLoadFailed && guests.length === 0) && (
                 <div
                   className="border-t px-5 py-4 sm:px-6 sm:py-5"
                   style={{

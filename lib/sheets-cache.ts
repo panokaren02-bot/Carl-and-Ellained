@@ -35,13 +35,17 @@ export async function withSheetsCache<T>(
   }
 
   if (existing?.inflight) {
-    return existing.inflight
+    // Stale-while-revalidate: don't make visitors wait on a slow Apps Script refresh
+    return existing.value !== undefined ? existing.value : existing.inflight
   }
 
   const inflight = loader()
     .then((value) => {
       if (isUsefulList(value)) {
         store.set(key, { value, expiresAt: Date.now() + ttlMs })
+      } else if (existing?.value !== undefined) {
+        // Keep the last good list rather than flashing an empty one
+        store.set(key, { value: existing.value, expiresAt: 0 })
       } else {
         store.delete(key)
       }
@@ -63,6 +67,11 @@ export async function withSheetsCache<T>(
     expiresAt: existing?.expiresAt ?? 0,
     inflight,
   })
+
+  if (existing?.value !== undefined) {
+    inflight.catch((error) => console.warn(`Background refresh failed for ${key}:`, error))
+    return existing.value
+  }
 
   return inflight
 }
@@ -93,7 +102,7 @@ export async function fetchGoogleScriptJson(url: string): Promise<unknown> {
         headers: { "Content-Type": "application/json" },
         cache: "no-store",
         redirect: "follow",
-        signal: AbortSignal.timeout(30_000),
+        signal: AbortSignal.timeout(20_000),
       })
 
       if (!response.ok) {
