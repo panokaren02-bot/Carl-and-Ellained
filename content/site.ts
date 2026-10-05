@@ -239,7 +239,7 @@ const ATTIRE = {
 
 // ── Website address (used for QR codes, link previews, table finder) ────────
 // NEXT_PUBLIC_SITE_URL (env) overrides this when set.
-const SITE_URL = "https://adrean-and-brendel.weddinginvitationrsvp.com/"
+const SITE_URL = "https://jv-and-jemiree.weddinginvitationrsvp.com/"
 // Image shown when the link is shared (Facebook, Messenger, Viber, X, …) — 1200×630 JPG in /public
 const LINK_PREVIEW_IMAGE = "/Details/LinkPreviewnew.png"
 
