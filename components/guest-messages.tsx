@@ -1,14 +1,16 @@
 "use client"
 
-import { useState } from "react"
-import {
-  MessageSquare,
-  Search,
-  Heart,
-  RefreshCw,
-  Clock,
-} from "lucide-react"
+import { useMemo, useState } from "react"
+import { Cinzel, Playfair_Display } from "next/font/google"
+import { ArrowDownUp, Check, Clock, Copy, Heart, MessageSquare, Quote, RefreshCw, Search } from "lucide-react"
 import { type Message } from "@/app/api/messages/route"
+
+const cinzel = Cinzel({ subsets: ["latin"], weight: ["500", "600"] })
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["500", "600"], style: ["normal", "italic"] })
+
+/** Messages longer than this are clamped with a "Read more" toggle. */
+const LONG_MESSAGE = 220
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 
 interface GuestMessagesProps {
   messages: Message[]
@@ -16,8 +18,116 @@ interface GuestMessagesProps {
   isLoading?: boolean
 }
 
+function toTime(timestamp: string) {
+  const t = new Date(timestamp).getTime()
+  return Number.isNaN(t) ? 0 : t
+}
+
+function formatFullDate(timestamp: string) {
+  const t = toTime(timestamp)
+  if (!t) return ""
+  return new Date(t).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  })
+}
+
+function formatRelative(timestamp: string) {
+  const t = toTime(timestamp)
+  if (!t) return "Recently"
+  const diff = Date.now() - t
+  const minutes = Math.round(diff / 60000)
+  if (minutes < 1) return "Just now"
+  if (minutes < 60) return `${minutes} min ago`
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return `${hours} hr${hours === 1 ? "" : "s"} ago`
+  const days = Math.round(hours / 24)
+  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`
+  return new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+}
+
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return "?"
+  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase()
+}
+
+function MessageCard({ msg }: { msg: Message }) {
+  const [expanded, setExpanded] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const isLong = msg.message.length > LONG_MESSAGE
+  const name = msg.name?.trim() || "Anonymous"
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(`"${msg.message}" — ${name}`)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch {
+      /* clipboard unavailable — ignore */
+    }
+  }
+
+  return (
+    <article className="group relative flex flex-col rounded-2xl border border-[#DDE5D4] bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5">
+      <header className="flex items-start gap-3">
+        <span
+          className={`${cinzel.className} flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#AAB9A0] to-[#4F674D] text-sm font-semibold text-white shadow-sm`}
+          aria-hidden
+        >
+          {initials(name)}
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className={`${playfair.className} truncate text-base font-semibold text-[#304A34] sm:text-lg`}>{name}</h3>
+          <p className="mt-0.5 flex items-center gap-1 text-[11px] text-gray-500 sm:text-xs" title={formatFullDate(msg.timestamp)}>
+            <Clock className="h-3 w-3 shrink-0" />
+            {formatRelative(msg.timestamp)}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void copy()}
+          aria-label={copied ? "Copied" : `Copy message from ${name}`}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors ${
+            copied
+              ? "border-[#718566] bg-[#718566] text-white"
+              : "border-[#DDE5D4] bg-white text-gray-400 hover:text-[#4F674D] sm:opacity-0 sm:group-hover:opacity-100 sm:focus:opacity-100"
+          }`}
+        >
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+        </button>
+      </header>
+
+      <div className="relative mt-3 flex-1 rounded-xl border border-[#EEF2EA] bg-gradient-to-br from-[#FBFCF7] to-[#F4F5EA] px-4 pt-4 pb-3">
+        <Quote className="absolute left-3 top-3 h-5 w-5 rotate-180 text-[#C3CFB8]" aria-hidden />
+        <p
+          className={`${playfair.className} whitespace-pre-wrap pl-6 text-[0.95rem] italic leading-relaxed text-[#304A34] [overflow-wrap:anywhere] sm:text-base ${
+            isLong && !expanded ? "line-clamp-5" : ""
+          }`}
+        >
+          {msg.message}
+        </p>
+        {isLong && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            className="mt-2 pl-6 text-xs font-semibold text-[#4F674D] underline-offset-4 hover:underline"
+          >
+            {expanded ? "Show less" : "Read more"}
+          </button>
+        )}
+      </div>
+    </article>
+  )
+}
+
 export function GuestMessages({ messages, onRefresh, isLoading = false }: GuestMessagesProps) {
   const [searchQuery, setSearchQuery] = useState("")
+  const [newestFirst, setNewestFirst] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -27,164 +137,137 @@ export function GuestMessages({ messages, onRefresh, isLoading = false }: GuestM
     try {
       await onRefresh()
     } catch {
-      setError("Failed to load messages")
+      setError("We couldn't load messages. Please try again.")
     } finally {
       setIsRefreshing(false)
     }
   }
 
-  const filteredMessages = messages.filter((msg) => {
-    if (!searchQuery.trim()) return true
-    const query = searchQuery.toLowerCase()
-    return (
-      msg.name.toLowerCase().includes(query) ||
-      msg.message.toLowerCase().includes(query)
-    )
-  })
-
-  const formatTimestamp = (timestamp: string) => {
-    if (!timestamp) return "Recently"
-    try {
-      const date = new Date(timestamp)
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    } catch {
-      return timestamp
+  const stats = useMemo(() => {
+    const now = Date.now()
+    return {
+      total: messages.length,
+      guests: new Set(messages.map((m) => m.name?.trim().toLowerCase()).filter(Boolean)).size,
+      thisWeek: messages.filter((m) => {
+        const t = toTime(m.timestamp)
+        return t > 0 && now - t <= WEEK_MS
+      }).length,
+      long: messages.filter((m) => m.message && m.message.length > 100).length,
     }
-  }
+  }, [messages])
+
+  const visibleMessages = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    const filtered = query
+      ? messages.filter((m) => m.name?.toLowerCase().includes(query) || m.message?.toLowerCase().includes(query))
+      : messages
+    return [...filtered].sort((a, b) => (newestFirst ? toTime(b.timestamp) - toTime(a.timestamp) : toTime(a.timestamp) - toTime(b.timestamp)))
+  }, [messages, searchQuery, newestFirst])
+
+  const busy = isLoading || isRefreshing
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-[#111827]">Guest Messages</h2>
-        <div className="flex items-center gap-3">
-          <div className="text-sm text-[#6B7280]">
-            {filteredMessages.length} of {messages.length} messages
-          </div>
-          <button
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="p-2 rounded-lg bg-white hover:bg-gray-50 border border-[#E5E7EB] transition-colors disabled:opacity-50"
-            title="Refresh messages"
-          >
-            <RefreshCw className={`h-4 w-4 text-[#6B7280] ${isRefreshing ? "animate-spin" : ""}`} />
-          </button>
-        </div>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Heading */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-bold text-[#111827] sm:text-2xl">Guest Messages</h2>
+        <button
+          type="button"
+          onClick={() => void handleRefresh()}
+          disabled={busy}
+          className="inline-flex items-center gap-1.5 rounded-full border border-[#DDE5D4] bg-white px-3 py-1.5 text-xs font-medium text-[#4F674D] transition-colors hover:bg-[#F7F9F4] disabled:opacity-50"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${busy ? "animate-spin" : ""}`} />
+          Refresh
+        </button>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
           {error}
         </div>
       )}
 
-      <div className="bg-gradient-to-br from-[#FBFCF7] to-[#F4F5EA] border border-[#E5E7EB] rounded-xl p-6">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-[#4F674D] to-[#304A34] rounded-xl flex items-center justify-center flex-shrink-0">
-            <Heart className="h-6 w-6 text-white" />
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
+        {[
+          { label: "Messages", value: stats.total, tone: "border-[#DDE5D4] bg-white text-[#4F674D]" },
+          { label: "From guests", value: stats.guests, tone: "border-green-200 bg-green-50 text-green-700" },
+          { label: "This week", value: stats.thisWeek, tone: "border-amber-200 bg-amber-50 text-amber-700" },
+          { label: "Heartfelt (100+ chars)", value: stats.long, tone: "border-purple-200 bg-purple-50 text-purple-700" },
+        ].map((stat) => (
+          <div key={stat.label} className={`rounded-lg border p-3 shadow-sm sm:p-4 ${stat.tone}`}>
+            <div className="text-xl font-bold sm:text-2xl">{stat.value}</div>
+            <div className="text-[10px] uppercase tracking-wide text-gray-600 sm:text-xs">{stat.label}</div>
           </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-[#304A34] text-lg mb-2">Messages from Your Guests</h3>
-            <p className="text-sm text-[#6B7280]">
-              Read heartfelt messages and well wishes from your guests. These messages were submitted through your wedding website.
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
 
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E5E7EB]">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#6B7280]" />
+      {/* Explainer */}
+      <div className="flex gap-3 rounded-xl border border-[#DDE5D4] bg-[#F7F9F4] p-3 sm:p-4">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#4F674D] shadow-sm ring-1 ring-[#DDE5D4]">
+          <Heart className="h-4 w-4" />
+        </span>
+        <p className="text-xs leading-relaxed text-[#4B5B49] sm:text-sm">
+          Well wishes your guests left on your invitation. Tap the copy icon to save a favourite for your keepsake book.
+        </p>
+      </div>
+
+      {/* Search + sort */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search messages by guest name or content..."
-            className="w-full pl-10 pr-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none transition-all"
+            placeholder="Search by guest or words..."
+            className="w-full rounded-lg border border-[#DDE5D4] bg-white py-2.5 pl-10 pr-4 outline-none focus:ring-2 focus:ring-[#9EAF91]"
           />
         </div>
+        <button
+          type="button"
+          onClick={() => setNewestFirst((v) => !v)}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#DDE5D4] bg-white px-3 text-xs font-medium text-[#304A34] transition-colors hover:bg-[#F7F9F4] sm:text-sm"
+          aria-label={`Sort: ${newestFirst ? "newest first" : "oldest first"}`}
+        >
+          <ArrowDownUp className="h-4 w-4 text-[#718566]" />
+          {newestFirst ? "Newest" : "Oldest"}
+        </button>
       </div>
 
-      {(isLoading || isRefreshing) && messages.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-12 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#F9FAFB] rounded-full mb-4">
-            <RefreshCw className="h-8 w-8 text-[#6B7280] animate-spin" />
-          </div>
-          <h3 className="text-lg font-semibold text-[#111827] mb-2">Loading Messages...</h3>
-          <p className="text-[#6B7280]">Please wait while we fetch your messages.</p>
+      {searchQuery.trim() && visibleMessages.length > 0 && (
+        <p className="text-xs text-gray-500">
+          {visibleMessages.length} of {messages.length} messages
+        </p>
+      )}
+
+      {/* List */}
+      {busy && messages.length === 0 ? (
+        <div className="rounded-xl border border-[#DDE5D4] bg-white px-6 py-12 text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[#DDE5D4] border-t-[#4F674D]" />
+          <h3 className={`${playfair.className} text-lg font-semibold text-[#304A34]`}>Loading messages…</h3>
+          <p className="mt-1 text-sm text-gray-500">Gathering your guests&apos; well wishes.</p>
         </div>
-      ) : filteredMessages.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-12 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#F9FAFB] rounded-full mb-4">
-            <MessageSquare className="h-8 w-8 text-[#6B7280]" />
-          </div>
-          <h3 className="text-lg font-semibold text-[#111827] mb-2">No Messages Found</h3>
-          <p className="text-[#6B7280]">
+      ) : visibleMessages.length === 0 ? (
+        <div className="rounded-xl border border-[#DDE5D4] bg-white px-6 py-12 text-center">
+          <span className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#F7F9F4]">
+            <MessageSquare className="h-7 w-7 text-[#AAB9A0]" />
+          </span>
+          <h3 className={`${playfair.className} text-lg font-semibold text-[#304A34]`}>
+            {searchQuery ? "No matching messages" : "No messages yet"}
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
             {searchQuery
-              ? "No messages match your search query."
-              : "No guests have left messages yet."}
+              ? "Try a different name or word."
+              : "When guests leave a message on your invitation, it will appear here."}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {filteredMessages.map((msg, index) => (
-            <div
-              key={`${msg.timestamp}-${msg.name}-${index}`}
-              className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6 hover:shadow-md transition-all duration-200"
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#C3CFB8] to-[#4F674D] rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-semibold text-lg">
-                    {msg.name ? msg.name.charAt(0).toUpperCase() : "?"}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-[#111827] mb-1">{msg.name || "Anonymous"}</h3>
-                  {msg.timestamp && (
-                    <div className="flex items-center gap-1.5 text-sm text-[#6B7280]">
-                      <Clock className="h-4 w-4 flex-shrink-0" />
-                      <span>{formatTimestamp(msg.timestamp)}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-[#FBFCF7] to-[#F4F5EA] rounded-xl p-4 border border-[#E5E7EB]">
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 mt-1">
-                    <MessageSquare className="h-5 w-5 text-[#718566]" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[#304A34] leading-relaxed whitespace-pre-wrap">{msg.message}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+          {visibleMessages.map((msg, index) => (
+            <MessageCard key={`${msg.timestamp}-${msg.name}-${index}`} msg={msg} />
           ))}
-        </div>
-      )}
-
-      {messages.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
-            <div>
-              <div className="text-3xl font-bold text-[#4F674D] mb-1">
-                {messages.length}
-              </div>
-              <div className="text-sm text-[#6B7280]">Total Messages</div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-purple-600 mb-1">
-                {messages.filter((m) => m.message && m.message.length > 100).length}
-              </div>
-              <div className="text-sm text-[#6B7280]">Long Messages (100+ chars)</div>
-            </div>
-          </div>
         </div>
       )}
     </div>

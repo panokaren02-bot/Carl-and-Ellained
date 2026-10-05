@@ -2,18 +2,23 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import { Cinzel, Playfair_Display } from "next/font/google"
 import {
   Copy,
   ExternalLink,
   Send,
   Check,
   Search,
-  Sparkles,
-  Heart,
   Link2,
   Crown,
   Users,
+  Info,
+  X,
+  RefreshCw,
+  Share2,
+  ChevronDown,
 } from "lucide-react"
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import {
   PROPOSAL_ROLES,
@@ -28,14 +33,11 @@ import {
   ProposalMixedTextBlock,
   proposalMixedTextInter,
 } from "@/lib/proposal-mixed-text"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+
+const cinzel = Cinzel({ subsets: ["latin"], weight: ["500", "600"] })
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["500", "600"] })
+
+const PLAYFUL_ROLE_IDS = new Set(["flower-girl", "ring-bearer", "coin-bearer", "bible-bearer", "herald-bearer"])
 
 const CATEGORY_TABS = ["all", "Entourage", "Principal Sponsor"] as const
 
@@ -66,6 +68,27 @@ export function ProposalDashboard() {
   const [copiedInviteText, setCopiedInviteText] = useState(false)
   const [copiedPersonalLink, setCopiedPersonalLink] = useState(false)
   const [inviteNameError, setInviteNameError] = useState("")
+  const [showInviteHelp, setShowInviteHelp] = useState(false)
+  const [showSetupNote, setShowSetupNote] = useState(false)
+  const [showHowItWorks, setShowHowItWorks] = useState(false)
+  const [canShare, setCanShare] = useState(false)
+
+  useEffect(() => {
+    setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function")
+  }, [])
+
+  useBodyScrollLock(Boolean(selectedInviteRole))
+
+  // Escape closes the invite sheet
+  useEffect(() => {
+    if (!selectedInviteRole) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeInviteModal()
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedInviteRole])
 
   const getOrigin = () =>
     typeof window !== "undefined" ? window.location.origin : ""
@@ -90,6 +113,7 @@ export function ProposalDashboard() {
     setSelectedInviteRole(role)
     setInviteeName("")
     setCopiedInviteText(false)
+    setShowInviteHelp(false)
   }
 
   const closeInviteModal = () => {
@@ -156,6 +180,21 @@ ${groom} & ${bride}`
     })
   }
 
+  /** Phones: open the system share sheet (Messenger, Viber, SMS…) with the full message. */
+  const handleShareInvite = async () => {
+    if (!selectedInviteRole) return
+    if (!inviteeName.trim()) {
+      setInviteNameError("Enter the guest's name first so the message greets them by name.")
+      return
+    }
+    setInviteNameError("")
+    try {
+      await navigator.share({ text: getInviteMessage() })
+    } catch {
+      /* share cancelled — nothing to do */
+    }
+  }
+
   const fetchSheetCounts = async () => {
     setIsCountsLoading(true)
     try {
@@ -207,159 +246,200 @@ ${groom} & ${bride}`
   const { filledEntourage: filledEntourageCount, filledSponsors: filledSponsorCount } =
     countFilledNamesByProposalRoles(entourageRows, sponsorRows)
 
+  const categoryCounts = {
+    all: PROPOSAL_ROLES.length,
+    Entourage: PROPOSAL_ROLES.filter((r) => r.category === "Entourage").length,
+    "Principal Sponsor": PROPOSAL_ROLES.filter((r) => r.category === "Principal Sponsor").length,
+  } as const
+
+  const greetingWord = selectedInviteRole && PLAYFUL_ROLE_IDS.has(selectedInviteRole.id) ? "Hi" : "Dear"
+  const FIELD =
+    "w-full rounded-xl border border-[#DDE5D4] bg-[#FCFDFB] px-3 py-2.5 outline-none transition-colors focus:border-[#9EAF91] focus:bg-white focus:ring-2 focus:ring-[#9EAF91]/40"
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="overflow-hidden rounded-2xl border border-[#E5E7EB] bg-gradient-to-br from-[#FBFCF7] via-white to-[#F9FAFB] p-6 shadow-sm sm:p-8">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#718566]/15 text-[#4F674D]">
-              <Heart className="h-6 w-6" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-[#111827]">Special Proposal Invitations</h2>
-              <p className="mt-1 max-w-xl text-sm leading-relaxed text-[#6B7280]">
-                Enter each guest&apos;s name, copy their personal link, and send it by text or
-                messenger. They&apos;ll see &ldquo;Dear (Name)&rdquo; and the role you&apos;re
-                offering — they only need to confirm yes or no. Accepted names fill the next open
-                slot in Google Sheets for that role.
-              </p>
-            </div>
-          </div>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Heading */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-bold text-[#111827] sm:text-2xl">Proposal Invites</h2>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void fetchSheetCounts()}
+            disabled={isCountsLoading}
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#DDE5D4] bg-white px-3 py-1.5 text-xs font-medium text-[#4F674D] transition-colors hover:bg-[#F7F9F4] disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isCountsLoading ? "animate-spin" : ""}`} />
+            Refresh
+          </button>
           <Link
             href="/"
             target="_blank"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#304A34] shadow-sm transition-colors hover:bg-[#FBFCF7]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#DDE5D4] bg-white px-3 py-1.5 text-xs font-medium text-[#4F674D] transition-colors hover:bg-[#F7F9F4]"
           >
-            <ExternalLink className="h-4 w-4" />
+            <ExternalLink className="h-3.5 w-3.5" />
             Preview Site
           </Link>
         </div>
+      </div>
 
-        <div className="mt-6 flex flex-wrap gap-3">
-          <div className="flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs text-[#6B7280]">
-            <Users className="h-3.5 w-3.5 text-[#718566]" />
-            <span>
-              <strong className="text-[#304A34]">
-                {isCountsLoading ? "…" : filledEntourageCount}
-              </strong>{" "}
-              names · {PROPOSAL_ENTOURAGE_ROLE_SLOTS} entourage roles
-            </span>
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
+        {[
+          { label: "Entourage roles", value: PROPOSAL_ENTOURAGE_ROLE_SLOTS, tone: "border-[#DDE5D4] bg-white text-[#4F674D]" },
+          { label: "Sponsor roles", value: PROPOSAL_SPONSOR_ROLE_SLOTS, tone: "border-amber-200 bg-amber-50 text-amber-700" },
+          {
+            label: "Entourage names",
+            value: isCountsLoading ? "…" : filledEntourageCount,
+            tone: "border-green-200 bg-green-50 text-green-700",
+          },
+          {
+            label: "Sponsor names",
+            value: isCountsLoading ? "…" : filledSponsorCount,
+            tone: "border-purple-200 bg-purple-50 text-purple-700",
+          },
+        ].map((stat) => (
+          <div key={stat.label} className={`rounded-lg border p-3 shadow-sm sm:p-4 ${stat.tone}`}>
+            <div className="text-xl font-bold sm:text-2xl">{stat.value}</div>
+            <div className="text-[10px] uppercase tracking-wide text-gray-600 sm:text-xs">{stat.label}</div>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs text-[#6B7280]">
-            <Crown className="h-3.5 w-3.5 text-[#718566]" />
-            <span>
-              <strong className="text-[#304A34]">
-                {isCountsLoading ? "…" : filledSponsorCount}
-              </strong>{" "}
-              names · {PROPOSAL_SPONSOR_ROLE_SLOTS} sponsor roles
-            </span>
+        ))}
+      </div>
+
+      {/* How it works — collapsed by default so the role cards stay in focus */}
+      <div className="rounded-xl border border-[#DDE5D4] bg-[#F7F9F4]">
+        <button
+          type="button"
+          onClick={() => setShowHowItWorks((v) => !v)}
+          aria-expanded={showHowItWorks}
+          aria-controls="proposal-how-it-works"
+          className="flex w-full items-center gap-2 px-3 py-2.5 text-left sm:px-4"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#4F674D] shadow-sm ring-1 ring-[#DDE5D4]">
+            <Info className="h-3.5 w-3.5" />
+          </span>
+          <span className={`${cinzel.className} flex-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#4F674D]`}>How it works</span>
+          <span className="text-[11px] font-medium text-gray-500">{showHowItWorks ? "Hide" : "Show"}</span>
+          <ChevronDown className={`h-4 w-4 text-[#718566] transition-transform ${showHowItWorks ? "rotate-180" : ""}`} />
+        </button>
+        {showHowItWorks && (
+          <div id="proposal-how-it-works" className="px-3 pb-3 sm:px-4 sm:pb-4">
+            <ol className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+              {[
+                { n: 1, title: "Personalize", text: "Pick a role and type the person's name." },
+                { n: 2, title: "Send", text: "Copy or share the message by Messenger, Viber or text." },
+                { n: 3, title: "They say yes", text: "Their name fills the next open slot for that role." },
+              ].map((step) => (
+                <li key={step.n} className="flex gap-2.5 rounded-lg bg-white/70 px-3 py-2.5 ring-1 ring-[#E6ECE0]">
+                  <span className={`${cinzel.className} flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#718566] text-[11px] font-semibold text-white`}>
+                    {step.n}
+                  </span>
+                  <span className="text-xs leading-relaxed text-[#4B5B49] sm:text-[13px]">
+                    <span className="font-semibold text-[#304A34]">{step.title}.</span> {step.text}
+                  </span>
+                </li>
+              ))}
+            </ol>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-3 py-1.5 text-xs text-[#6B7280]">
-            <Link2 className="h-3.5 w-3.5 text-[#718566]" />
-            <span>
-              <strong className="text-[#304A34]">{PROPOSAL_ROLES.length}</strong> proposal links
-            </span>
-          </div>
-          <div className="flex items-center gap-2 rounded-full border border-dashed border-[#E5E7EB] bg-white/80 px-3 py-1.5 text-[10px] text-[#9CA3AF]">
-            Live from Google Sheets
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
-          {CATEGORY_TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setCategoryTab(tab)}
-              className={`cursor-pointer rounded-full border px-4 py-2 text-xs font-semibold tracking-wide uppercase transition-all ${
-                categoryTab === tab
-                  ? "border-[#718566] bg-[#718566] text-white shadow-sm"
-                  : "border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#C3CFB8] hover:text-[#304A34]"
-              }`}
-            >
-              {tab === "all" ? "All Roles" : tab}
-            </button>
-          ))}
+          {CATEGORY_TABS.map((tab) => {
+            const active = categoryTab === tab
+            return (
+              <button
+                key={tab}
+                onClick={() => setCategoryTab(tab)}
+                className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  active ? "border-[#718566] bg-[#718566] text-white" : "border-[#DDE5D4] bg-white text-gray-600 hover:text-[#304A34]"
+                }`}
+              >
+                {tab === "all" ? "All roles" : tab}{" "}
+                <span className={active ? "text-white/80" : "text-gray-400"}>{categoryCounts[tab]}</span>
+              </button>
+            )
+          })}
         </div>
-
         <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute top-3 left-3 h-4 w-4 text-[#9CA3AF]" />
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search role..."
+            placeholder="Search roles..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border border-[#E5E7EB] bg-white py-2.5 pr-4 pl-10 text-sm shadow-sm focus:ring-2 focus:ring-[#718566]/30 focus:outline-none"
+            className="w-full rounded-lg border border-[#DDE5D4] bg-white py-2.5 pl-10 pr-4 outline-none focus:ring-2 focus:ring-[#9EAF91]"
           />
         </div>
       </div>
 
       {/* Role cards */}
       {filteredRoles.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#E5E7EB] bg-[#F9FAFB] py-16 text-center">
-          <Search className="mx-auto mb-3 h-10 w-10 text-[#D1D5DB]" />
-          <p className="font-medium text-[#6B7280]">No roles match your search</p>
-          <p className="mt-1 text-sm text-[#9CA3AF]">Try a different filter or search term.</p>
+        <div className="rounded-xl border border-[#DDE5D4] bg-white px-6 py-12 text-center">
+          <span className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#F7F9F4]">
+            <Search className="h-7 w-7 text-[#AAB9A0]" />
+          </span>
+          <h3 className={`${playfair.className} text-lg font-semibold text-[#304A34]`}>No matching roles</h3>
+          <p className="mt-1 text-sm text-gray-500">Try a different filter or search term.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredRoles.map((role) => {
             const isCopied = copiedRoleId === role.id
-            const link = getProposalLink(role.id)
-
+            const isSponsor = role.category === "Principal Sponsor"
             return (
               <div
                 key={role.id}
-                className="group flex flex-col rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm transition-all hover:border-[#C3CFB8]/60 hover:shadow-md"
+                className="group flex flex-col rounded-2xl border border-[#DDE5D4] bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5"
               >
-                <div className="mb-3 flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <h4 className="text-base font-semibold text-[#111827]">{role.title}</h4>
-                    <p className="mt-0.5 text-xs text-[#9CA3AF]">{role.roleCategory}</p>
+                <div className="flex items-start gap-3">
+                  <span
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                      isSponsor ? "bg-purple-50 text-purple-600" : "bg-[#EEF2EA] text-[#4F674D]"
+                    }`}
+                  >
+                    {isSponsor ? <Crown className="h-5 w-5" /> : <Users className="h-5 w-5" />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h4 className={`${playfair.className} text-lg font-semibold leading-tight text-[#304A34]`}>{role.title}</h4>
+                    <p className="mt-0.5 text-xs text-gray-500">{role.roleCategory}</p>
                   </div>
-                  <span className="shrink-0 rounded-full border border-[#E5E7EB] bg-[#FBFCF7] px-2 py-0.5 text-[9px] font-bold tracking-widest text-[#4F674D] uppercase">
-                    {role.category}
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                      isSponsor ? "bg-purple-50 text-purple-700" : "bg-[#F4F5EA] text-[#4F674D]"
+                    }`}
+                  >
+                    {isSponsor ? "Sponsor" : "Entourage"}
                   </span>
                 </div>
 
-                <p className="mb-4 line-clamp-2 flex-1 text-xs leading-relaxed text-[#6B7280]">
-                  {role.description}
-                </p>
+                <p className="mt-3 line-clamp-2 flex-1 text-xs leading-relaxed text-gray-600 sm:text-[13px]">{role.description}</p>
 
-                <div className="mb-4 rounded-lg border border-[#F3F4F6] bg-[#F9FAFB] px-3 py-2">
-                  <p className="truncate font-mono text-[10px] text-[#9CA3AF]">{link}</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleCopyLink(role.id)}
-                    className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-2.5 text-xs font-semibold transition-all ${
-                      isCopied
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : "border-[#E5E7EB] bg-white text-[#304A34] hover:bg-[#FBFCF7]"
-                    }`}
-                  >
-                    {isCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                    {isCopied ? "Copied!" : "Copy Link"}
-                  </button>
-
+                <div className="mt-4 flex items-center gap-2 border-t border-[#EEF2EA] pt-3">
                   <button
                     onClick={() => openInviteModal(role)}
-                    className="cursor-pointer rounded-lg border border-[#718566]/30 bg-[#FBFCF7] px-3 py-2.5 text-xs font-semibold text-[#4F674D] transition-all hover:border-[#718566] hover:bg-[#718566] hover:text-white"
-                    title="Create personalized invitation"
+                    className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#4F674D] to-[#304A34] px-3 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110"
                   >
-                    <Send className="h-4 w-4 inline sm:mr-1" />
-                    <span className="hidden sm:inline">Personalize</span>
+                    <Send className="h-4 w-4" />
+                    Personalize & Send
                   </button>
-
+                  <button
+                    onClick={() => handleCopyLink(role.id)}
+                    aria-label={isCopied ? "Link copied" : `Copy ${role.title} link`}
+                    title="Copy general link"
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                      isCopied ? "border-[#718566] bg-[#718566] text-white" : "border-[#DDE5D4] bg-white text-[#4F674D] hover:bg-[#F7F9F4]"
+                    }`}
+                  >
+                    {isCopied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+                  </button>
                   <Link
                     href={`/will-you-be-proposal/${role.id}`}
                     target="_blank"
-                    className="rounded-lg border border-[#E5E7EB] bg-white p-2.5 text-[#6B7280] transition-all hover:bg-[#F9FAFB] hover:text-[#304A34]"
-                    title="Open proposal page"
+                    aria-label={`Preview ${role.title} proposal page`}
+                    title="Preview proposal page"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#DDE5D4] bg-white text-[#4F674D] transition-colors hover:bg-[#F7F9F4]"
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Link>
@@ -370,147 +450,186 @@ ${groom} & ${bride}`
         </div>
       )}
 
-      {/* Invite Helper Modal */}
-      <Dialog
-        open={!!selectedInviteRole}
-        onOpenChange={(open) => {
-          if (!open) closeInviteModal()
-        }}
-      >
-        <DialogContent className="flex w-full max-w-lg flex-col gap-0 overflow-hidden border-[#E5E7EB] bg-white p-0 sm:max-w-xl">
-          <div className="border-b border-[#F3F4F6] bg-gradient-to-r from-[#FBFCF7] to-white px-6 py-5 pr-12">
-            <DialogHeader className="space-y-1 text-left">
-              <DialogTitle className="flex items-center gap-2 text-[#304A34]">
-                <Sparkles className="h-5 w-5 text-[#718566]" />
-                Personal Special Invitation
-              </DialogTitle>
-              <DialogDescription className="text-sm text-[#6B7280]">
-                {selectedInviteRole
-                  ? `Role offered: ${selectedInviteRole.title}. The guest’s name appears on their proposal page — they only confirm yes or no.`
-                  : "Create a personalized proposal link"}
-              </DialogDescription>
-            </DialogHeader>
-          </div>
+      {/* Setup note (for whoever maintains the Google Sheets) */}
+      <div className="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB]">
+        <button
+          type="button"
+          onClick={() => setShowSetupNote((v) => !v)}
+          aria-expanded={showSetupNote}
+          className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left text-xs font-medium text-gray-500"
+        >
+          <span className="flex items-center gap-1.5">
+            <Info className="h-3.5 w-3.5" />
+            Google Sheets setup note
+          </span>
+          <ChevronDown className={`h-4 w-4 transition-transform ${showSetupNote ? "rotate-180" : ""}`} />
+        </button>
+        {showSetupNote && (
+          <p className="border-t border-[#E5E7EB] px-4 py-3 text-xs leading-relaxed text-gray-500">
+            Confirmed responses fill the bottom-most empty row in{" "}
+            <span className="font-mono text-gray-600">googleAPI.entourage</span> or{" "}
+            <span className="font-mono text-gray-600">googleAPI.sponsors</span> for the matching role (Name + RoleCategory).
+            Redeploy the Apps Script after updating <span className="font-mono text-gray-600">entourage-management.js</span> and{" "}
+            <span className="font-mono text-gray-600">principal-sponsor-management.js</span>.
+          </p>
+        )}
+      </div>
 
-          <div className="min-w-0 space-y-4 px-6 py-5">
-            {selectedInviteRole && (
-              <div className="rounded-xl border border-[#E5E7EB] bg-[#FBFCF7] px-4 py-3">
-                <p className="text-[10px] font-bold tracking-widest text-[#4F674D] uppercase">
-                  Role offer
-                </p>
-                <p className={`${proposalMixedTextInter.className} mt-1 text-base font-semibold text-[#111827]`}>
-                  <ProposalMixedText text={selectedInviteRole.title} />
-                </p>
-                <p className="mt-0.5 text-xs text-[#6B7280]">{selectedInviteRole.category}</p>
-              </div>
-            )}
-
-            <div className="min-w-0">
-              <label className="mb-1.5 block text-xs font-semibold tracking-wider text-[#6B7280] uppercase">
-                Guest name <span className="text-[#718566]">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Maria Clara Santos"
-                value={inviteeName}
-                onChange={(e) => {
-                  setInviteeName(e.target.value)
-                  if (e.target.value.trim()) setInviteNameError("")
-                }}
-                className={`${proposalMixedTextInter.className} box-border w-full min-w-0 rounded-xl border border-[#E5E7EB] px-4 py-2.5 text-sm font-normal not-italic focus:ring-2 focus:ring-[#718566]/30 focus:outline-none`}
-              />
-              <p className={`${proposalMixedTextInter.className} mt-1.5 text-xs font-normal text-[#9CA3AF]`}>
-                Shown on the proposal as &ldquo;
-                {selectedInviteRole &&
-                (selectedInviteRole.id === "flower-girl" ||
-                  [
-                    "ring-bearer",
-                    "coin-bearer",
-                    "bible-bearer",
-                    "herald-bearer",
-                  ].includes(selectedInviteRole.id))
-                  ? "Hi "
-                  : "Dear "}
-                <ProposalMixedText
-                  text={inviteeName.trim() || "Name"}
-                  specialClassName={`${proposalMixedTextInter.className} inline align-baseline text-[1em] font-normal not-italic`}
-                />
-                &rdquo;
-              </p>
-              {inviteNameError && (
-                <p className="mt-2 text-xs font-medium text-rose-600">{inviteNameError}</p>
-              )}
-            </div>
-
-            <div className="min-w-0">
-              <label className="mb-1.5 block text-xs font-semibold tracking-wider text-[#6B7280] uppercase">
-                Message preview
-              </label>
-              <ProposalMixedTextBlock
-                text={getInviteMessage()}
-                className={`${proposalMixedTextInter.className} box-border max-h-52 min-h-[10rem] w-full min-w-0 overflow-y-auto overflow-x-hidden rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-sm font-normal leading-relaxed break-words text-[#374151]`}
-                lineClassName="min-h-[1.35em]"
-              />
-            </div>
-
-            {selectedInviteRole && (
-              <div className="min-w-0 rounded-xl border border-[#E5E7EB] bg-[#FBFCF7] px-4 py-3">
-                <p className="text-[10px] font-semibold tracking-wider text-[#4F674D] uppercase">
-                  Personal proposal link
-                </p>
-                <p className="mt-1 break-all font-mono text-xs text-[#6B7280]">
-                  {getProposalLink(selectedInviteRole.id, inviteeName.trim() || undefined)}
-                </p>
-              </div>
-            )}
-          </div>
-
-          <DialogFooter className="shrink-0 flex-col gap-2 border-t border-[#F3F4F6] bg-[#F9FAFB] px-6 py-4 sm:flex-row sm:justify-between">
-            <button
-              type="button"
-              onClick={closeInviteModal}
-              className="cursor-pointer rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-xs font-semibold tracking-wide text-[#6B7280] uppercase hover:text-[#304A34]"
-            >
-              Cancel
-            </button>
-            <div className="flex flex-col gap-2 sm:flex-row">
+      {/* ── Personalize & send sheet ──────────────────────────────────── */}
+      {selectedInviteRole && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" onClick={closeInviteModal}>
+          <div
+            className="dash-sheet relative flex max-h-[94dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="invite-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative shrink-0 border-b border-[#DDE5D4] bg-[#FBFCF7] px-4 pt-3 pb-4 sm:px-6 sm:py-5">
+              <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-gray-300/70 sm:hidden" aria-hidden />
               <button
                 type="button"
-                onClick={handleCopyPersonalLink}
-                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#718566]/40 bg-white px-4 py-2.5 text-xs font-semibold tracking-wide text-[#304A34] uppercase transition-all hover:bg-[#FBFCF7]"
+                onClick={() => setShowInviteHelp((v) => !v)}
+                aria-label="How this works"
+                aria-expanded={showInviteHelp}
+                className={`absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-colors sm:left-auto sm:right-16 sm:top-5 ${
+                  showInviteHelp ? "border-[#718566] bg-[#718566] text-white" : "border-[#DDE5D4] bg-white text-[#4F674D] hover:bg-[#EEF2EA]"
+                }`}
               >
-                {copiedPersonalLink ? (
-                  <Check className="h-3.5 w-3.5" />
-                ) : (
-                  <Link2 className="h-3.5 w-3.5" />
-                )}
-                {copiedPersonalLink ? "Link copied!" : "Copy link"}
+                <Info className="h-4 w-4" />
               </button>
+              <button
+                type="button"
+                onClick={closeInviteModal}
+                aria-label="Close"
+                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-[#DDE5D4] bg-white text-gray-500 shadow-sm transition-colors hover:text-[#304A34] sm:right-5 sm:top-5"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <div className="px-10 text-center sm:px-0 sm:pr-24 sm:text-left">
+                <p className={`${cinzel.className} text-[10px] font-semibold uppercase tracking-[0.28em] text-[#718566]`}>Proposal Invite</p>
+                <h2 id="invite-title" className={`${playfair.className} mt-1 text-[1.45rem] font-semibold leading-tight text-[#304A34] sm:text-2xl`}>
+                  <ProposalMixedText text={selectedInviteRole.title} />
+                </h2>
+                <p className="mx-auto mt-1.5 max-w-xs text-[11px] leading-relaxed text-gray-500 sm:mx-0 sm:max-w-none sm:text-xs">
+                  Send a personal link — they&apos;ll only need to answer yes or no.
+                </p>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">
+              {showInviteHelp && (
+                <div className="rounded-xl border border-[#DDE5D4] bg-[#F7F9F4] px-3.5 py-3 text-[12px] leading-relaxed text-[#4B5B49] sm:text-[13px]">
+                  <p className="font-semibold text-[#304A34]">Their link opens a page made just for them.</p>
+                  <ul className="mt-1.5 space-y-1">
+                    {[
+                      `It greets them as "${greetingWord} ${inviteeName.trim() || "Name"}" and asks them to be your ${selectedInviteRole.title}.`,
+                      "They tap yes or no — no forms to fill in.",
+                      "A yes adds their name to the next open slot for this role in your entourage list.",
+                      "Each person needs their own link — create one per guest.",
+                    ].map((point) => (
+                      <li key={point} className="flex gap-2">
+                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#718566]" />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label htmlFor="invitee-name" className="flex items-center justify-between gap-2 text-[13px] font-medium text-[#304A34]">
+                  <span>Guest name</span>
+                  <span className="rounded-full bg-[#EEF2EA] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#4F674D]">Required</span>
+                </label>
+                <input
+                  id="invitee-name"
+                  type="text"
+                  autoComplete="off"
+                  placeholder="e.g., Maria Clara Santos"
+                  value={inviteeName}
+                  onChange={(e) => {
+                    setInviteeName(e.target.value)
+                    if (e.target.value.trim()) setInviteNameError("")
+                  }}
+                  className={`${FIELD} ${proposalMixedTextInter.className}`}
+                />
+                <p className="text-[11px] text-gray-500">
+                  Their page will greet them as{" "}
+                  <span className="font-semibold text-[#4F674D]">
+                    &ldquo;{greetingWord} <ProposalMixedText text={inviteeName.trim() || "Name"} />&rdquo;
+                  </span>
+                </p>
+                {inviteNameError && (
+                  <p className="text-xs font-medium text-rose-600" role="alert">
+                    {inviteNameError}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-[13px] font-medium text-[#304A34]">Message preview</p>
+                <div className="rounded-2xl rounded-tl-md border border-[#DDE5D4] bg-gradient-to-br from-[#F7F9F4] to-[#EEF2EA] p-3.5">
+                  <ProposalMixedTextBlock
+                    text={getInviteMessage()}
+                    className={`${proposalMixedTextInter.className} max-h-56 overflow-y-auto text-[13px] leading-relaxed text-[#304A34] [overflow-wrap:anywhere]`}
+                    lineClassName="min-h-[1.35em]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-xl border border-[#DDE5D4] bg-[#FCFDFB] py-1.5 pl-3 pr-1.5">
+                <Link2 className="h-4 w-4 shrink-0 text-[#718566]" />
+                <p className="min-w-0 flex-1 truncate font-mono text-[11px] text-gray-500">
+                  {getProposalLink(selectedInviteRole.id, inviteeName.trim() || undefined)}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleCopyPersonalLink}
+                  className={`flex h-8 shrink-0 items-center gap-1 rounded-lg px-2.5 text-xs font-semibold transition-colors ${
+                    copiedPersonalLink ? "bg-[#718566] text-white" : "bg-white text-[#4F674D] ring-1 ring-[#DDE5D4] hover:bg-[#F7F9F4]"
+                  }`}
+                >
+                  {copiedPersonalLink ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copiedPersonalLink ? "Copied" : "Link"}
+                </button>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex shrink-0 flex-col gap-2 border-t border-[#DDE5D4] bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:flex-row sm:justify-end sm:px-6 sm:py-4">
+              {canShare && (
+                <button
+                  type="button"
+                  onClick={() => void handleShareInvite()}
+                  className="flex h-11 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#4F674D] to-[#304A34] px-6 text-sm font-semibold text-white shadow-[0_10px_22px_-10px_rgba(48,74,52,0.7)] transition-all hover:brightness-110 active:scale-[0.99] sm:order-2"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share Invite
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handleCopyInviteText}
-                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#718566] bg-[#718566] px-5 py-2.5 text-xs font-semibold tracking-wide text-white uppercase transition-all hover:bg-[#4F674D]"
+                className={`flex h-11 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition-all active:scale-[0.99] sm:order-1 ${
+                  canShare
+                    ? copiedInviteText
+                      ? "border border-[#718566] bg-[#718566] text-white"
+                      : "border border-[#DDE5D4] bg-white text-[#304A34] hover:bg-[#F7F9F4]"
+                    : copiedInviteText
+                      ? "bg-[#718566] text-white"
+                      : "bg-gradient-to-r from-[#4F674D] to-[#304A34] text-white shadow-[0_10px_22px_-10px_rgba(48,74,52,0.7)] hover:brightness-110"
+                }`}
               >
-                {copiedInviteText ? (
-                  <Check className="h-3.5 w-3.5" />
-                ) : (
-                  <Copy className="h-3.5 w-3.5" />
-                )}
-                {copiedInviteText ? "Copied!" : "Copy full message"}
+                {copiedInviteText ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copiedInviteText ? "Message copied!" : "Copy Message"}
               </button>
             </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <p className="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-xs leading-relaxed text-[#9CA3AF]">
-        Confirmed responses fill the bottom-most empty row in{" "}
-        <span className="font-mono text-[#6B7280]">googleAPI.entourage</span> or{" "}
-        <span className="font-mono text-[#6B7280]">googleAPI.sponsors</span> for the matching role
-        (Name + RoleCategory). Redeploy the Apps Script after updating{" "}
-        <span className="font-mono text-[#6B7280]">entourage-management.js</span> and{" "}
-        <span className="font-mono text-[#6B7280]">principal-sponsor-management.js</span>.
-      </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

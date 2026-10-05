@@ -1,8 +1,27 @@
 "use client"
 
-import { Users, Table, Mail, UserPlus, Plane, CheckCircle, XCircle, Crown, UserCheck } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { type ReactNode } from "react"
+import { Cinzel, Playfair_Display } from "next/font/google"
+import {
+  ArrowRight,
+  BookOpen,
+  Check,
+  CheckCircle,
+  Clock,
+  Crown,
+  Heart,
+  MessageSquare,
+  UserCheck,
+  UserPlus,
+  Users,
+  XCircle,
+} from "lucide-react"
 import { TableFinderQrCard } from "@/components/table-finder-qr-card"
+
+const cinzel = Cinzel({ subsets: ["latin"], weight: ["500", "600"] })
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["500", "600"] })
+
+export type DashboardTab = "dashboard" | "guests" | "requests" | "messages" | "entourage" | "proposals"
 
 interface DashboardOverviewProps {
   stats: {
@@ -14,130 +33,190 @@ interface DashboardOverviewProps {
     notAttending?: number
     entourage?: number
     principalSponsors?: number
+    messages?: number
   }
-  weddingBrief?: {
-    title: string
-    content: string
-  }
+  /** Jump to another tab from the guide cards */
+  onNavigate?: (tab: DashboardTab) => void
 }
 
-interface StatCardProps {
-  icon: React.ReactNode
-  value: number
-  label: string
-  iconBgColor: string
-  iconColor: string
-}
+/** Plain-language guide for each tab: what it's for and what you can do there. */
+const GUIDE: {
+  tab: DashboardTab
+  title: string
+  icon: ReactNode
+  about: string
+  highlights: string[]
+}[] = [
+  {
+    tab: "guests",
+    title: "Guest List",
+    icon: <Users className="h-5 w-5" />,
+    about: "Everyone you invite. Only names on this list can find themselves and RSVP on your invitation.",
+    highlights: [
+      "Add a guest with name, allowed seats, table and VIP tag",
+      "Edit RSVP details when a guest asks you to correct them",
+      "Search, filter by status or VIP, and export to CSV",
+    ],
+  },
+  {
+    tab: "requests",
+    title: "Join Requests",
+    icon: <UserPlus className="h-5 w-5" />,
+    about: "People who couldn't find their name and asked to join from the invitation.",
+    highlights: [
+      "Approve to move them onto your guest list",
+      "Edit seats, RSVP or contact details before approving",
+      "Delete requests you won't be accepting",
+    ],
+  },
+  {
+    tab: "messages",
+    title: "Guest Messages",
+    icon: <MessageSquare className="h-5 w-5" />,
+    about: "Well wishes guests leave on your invitation — a keepsake of your day.",
+    highlights: [
+      "Read every message as it arrives",
+      "Search by name or words, sort newest or oldest",
+      "Copy favourites for your keepsake book",
+    ],
+  },
+  {
+    tab: "entourage",
+    title: "Entourage & Sponsors",
+    icon: <Crown className="h-5 w-5" />,
+    about: "Your wedding party and principal sponsors, exactly as shown on the invitation.",
+    highlights: [
+      "Add members by role (e.g., Bridesmaids) and title",
+      "Add Ninong & Ninang pairs",
+      "Filter by role; updates show on the invitation",
+    ],
+  },
+  {
+    tab: "proposals",
+    title: "Proposal Invites",
+    icon: <Heart className="h-5 w-5" />,
+    about: "Personal “Will you be my…?” links for your entourage and sponsors.",
+    highlights: [
+      "Personalize a link with the person's name",
+      "Share by Messenger, Viber or text in one tap",
+      "A yes adds them to your entourage automatically",
+    ],
+  },
+]
 
-function StatCard({ icon, value, label, iconBgColor, iconColor }: StatCardProps) {
+function StatTile({ label, value, tone, icon }: { label: string; value: number | string; tone: string; icon: ReactNode }) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E5E7EB] hover:shadow-md transition-shadow duration-200">
-      <div className="flex items-start gap-4">
-        <div
-          className={cn(
-            "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0",
-            iconBgColor
-          )}
-        >
-          <div className={iconColor}>{icon}</div>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm text-[#6B7280] font-medium mb-1">{label}</p>
-          <p className="text-3xl font-bold text-[#111827]">{value}</p>
-        </div>
+    <div className={`rounded-xl border p-3 shadow-sm sm:p-4 ${tone}`}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="text-xl font-bold leading-none sm:text-2xl">{value}</div>
+        <span className="opacity-70">{icon}</span>
       </div>
+      <div className="mt-1.5 text-[10px] uppercase leading-snug tracking-wide text-gray-600 sm:text-xs">{label}</div>
     </div>
   )
 }
 
-export function DashboardOverview({ stats, weddingBrief }: DashboardOverviewProps) {
-  const defaultBrief = {
-    title: "Gemini's Wedding Brief",
-    content: `Here are a few options for a joyful status update: **Option 1: Sweet and simple** "The countdown is officially on! 🔔 We already have ${stats.confirmedPax} of our favorite people confirmed, and we can't wait to hear from the rest of you. We are so excited to see our final group of ${stats.guestGroups} come together for the big day! ❤️ **Option 2: High energy** "RSVPs are rolling in and our hearts are full! ❤️ ${stats.confirmedPax} 'Yes' responses down, ${stats.pendingRSVP} more to hear from! We can't wait to reach our magic number of ${stats.guestGroups} and celebrate the best day ever with you all! 🎉 ✨ **Option 3: Short and punchy** "${stats.confirmedPax} confirmed, ${stats.pendingRSVP} to go! 📝 Watching the guest list grow is getting us so excited for our celebration of ${stats.guestGroups}. Let the wedding countdown begin! 🔔 ✨ **Option 4: Focus on the "Yes"*** "It's getting real! ⭕ We've got ${stats.confirmedPax} 'Yes' votes in the bag and ${stats.pendingRSVP} more pending. We can't wait to see who fills our final ${stats.guestGroups} spots—see you at the altar! 💕 🔔 ""`
-  }
-
-  const brief = weddingBrief || defaultBrief
+export function DashboardOverview({ stats, onNavigate }: DashboardOverviewProps) {
+  const attending = stats.attending ?? 0
+  const declined = stats.notAttending ?? 0
+  const pending = stats.pendingRSVP
+  const responded = attending + declined
+  const total = stats.guestGroups
+  const pct = (n: number) => (total > 0 ? (n / total) * 100 : 0)
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-5 sm:space-y-6">
+      {/* Heading */}
       <div>
-        <h1 className="text-3xl font-bold text-[#111827] mb-2">Wedding Overview</h1>
+        <p className={`${cinzel.className} text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8A9A82]`}>At a glance</p>
+        <h1 className="mt-0.5 text-2xl font-bold text-[#111827] sm:text-3xl">Wedding Overview</h1>
       </div>
 
-      {/* Stats Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon={<Users className="h-6 w-6" />}
-          value={stats.guestGroups}
-          label="Guest Groups"
-          iconBgColor="bg-[#C3CFB8]/20"
-          iconColor="text-[#4F674D]"
-        />
-        <StatCard
-          icon={<Table className="h-6 w-6" />}
-          value={stats.confirmedPax}
-          label="Total Guests (Pax)"
-          iconBgColor="bg-[#86EFAC]/20"
-          iconColor="text-[#16A34A]"
-        />
-        <StatCard
-          icon={<CheckCircle className="h-6 w-6" />}
-          value={stats.attending || 0}
-          label="Attending"
-          iconBgColor="bg-[#86EFAC]/20"
-          iconColor="text-[#16A34A]"
-        />
-        <StatCard
-          icon={<XCircle className="h-6 w-6" />}
-          value={stats.notAttending || 0}
-          label="Not Attending"
-          iconBgColor="bg-[#FCA5A5]/20"
-          iconColor="text-[#DC2626]"
-        />
-        <StatCard
-          icon={<Mail className="h-6 w-6" />}
-          value={stats.pendingRSVP}
-          label="Pending RSVP"
-          iconBgColor="bg-[#FED7AA]/20"
-          iconColor="text-[#EA580C]"
-        />
-        <StatCard
-          icon={<UserPlus className="h-6 w-6" />}
-          value={stats.joinRequests}
-          label="Join Requests"
-          iconBgColor="bg-[#DDD6FE]/20"
-          iconColor="text-[#7C3AED]"
-        />
-        <StatCard
-          icon={<Crown className="h-6 w-6" />}
-          value={stats.entourage || 0}
-          label="Entourage"
-          iconBgColor="bg-[#FDE68A]/20"
-          iconColor="text-[#F59E0B]"
-        />
-        <StatCard
-          icon={<UserCheck className="h-6 w-6" />}
-          value={stats.principalSponsors || 0}
-          label="Principal Sponsors"
-          iconBgColor="bg-[#C7D2FE]/20"
-          iconColor="text-[#6366F1]"
-        />
+      {/* RSVP progress */}
+      <div className="rounded-2xl border border-[#DDE5D4] bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className="text-[13px] font-medium text-[#304A34]">RSVP progress</p>
+            <p className="mt-0.5 text-xs text-gray-500">
+              {total === 0
+                ? "Add guests to start tracking responses."
+                : `${responded} of ${total} invitations answered`}
+            </p>
+          </div>
+          <p className={`${playfair.className} text-2xl font-semibold leading-none text-[#304A34]`}>
+            {total > 0 ? Math.round(pct(responded)) : 0}
+            <span className="text-base text-[#718566]">%</span>
+          </p>
+        </div>
+        <div className="mt-3 flex h-2.5 overflow-hidden rounded-full bg-[#EEF2EA]" role="img" aria-label={`${attending} attending, ${declined} declined, ${pending} pending`}>
+          <span className="h-full bg-green-500 transition-all" style={{ width: `${pct(attending)}%` }} />
+          <span className="h-full bg-red-400 transition-all" style={{ width: `${pct(declined)}%` }} />
+        </div>
+        <div className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600">
+          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-green-500" />Attending {attending}</span>
+          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-red-400" />Declined {declined}</span>
+          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#DDE5D4]" />Pending {pending}</span>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
+        <StatTile label="Invitations" value={stats.guestGroups} tone="border-[#DDE5D4] bg-white text-[#4F674D]" icon={<Users className="h-4 w-4" />} />
+        <StatTile label="Seats (pax)" value={stats.confirmedPax} tone="border-blue-200 bg-blue-50 text-blue-700" icon={<UserCheck className="h-4 w-4" />} />
+        <StatTile label="Attending" value={attending} tone="border-green-200 bg-green-50 text-green-700" icon={<CheckCircle className="h-4 w-4" />} />
+        <StatTile label="Not attending" value={declined} tone="border-red-200 bg-red-50 text-red-700" icon={<XCircle className="h-4 w-4" />} />
+        <StatTile label="Pending RSVP" value={pending} tone="border-amber-200 bg-amber-50 text-amber-700" icon={<Clock className="h-4 w-4" />} />
+        <StatTile label="Join requests" value={stats.joinRequests} tone="border-purple-200 bg-purple-50 text-purple-700" icon={<UserPlus className="h-4 w-4" />} />
+        <StatTile label="Entourage" value={stats.entourage ?? 0} tone="border-[#DDE5D4] bg-[#F7F9F4] text-[#4F674D]" icon={<Crown className="h-4 w-4" />} />
+        <StatTile label="Principal sponsors" value={stats.principalSponsors ?? 0} tone="border-[#DDE5D4] bg-[#F7F9F4] text-[#4F674D]" icon={<Heart className="h-4 w-4" />} />
       </div>
 
       <TableFinderQrCard />
 
-      {/* Wedding Brief Card */}
-      <div className="bg-gradient-to-br from-[#4F674D] to-[#304A34] rounded-2xl p-8 shadow-lg">
-        <div className="flex items-center gap-3 mb-4">
-          <Plane className="h-6 w-6 text-white" />
-          <h2 className="text-2xl font-serif font-bold text-white">{brief.title}</h2>
+      {/* Guide */}
+      <section aria-labelledby="dashboard-guide-title" className="space-y-3 sm:space-y-4">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF2EA] text-[#4F674D]">
+            <BookOpen className="h-4 w-4" />
+          </span>
+          <div>
+            <h2 id="dashboard-guide-title" className="text-lg font-bold text-[#111827] sm:text-xl">
+              Your Dashboard Guide
+            </h2>
+            <p className="text-xs text-gray-500 sm:text-sm">What each tab is for and what you can do there.</p>
+          </div>
         </div>
-        <div className="text-white/90 leading-relaxed whitespace-pre-wrap">
-          {brief.content}
+
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+          {GUIDE.map((item) => (
+            <article key={item.tab} className="flex flex-col rounded-2xl border border-[#DDE5D4] bg-white p-4 shadow-sm sm:p-5">
+              <div className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EEF2EA] text-[#4F674D]">{item.icon}</span>
+                <h3 className={`${playfair.className} min-w-0 flex-1 self-center text-lg font-semibold leading-tight text-[#304A34]`}>{item.title}</h3>
+              </div>
+              <p className="mt-3 text-[13px] leading-relaxed text-gray-600">{item.about}</p>
+              <ul className="mt-3 flex-1 space-y-1.5">
+                {item.highlights.map((h) => (
+                  <li key={h} className="flex gap-2 text-[13px] leading-snug text-[#4B5B49]">
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#718566]" />
+                    <span>{h}</span>
+                  </li>
+                ))}
+              </ul>
+              {onNavigate && (
+                <button
+                  type="button"
+                  onClick={() => onNavigate(item.tab)}
+                  className="mt-4 inline-flex min-h-10 items-center justify-center gap-1.5 self-start rounded-full border border-[#DDE5D4] bg-[#F7F9F4] px-4 text-sm font-semibold text-[#304A34] transition-colors hover:bg-[#EEF2EA]"
+                >
+                  Open {item.title}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              )}
+            </article>
+          ))}
         </div>
-      </div>
+      </section>
     </div>
   )
 }
-

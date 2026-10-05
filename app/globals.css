@@ -756,3 +756,90 @@ html {
     display: none;
   }
 }
+
+/* ── Dashboard (mobile) ─────────────────────────────────────────────────── */
+/* Compact fields on phones. (iOS input auto-zoom is prevented by the dashboard
+   layout's viewport setting, so fields don't need to be 16px.) */
+@media (max-width: 639px) {
+  .dashboard-root input:not([type="checkbox"]):not([type="radio"]):not(.dash-stepper-input),
+  .dashboard-root select,
+  .dashboard-root textarea {
+    font-size: 13.5px;
+  }
+}
+
+/* Modals rise from the bottom like a sheet on phones, fade/zoom in from sm up */
+.dash-sheet {
+  animation: dash-sheet-up 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (min-width: 640px) {
+  .dash-sheet {
+    animation-name: dash-sheet-pop;
+    animation-duration: 0.22s;
+  }
+}
+@keyframes dash-sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes dash-sheet-pop {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dash-sheet { animation: none; }
+}
+
+/* Elegant scrolling inside the dashboard: thin sage scrollbars, smooth + contained */
+.dashboard-root,
+.dashboard-root * {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-motif-accent) 45%, transparent) transparent;
+}
+.dashboard-root *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.dashboard-root *::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dashboard-root *::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-motif-accent) 40%, transparent) padding-box;
+}
+.dashboard-root *::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-motif-deep) 60%, transparent) padding-box;
+}
+.dashboard-root {
+  scroll-behavior: smooth;
+}
+/* Modal sheets scroll on their own: no page scroll-through, momentum on iOS */
+.dash-sheet {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-bottom: 6rem; /* focused fields stay above the sticky buttons */
+}
+
+/* Phones: scale the whole dashboard down (rem-based sizes ≈ 88%)
+   so more fits on screen while text stays comfortably readable. */
+@media (max-width: 639px) {
+  html:has(.dashboard-root) {
+    font-size: 14px;
+  }
+}
+
+/* Small centered dialogs (success / loading) */
+.dash-pop {
+  animation: dash-sheet-pop 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dash-pop-badge {
+  animation: dash-badge-in 0.5s 0.08s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes dash-badge-in {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dash-pop, .dash-pop-badge { animation: none; }
+}

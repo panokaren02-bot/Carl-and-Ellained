@@ -8,8 +8,7 @@ import {
   RefreshCw,
   AlertCircle,
   LogOut,
-  X,
-} from "lucide-react"
+  X, Menu } from "lucide-react"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { DashboardOverview } from "@/components/dashboard-overview"
@@ -19,6 +18,10 @@ import { GuestMessages } from "@/components/guest-messages"
 import { type Message } from "@/app/api/messages/route"
 import { EntourageSponsors } from "@/components/entourage-sponsors"
 import { ProposalDashboard } from "@/components/proposal-dashboard"
+import { Cinzel, Playfair_Display } from "next/font/google"
+
+const cinzel = Cinzel({ subsets: ["latin"], weight: ["500", "600"] })
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["500", "600"], style: ["normal", "italic"] })
 
 interface GuestRequest {
   Name: string
@@ -51,6 +54,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<"dashboard" | "guests" | "requests" | "messages" | "entourage" | "proposals">("dashboard")
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   
   // Guest Request state
   const [guestRequests, setGuestRequests] = useState<GuestRequest[]>([])
@@ -235,11 +239,8 @@ export default function DashboardPage() {
     fetchMessages()
   }
 
-  const handleApproveRequest = async (request: GuestRequest) => {
-    if (!confirm(`Add ${request.Name} to the guest list?`)) {
-      return
-    }
-
+  // Confirmation + success dialogs live in the Join Requests module; this returns whether it worked
+  const handleApproveRequest = async (request: GuestRequest): Promise<boolean> => {
     setIsLoading(true)
     setError(null)
     setSuccessMessage(null)
@@ -283,14 +284,14 @@ export default function DashboardPage() {
         throw new Error("Failed to remove from requests")
       }
 
-      setSuccessMessage(`${request.Name} added to guest list!`)
-      setTimeout(() => setSuccessMessage(null), 3000)
       await fetchGuests()
       await fetchGuestRequests()
+      return true
     } catch (error) {
       console.error("Error approving request:", error)
       setError("Failed to approve request")
       setTimeout(() => setError(null), 3000)
+      return false
     } finally {
       setIsLoading(false)
     }
@@ -369,13 +370,8 @@ export default function DashboardPage() {
     }
   }
 
+  // Confirmation happens in the guest list's delete dialog
   const handleDeleteGuest = async (id: string) => {
-    const guestToDelete = guests.find(g => g.id === id)
-    
-    if (!confirm(`Are you sure you want to delete ${guestToDelete?.name || 'this guest'}?`)) {
-      return
-    }
-
     setIsLoading(true)
     setError(null)
     setSuccessMessage(null)
@@ -429,9 +425,9 @@ export default function DashboardPage() {
   // Login Screen
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FBFCF7] to-[#F4F5EA] flex items-center justify-center p-4">
+      <div className="dashboard-root min-h-screen bg-gradient-to-br from-[#FBFCF7] to-[#F4F5EA] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl p-8 shadow-xl border border-[#E5E7EB]">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-[#E5E7EB]">
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#4F674D] to-[#304A34] rounded-2xl mb-4 shadow-lg">
                 <Lock className="h-8 w-8 text-white" />
@@ -486,27 +482,39 @@ export default function DashboardPage() {
 
   // Main Dashboard Layout
   return (
-    <div className="flex min-h-screen bg-[#F9FAFB]">
+    <div className="dashboard-root flex min-h-screen bg-[#F9FAFB]">
       {/* Sidebar */}
       <DashboardSidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
         guestRequestCount={guestRequests.length}
         messageCount={messageCount}
+        mobileOpen={mobileNavOpen}
+        onMobileClose={() => setMobileNavOpen(false)}
       />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="min-w-0 flex-1 overflow-x-clip lg:overflow-auto">
         {/* Top Bar */}
-        <div className="bg-white border-b border-[#E5E7EB] sticky top-0 z-10">
-          <div className="px-8 py-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-sm text-[#6B7280] font-medium">Welcome back,</h2>
-              <h1 className="text-xl font-bold text-[#111827]">
-                {siteConfig.couple.groomNickname} & {siteConfig.couple.brideNickname}
+        <div className="sticky top-0 z-30 border-b border-[#E5E7EB] bg-white/90 pt-[env(safe-area-inset-top)] shadow-[0_1px_8px_rgba(17,24,39,0.04)] backdrop-blur-md supports-[backdrop-filter]:bg-white/80 lg:z-10 lg:bg-white lg:pt-0 lg:shadow-none lg:backdrop-blur-none">
+          <div className="px-4 py-3 sm:px-6 lg:px-8 lg:py-4 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(true)}
+              className="-ml-1.5 rounded-lg p-2 text-[#304A34] hover:bg-[#F9FAFB] lg:hidden"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <div className="min-w-0 flex-1">
+              <p className={`${cinzel.className} text-[9.5px] font-semibold uppercase tracking-[0.24em] text-[#8A9A82] sm:text-[10.5px]`}>
+                Welcome back
+              </p>
+              <h1 className={`${playfair.className} truncate text-[1.05rem] font-semibold leading-tight text-[#304A34] sm:text-xl`}>
+                {siteConfig.couple.groomNickname} <span className="italic text-[#718566]">&amp;</span> {siteConfig.couple.brideNickname}
               </h1>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               <Button
                 onClick={handleSyncSpreadsheet}
                 disabled={isLoading}
@@ -514,8 +522,8 @@ export default function DashboardPage() {
                 variant="outline"
                 className="border-[#E5E7EB] text-[#6B7280] hover:text-[#304A34] hover:border-[#718566]"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh Data
+                <RefreshCw className={`h-4 w-4 sm:mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh Data</span>
               </Button>
               <Button
                 onClick={handleLogout}
@@ -523,15 +531,15 @@ export default function DashboardPage() {
                 variant="outline"
                 className="border-[#E5E7EB] text-[#6B7280] hover:text-red-600 hover:border-red-300"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                <LogOut className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>
         </div>
 
         {/* Content Area */}
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
           {/* Success/Error Messages */}
           {successMessage && (
             <div className="mb-6 flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
@@ -565,14 +573,19 @@ export default function DashboardPage() {
                 notAttending: stats.notAttending,
                 entourage: entourage.length,
                 principalSponsors: principalSponsors.length,
+                messages: messageCount,
+              }}
+              onNavigate={(tab) => {
+                setActiveTab(tab)
+                window.scrollTo({ top: 0, behavior: "smooth" })
               }}
             />
           )}
 
           {activeTab === "guests" && (
             <div>
-              <h2 className="text-2xl font-bold text-[#111827] mb-6">Guest Management</h2>
-              <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] p-6">
+              <h2 className="text-xl font-bold text-[#111827] mb-4 sm:text-2xl sm:mb-6">Guest Management</h2>
+              <div className="sm:bg-white sm:rounded-xl sm:shadow-sm sm:border sm:border-[#E5E7EB] sm:p-6">
                 <ImprovedGuestList
                   guests={filteredGuests}
                   onAddGuest={handleAddGuest}

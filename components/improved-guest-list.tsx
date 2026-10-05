@@ -1,8 +1,30 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Trash2, Edit2, Star, CheckCircle, XCircle, Clock, Users as UsersIcon, Download, RefreshCw } from 'lucide-react';
+import { useBodyScrollLock } from '@/hooks/use-body-scroll-lock';
+import { Plus, Search, Trash2, Edit2, Star, CheckCircle, XCircle, Clock, Users as UsersIcon, Download, RefreshCw, X, UserRound, CalendarCheck, Minus, Info, UserPlus, Check, MessageSquareText, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Cinzel, Playfair_Display } from 'next/font/google';
+
+const cinzel = Cinzel({ subsets: ['latin'], weight: ['500', '600'] });
+const playfair = Playfair_Display({ subsets: ['latin'], weight: ['500', '600'] });
+
+const MIN_PAX = 1;
+const MAX_PAX = 20;
+
+/** Form label: readable sentence-case text with a Required / Optional tag. */
+function FieldLabel({ htmlFor, children, required = false }: { htmlFor?: string; children: React.ReactNode; required?: boolean }) {
+  return (
+    <label htmlFor={htmlFor} className="flex items-center justify-between gap-2 text-[13px] font-medium text-[#304A34]">
+      <span>{children}</span>
+      {required ? (
+        <span className="rounded-full bg-[#EEF2EA] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#4F674D]">Required</span>
+      ) : (
+        <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Optional</span>
+      )}
+    </label>
+  );
+}
 
 // Types
 export type GuestStatus = 'pending' | 'confirmed' | 'declined' | 'request';
@@ -63,6 +85,20 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
   const [formIsVip, setFormIsVip] = useState(false);
   const [formStatus, setFormStatus] = useState<GuestStatus>('pending');
   const [formAddedBy, setFormAddedBy] = useState('');
+  const [showHelp, setShowHelp] = useState(false);
+  const [guestToDelete, setGuestToDelete] = useState<Guest | null>(null);
+
+  useBodyScrollLock(showModal || showSuccessModal || Boolean(guestToDelete));
+
+  // Escape cancels the delete confirmation
+  useEffect(() => {
+    if (!guestToDelete) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setGuestToDelete(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [guestToDelete]);
 
   // Sync companions array with allowedGuests count
   useEffect(() => {
@@ -96,6 +132,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
   });
 
   const resetForm = () => {
+    setShowHelp(false);
     setFormName('');
     setFormRole('');
     setFormEmail('');
@@ -111,6 +148,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
   };
 
   const handleEdit = (guest: Guest) => {
+    setShowHelp(false);
     setEditingGuest(guest);
     setFormName(guest.name);
     setFormRole(guest.role);
@@ -127,9 +165,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
   };
 
   const handleCompanionChange = (index: number, field: keyof Companion, value: string) => {
-    const updated = [...formCompanions];
-    updated[index] = { ...updated[index], [field]: value };
-    setFormCompanions(updated);
+    setFormCompanions(prev => prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -180,10 +216,15 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
     resetForm();
   };
 
-  const handleDeleteGuest = async (guest: Guest) => {
-    if (!confirm(`Are you sure you want to delete ${guest.name}?`)) {
-      return;
-    }
+  // Delete asks first in a styled dialog; confirmDeleteGuest does the work
+  const handleDeleteGuest = (guest: Guest) => {
+    setGuestToDelete(guest);
+  };
+
+  const confirmDeleteGuest = async () => {
+    const guest = guestToDelete;
+    if (!guest) return;
+    setGuestToDelete(null);
 
     setIsSaving(true);
     setOperationType('delete');
@@ -255,37 +296,37 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="bg-white rounded-lg p-4 border border-[#DDE5D4] shadow-sm">
-          <div className="text-2xl font-bold text-[#4F674D]">{stats.total}</div>
-          <div className="text-xs text-gray-500 uppercase tracking-wide">Total Invitations</div>
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="bg-white rounded-lg p-3 sm:p-4 border border-[#DDE5D4] shadow-sm">
+          <div className="text-xl sm:text-2xl font-bold text-[#4F674D]">{stats.total}</div>
+          <div className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide">Total Invitations</div>
         </div>
-        <div className="bg-green-50 rounded-lg p-4 border border-green-200 shadow-sm">
-          <div className="text-2xl font-bold text-green-700">{stats.confirmed}</div>
-          <div className="text-xs text-gray-600 uppercase tracking-wide">Confirmed</div>
+        <div className="bg-green-50 rounded-lg p-3 sm:p-4 border border-green-200 shadow-sm">
+          <div className="text-xl sm:text-2xl font-bold text-green-700">{stats.confirmed}</div>
+          <div className="text-[10px] sm:text-xs text-gray-600 uppercase tracking-wide">Confirmed</div>
         </div>
-        <div className="bg-amber-50 rounded-lg p-4 border border-amber-200 shadow-sm">
-          <div className="text-2xl font-bold text-amber-700">{stats.pending}</div>
-          <div className="text-xs text-gray-600 uppercase tracking-wide">Pending</div>
+        <div className="bg-amber-50 rounded-lg p-3 sm:p-4 border border-amber-200 shadow-sm">
+          <div className="text-xl sm:text-2xl font-bold text-amber-700">{stats.pending}</div>
+          <div className="text-[10px] sm:text-xs text-gray-600 uppercase tracking-wide">Pending</div>
         </div>
-        <div className="bg-red-50 rounded-lg p-4 border border-red-200 shadow-sm">
-          <div className="text-2xl font-bold text-red-700">{stats.declined}</div>
-          <div className="text-xs text-gray-600 uppercase tracking-wide">Declined</div>
+        <div className="bg-red-50 rounded-lg p-3 sm:p-4 border border-red-200 shadow-sm">
+          <div className="text-xl sm:text-2xl font-bold text-red-700">{stats.declined}</div>
+          <div className="text-[10px] sm:text-xs text-gray-600 uppercase tracking-wide">Declined</div>
         </div>
-        <div className="bg-purple-50 rounded-lg p-4 border border-purple-200 shadow-sm">
-          <div className="text-2xl font-bold text-purple-700">{stats.vip}</div>
-          <div className="text-xs text-gray-600 uppercase tracking-wide">VIP Guests</div>
+        <div className="bg-purple-50 rounded-lg p-3 sm:p-4 border border-purple-200 shadow-sm">
+          <div className="text-xl sm:text-2xl font-bold text-purple-700">{stats.vip}</div>
+          <div className="text-[10px] sm:text-xs text-gray-600 uppercase tracking-wide">VIP Guests</div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 shadow-sm">
-          <div className="text-2xl font-bold text-blue-700">{stats.totalPax}</div>
-          <div className="text-xs text-gray-600 uppercase tracking-wide">Total Pax</div>
+        <div className="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200 shadow-sm">
+          <div className="text-xl sm:text-2xl font-bold text-blue-700">{stats.totalPax}</div>
+          <div className="text-[10px] sm:text-xs text-gray-600 uppercase tracking-wide">Total Pax</div>
         </div>
       </div>
 
       {/* Filters and Actions */}
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-2.5 sm:gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input 
@@ -297,7 +338,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
           />
         </div>
         
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           <select 
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
@@ -339,25 +380,89 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
         </div>
       </div>
 
-      {/* Guest Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-[#DDE5D4] overflow-hidden">
+      {/* Guest cards (phones) */}
+      <div className="space-y-3 md:hidden">
+        {filteredGuests.length === 0 ? (
+          <div className="rounded-xl border border-[#DDE5D4] bg-white px-4 py-12 text-center text-gray-400">
+            <UsersIcon className="mx-auto mb-3 h-10 w-10 opacity-30" />
+            <p className="text-sm">No guests found matching your filters</p>
+          </div>
+        ) : (
+          filteredGuests.map(guest => (
+            <div key={guest.id} className="rounded-xl border border-[#DDE5D4] bg-white p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    {guest.isVip && <Star className="h-4 w-4 shrink-0 fill-amber-500 text-amber-500" />}
+                    <p className="truncate font-semibold text-gray-900">{guest.name}</p>
+                  </div>
+                  <p className="mt-0.5 text-xs text-gray-500">{guest.role}</p>
+                </div>
+                <span className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium border ${getStatusBadge(guest.status)} flex items-center gap-1`}>
+                  {getStatusIcon(guest.status)}
+                  <span className="capitalize">{guest.status}</span>
+                </span>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded-lg bg-[#F7F9F4] px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wide text-gray-500">Pax</p>
+                  <p className="mt-0.5 font-semibold text-[#4F674D]">{guest.allowedGuests}</p>
+                </div>
+                <div className="rounded-lg bg-[#F7F9F4] px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wide text-gray-500">Table</p>
+                  <p className="mt-0.5 font-semibold text-gray-700">{guest.tableNumber || 'TBD'}</p>
+                </div>
+              </div>
+
+              {(guest.email || guest.contact) && (
+                <div className="mt-3 space-y-0.5 text-xs text-gray-600 [overflow-wrap:anywhere]">
+                  {guest.email && <p>{guest.email}</p>}
+                  {guest.contact && <p className="text-gray-500">{guest.contact}</p>}
+                </div>
+              )}
+
+              <div className="mt-3 flex gap-2 border-t border-[#EEF2EA] pt-3">
+                <button
+                  onClick={() => handleEdit(guest)}
+                  className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#DDE5D4] text-sm font-medium text-[#304A34] transition-colors active:bg-[#F7F9F4]"
+                >
+                  <Edit2 className="h-4 w-4" />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteGuest(guest)}
+                  disabled={isSaving}
+                  className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-100 text-sm font-medium text-red-600 transition-colors active:bg-red-50 disabled:opacity-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Guest Table (tablet & desktop) */}
+      <div className="hidden md:block bg-white rounded-xl shadow-sm border border-[#DDE5D4] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-[#DDE5D4] text-[#304A34]">
               <tr>
-                <th className="px-6 py-3 font-semibold uppercase text-xs">Name & Companions</th>
-                <th className="px-6 py-3 font-semibold uppercase text-xs">Role</th>
-                <th className="px-6 py-3 font-semibold uppercase text-xs">Contact</th>
-                <th className="px-6 py-3 font-semibold uppercase text-xs text-center">Pax</th>
-                <th className="px-6 py-3 font-semibold uppercase text-xs text-center">Table</th>
-                <th className="px-6 py-3 font-semibold uppercase text-xs text-center">Status</th>
-                <th className="px-6 py-3 font-semibold uppercase text-xs text-right">Actions</th>
+                <th className="px-3 py-3 sm:px-6 font-semibold uppercase text-xs">Name</th>
+                <th className="px-3 py-3 sm:px-6 font-semibold uppercase text-xs">Role</th>
+                <th className="px-3 py-3 sm:px-6 font-semibold uppercase text-xs">Contact</th>
+                <th className="px-3 py-3 sm:px-6 font-semibold uppercase text-xs text-center">Pax</th>
+                <th className="px-3 py-3 sm:px-6 font-semibold uppercase text-xs text-center">Table</th>
+                <th className="px-3 py-3 sm:px-6 font-semibold uppercase text-xs text-center">Status</th>
+                <th className="px-3 py-3 sm:px-6 font-semibold uppercase text-xs text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#DDE5D4]">
               {filteredGuests.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={7} className="px-3 sm:px-6 py-12 text-center text-gray-400">
                     <UsersIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
                     <p>No guests found matching your filters</p>
                   </td>
@@ -365,41 +470,31 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
               ) : (
                 filteredGuests.map(guest => (
                   <tr key={guest.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-3 sm:px-6 sm:py-4">
                       <div className="flex flex-col">
                         <div className="flex items-center space-x-2">
                           {guest.isVip && <Star className="w-4 h-4 text-amber-500 fill-amber-500" />}
                           <span className="font-medium text-gray-800">{guest.name}</span>
                         </div>
-                        {guest.companions && guest.companions.length > 0 && (
-                          <div className="mt-1 space-y-0.5">
-                            {guest.companions.map((c, i) => (
-                              <div key={i} className="flex items-center space-x-1 text-[10px] text-[#4F674D] italic leading-tight">
-                                <UsersIcon className="w-2.5 h-2.5" />
-                                <span>{c.name || 'Unnamed'} ({c.relationship || 'Companion'})</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                         {guest.addedBy && (
                           <div className="mt-1 text-[9px] text-gray-400">Added by: {guest.addedBy}</div>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600 text-sm">{guest.role}</td>
-                    <td className="px-6 py-4 text-xs">
+                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-gray-600 text-sm">{guest.role}</td>
+                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-xs">
                       {guest.email && <div className="text-gray-600">{guest.email}</div>}
                       {guest.contact && <div className="text-gray-500">{guest.contact}</div>}
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-center">
                       <span className="text-sm font-semibold text-[#4F674D]">{guest.allowedGuests}</span>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-center">
                       <span className="px-2 py-1 bg-gray-100 rounded text-xs font-bold text-gray-600">
                         {guest.tableNumber || 'TBD'}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-3 sm:px-6 sm:py-4">
                       <div className="flex items-center justify-center">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(guest.status)} flex items-center gap-1`}>
                           {getStatusIcon(guest.status)}
@@ -407,7 +502,7 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-right">
                       <div className="flex items-center justify-end space-x-3">
                         <button 
                           onClick={() => handleEdit(guest)} 
@@ -436,161 +531,206 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl my-8 relative">
+        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50 p-0 sm:items-center sm:p-4">
+          <div className="dash-sheet bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-4xl max-h-[94dvh] sm:max-h-[90vh] overflow-y-auto shadow-2xl relative">
             {/* Loading Overlay */}
             {isSaving && (
-              <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-50 rounded-2xl">
+              <div className="absolute inset-0 z-50 flex items-center justify-center rounded-t-2xl bg-[#FBFCF7]/90 backdrop-blur-sm sm:rounded-2xl" role="status" aria-live="polite">
                 <div className="text-center">
-                  <div className="w-16 h-16 border-4 border-[#DDE5D4] border-t-[#4F674D] rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-lg font-semibold text-[#4F674D]">Saving Guest...</p>
-                  <p className="text-sm text-gray-500 mt-2">Please wait while we save the information</p>
+                  <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[#DDE5D4] border-t-[#4F674D]" />
+                  <p className={`${playfair.className} text-lg font-semibold text-[#304A34]`}>
+                    {editingGuest ? 'Saving changes…' : 'Adding guest…'}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">This only takes a moment.</p>
                 </div>
               </div>
             )}
 
-            <div className="p-6 border-b border-[#DDE5D4] flex justify-between items-center bg-[#FBFCF7] sticky top-0 z-20">
-              <div>
-                <h2 className="text-xl font-bold font-serif text-[#304A34]">
-                  {editingGuest ? 'Edit Invitation' : 'Create Invitation'}
-                </h2>
-                <p className="text-xs text-gray-400 mt-1">
-                  Only Full Name and Attendance/RSVP are required. Other details can be filled later.
-                </p>
-              </div>
-              <button 
-                onClick={() => setShowModal(false)} 
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+            <div className="sticky top-0 z-20 border-b border-[#DDE5D4] bg-[#FBFCF7]/95 px-4 pt-3 pb-4 backdrop-blur-sm sm:px-6 sm:py-5">
+              <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-gray-300/70 sm:hidden" aria-hidden />
+              <button
+                type="button"
+                onClick={() => setShowHelp(v => !v)}
+                aria-label="How adding a guest works"
+                aria-expanded={showHelp}
+                aria-controls="guest-form-help"
+                className={`absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-colors sm:left-auto sm:right-16 sm:top-5 ${
+                  showHelp ? 'border-[#718566] bg-[#718566] text-white' : 'border-[#DDE5D4] bg-white text-[#4F674D] hover:bg-[#EEF2EA]'
+                }`}
+              >
+                <Info className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                aria-label="Close"
+                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-[#DDE5D4] bg-white text-gray-500 shadow-sm transition-colors hover:text-[#304A34] sm:right-5 sm:top-5"
                 disabled={isSaving}
               >
-                <XCircle className="w-6 h-6" />
+                <X className="h-4 w-4" />
               </button>
+              <div className="px-10 text-center sm:px-0 sm:pr-24 sm:text-left">
+                <p className={`${cinzel.className} text-[10px] font-semibold uppercase tracking-[0.28em] text-[#718566]`}>
+                  Guest Invitation
+                </p>
+                <h2 className={`${playfair.className} mt-1 text-[1.45rem] font-semibold leading-tight text-[#304A34] sm:text-2xl`}>
+                  {editingGuest ? 'Edit Invitation' : 'Create Invitation'}
+                </h2>
+                <div className="mx-auto mt-2 flex w-28 items-center gap-1.5 sm:mx-0" aria-hidden>
+                  <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#AAB9A0] sm:from-[#AAB9A0] sm:to-[#AAB9A0]/40" />
+                  <span className="h-1 w-1 rotate-45 bg-[#718566]" />
+                  <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#AAB9A0] sm:hidden" />
+                </div>
+                <p className="mx-auto mt-2 max-w-xs text-[11px] leading-relaxed text-gray-500 sm:mx-0 sm:max-w-none sm:text-xs">
+                  {editingGuest ? 'Update seating, or correct details the guest asked you to change.' : 'Add a guest so they can find their name and RSVP on your invitation.'}
+                </p>
+              </div>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="px-4 pt-4 sm:p-6 space-y-4 sm:space-y-6">
+              {/* How it works — opens from the ⓘ button in the header */}
+              {showHelp && (
+                <div id="guest-form-help" className="rounded-xl border border-[#DDE5D4] bg-[#F7F9F4] px-3.5 py-3 text-[12px] leading-relaxed text-[#4B5B49] sm:text-[13px]">
+                  <p className="font-semibold text-[#304A34]">
+                    Adding <span className="text-[#4F674D]">{formName.trim() || 'a guest'}</span> makes their name searchable on your invitation.
+                  </p>
+                  <ul className="mt-1.5 space-y-1">
+                    <li className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#718566]" />They search their name in the RSVP section and confirm if they can attend.</li>
+                    <li className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#718566]" />They add their own phone, email, companions and message.</li>
+                    <li className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#718566]" />Allowed guests = seats they can confirm, including themselves.</li>
+                    <li className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#718566]" />Table shows on &quot;Find your table&quot; and the Book of Guests.</li>
+                  </ul>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
                 {/* Primary Guest Section */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-[#4F674D] uppercase border-b border-[#DDE5D4] pb-2">
-                    Primary Guest Information
+                  <h3 className={`${cinzel.className} flex items-center gap-2 border-b border-[#DDE5D4] pb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#4F674D] sm:text-xs`}>
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EEF2EA]"><UserRound className="h-3.5 w-3.5" /></span>
+                    Guest Details
                   </h3>
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">
-                        Full Name <span className="text-red-500">*</span>
-                      </label>
+                      <FieldLabel htmlFor="guest-name" required>Full name</FieldLabel>
                       <input 
+                        id="guest-name"
                         required 
+                        autoComplete="off"
                         value={formName} 
                         onChange={e => setFormName(e.target.value)} 
                         type="text" 
-                        placeholder="Enter guest's full name"
-                        className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
+                        placeholder="e.g., Maria Santos"
+                        className="w-full border border-[#DDE5D4] rounded-xl bg-[#FCFDFB] px-3 py-2.5 transition-colors focus:bg-white focus:border-[#9EAF91] focus:ring-2 focus:ring-[#9EAF91]/40 outline-none" 
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">
-                        Role/Relationship
-                      </label>
+                      <FieldLabel htmlFor="guest-role">Relationship</FieldLabel>
                       <input 
+                        id="guest-role"
                         value={formRole} 
                         onChange={e => setFormRole(e.target.value)} 
                         type="text" 
-                        placeholder="e.g., Friend, Family, Colleague (optional)"
-                        className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
+                        placeholder="e.g., Friend, Family, Colleague"
+                        className="w-full border border-[#DDE5D4] rounded-xl bg-[#FCFDFB] px-3 py-2.5 transition-colors focus:bg-white focus:border-[#9EAF91] focus:ring-2 focus:ring-[#9EAF91]/40 outline-none" 
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Email</label>
-                        <input 
-                          value={formEmail} 
-                          onChange={e => setFormEmail(e.target.value)} 
-                          type="email" 
-                          placeholder="email@example.com"
-                          className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Contact</label>
-                        <input 
-                          value={formContact} 
-                          onChange={e => setFormContact(e.target.value)} 
-                          type="text" 
-                          placeholder="+1234567890"
-                          className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
-                        />
-                      </div>
-                    </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Added By</label>
+                      <FieldLabel htmlFor="guest-added-by">Added by</FieldLabel>
                       <input 
+                        id="guest-added-by"
                         value={formAddedBy} 
                         onChange={e => setFormAddedBy(e.target.value)} 
                         type="text" 
                         placeholder="e.g., Bride, Groom, Family"
-                        className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
+                        className="w-full border border-[#DDE5D4] rounded-xl bg-[#FCFDFB] px-3 py-2.5 transition-colors focus:bg-white focus:border-[#9EAF91] focus:ring-2 focus:ring-[#9EAF91]/40 outline-none" 
                       />
-                      <p className="text-[10px] text-gray-400">Track who added this guest to the list</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Attendance & RSVP Section */}
+                {/* Seating & Party Section
+                    (email, contact, RSVP status and message come from the guest's own RSVP on the site,
+                    so they aren't edited here — existing values are kept when saving) */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-[#4F674D] uppercase border-b border-[#DDE5D4] pb-2">
-                    Attendance & RSVP
+                  <h3 className={`${cinzel.className} flex items-center gap-2 border-b border-[#DDE5D4] pb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#4F674D] sm:text-xs`}>
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EEF2EA]"><CalendarCheck className="h-3.5 w-3.5" /></span>
+                    Seating & Invitation
                   </h3>
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">
-                        Allowed Pax (Including Primary Guest)
-                      </label>
-                      <input 
-                        min="1" 
-                        max="20"
-                        value={formAllowedGuests} 
-                        onChange={e => setFormAllowedGuests(parseInt(e.target.value) || 1)} 
-                        type="number" 
-                        className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none font-bold text-lg text-[#4F674D]" 
-                      />
-                      <p className="text-[10px] text-gray-400">Total number of people this guest can bring (default: 1)</p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">
-                        RSVP Status <span className="text-red-500">*</span>
-                      </label>
-                      <select 
-                        value={formStatus} 
-                        onChange={e => setFormStatus(e.target.value as GuestStatus)} 
-                        className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none"
-                      >
-                        <option value="pending">⏳ Waiting for Response</option>
-                        <option value="confirmed">✅ Attendance Confirmed</option>
-                        <option value="declined">❌ Cannot Attend</option>
-                      </select>
+                      <FieldLabel htmlFor="allowed-pax" required>Allowed guests</FieldLabel>
+                      {/* Stepper: − count + */}
+                      <div className="flex items-stretch overflow-hidden rounded-xl border border-[#DDE5D4] bg-[#FCFDFB] focus-within:border-[#9EAF91] focus-within:ring-2 focus-within:ring-[#9EAF91]/40">
+                        <button
+                          type="button"
+                          onClick={() => setFormAllowedGuests(n => Math.max(MIN_PAX, n - 1))}
+                          disabled={formAllowedGuests <= MIN_PAX}
+                          aria-label="Decrease allowed pax"
+                          className="flex w-12 shrink-0 items-center justify-center border-r border-[#DDE5D4] text-[#4F674D] transition-colors hover:bg-[#EEF2EA] active:bg-[#DDE5D4] disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-transparent"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </button>
+                        <div className="flex min-w-0 flex-1 flex-col items-center justify-center py-1.5">
+                          <input
+                            id="allowed-pax"
+                            type="number"
+                            inputMode="numeric"
+                            min={MIN_PAX}
+                            max={MAX_PAX}
+                            value={formAllowedGuests}
+                            onChange={e => {
+                              const n = parseInt(e.target.value)
+                              setFormAllowedGuests(Number.isNaN(n) ? MIN_PAX : Math.min(MAX_PAX, Math.max(MIN_PAX, n)))
+                            }}
+                            className="dash-stepper-input w-16 bg-transparent text-center text-xl font-bold leading-none text-[#304A34] outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          />
+                          <span className="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-400">
+                            {formAllowedGuests === 1 ? 'guest' : 'guests'}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setFormAllowedGuests(n => Math.min(MAX_PAX, n + 1))}
+                          disabled={formAllowedGuests >= MAX_PAX}
+                          aria-label="Increase allowed pax"
+                          className="flex w-12 shrink-0 items-center justify-center border-l border-[#DDE5D4] text-[#4F674D] transition-colors hover:bg-[#EEF2EA] active:bg-[#DDE5D4] disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-transparent"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Table Number</label>
+                        <FieldLabel htmlFor="guest-table">Table</FieldLabel>
                         <input 
+                          id="guest-table"
                           value={formTable} 
                           onChange={e => setFormTable(e.target.value)} 
                           type="text" 
-                          placeholder="e.g., T1, VIP-A"
-                          className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none" 
+                          placeholder="e.g., 5 or VIP-A"
+                          className="w-full border border-[#DDE5D4] rounded-xl bg-[#FCFDFB] px-3 py-2.5 transition-colors focus:bg-white focus:border-[#9EAF91] focus:ring-2 focus:ring-[#9EAF91]/40 outline-none" 
                         />
                       </div>
-                      <div className="flex items-center space-x-2 pt-7">
-                        <input 
-                          id="vip-check" 
-                          type="checkbox" 
-                          checked={formIsVip} 
-                          onChange={e => setFormIsVip(e.target.checked)} 
-                          className="w-4 h-4 text-[#4F674D] border-gray-300 rounded focus:ring-[#9EAF91]" 
-                        />
-                        <label htmlFor="vip-check" className="text-xs font-bold text-[#304A34] cursor-pointer flex items-center gap-1">
-                          <Star className="w-3 h-3" />
+                      <div className="space-y-1">
+                        <span className="flex items-center justify-between gap-2 text-[13px] font-medium text-[#304A34]">
+                          <span>Guest type</span>
+                          <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Optional</span>
+                        </span>
+                        <label
+                          htmlFor="vip-check"
+                          className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold leading-normal transition-colors ${
+                            formIsVip ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-[#DDE5D4] bg-[#FCFDFB] text-[#304A34]'
+                          }`}
+                        >
+                          <input
+                            id="vip-check"
+                            type="checkbox"
+                            checked={formIsVip}
+                            onChange={e => setFormIsVip(e.target.checked)}
+                            className="sr-only"
+                          />
+                          <Star className={`h-4 w-4 ${formIsVip ? 'fill-amber-500 text-amber-500' : 'text-gray-400'}`} />
                           VIP Guest
                         </label>
                       </div>
@@ -599,89 +739,145 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
                 </div>
               </div>
 
-              {/* Dynamic Companion Inputs */}
-              {formAllowedGuests > 1 && (
-                <div className="bg-[#FBFCF7] p-5 rounded-xl border border-[#DDE5D4] space-y-4">
-                  <div className="flex items-center space-x-2 text-[#4F674D]">
-                    <UsersIcon className="w-5 h-5" />
-                    <h3 className="text-sm font-bold uppercase tracking-tight">
-                      Additional Guests ({formAllowedGuests - 1} {formAllowedGuests - 1 === 1 ? 'slot' : 'slots'})
+              {/* Guest's RSVP response — only when editing, so the couple can fix details
+                  a guest asks them to correct. New invitations leave these to the guest. */}
+              {editingGuest && (
+                <div className="space-y-4 rounded-2xl border border-[#DDE5D4] bg-[#FBFCF7] p-3.5 sm:p-5">
+                  <div>
+                    <h3 className={`${cinzel.className} flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#4F674D] sm:text-xs`}>
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white ring-1 ring-[#DDE5D4]"><MessageSquareText className="h-3.5 w-3.5" /></span>
+                      Guest&apos;s RSVP Response
                     </h3>
+                    <p className="mt-1.5 text-[11px] leading-snug text-gray-500 sm:text-xs">
+                      Submitted by the guest. Edit only when they ask you to correct something.
+                    </p>
                   </div>
-                  <p className="text-[11px] text-gray-500">
-                    Optional: Provide names and relationships for additional guests. These can be filled in later after the guest confirms their RSVP.
-                  </p>
-                  
-                  <div className="space-y-4">
-                    {formCompanions.map((comp, idx) => (
-                      <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-4 border-b border-[#DDE5D4] last:border-0 last:pb-0">
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                            Guest {idx + 2} Full Name
-                          </label>
-                          <input 
-                            value={comp.name} 
-                            onChange={e => handleCompanionChange(idx, 'name', e.target.value)} 
-                            placeholder={`Full name of guest ${idx + 2} (optional)`}
-                            type="text" 
-                            className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#9EAF91] outline-none text-sm" 
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                            Relationship with {formName || 'Primary Guest'}
-                          </label>
-                          <input 
-                            value={comp.relationship} 
-                            onChange={e => handleCompanionChange(idx, 'relationship', e.target.value)} 
-                            placeholder="e.g., Spouse, Friend, Child (optional)"
-                            type="text" 
-                            className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#9EAF91] outline-none text-sm" 
-                          />
-                        </div>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="space-y-1 sm:col-span-2">
+                      <FieldLabel htmlFor="guest-status">RSVP status</FieldLabel>
+                      <div id="guest-status" role="radiogroup" className="grid grid-cols-3 gap-2">
+                        {([
+                          { value: 'confirmed', label: 'Attending', active: 'border-green-300 bg-green-50 text-green-700' },
+                          { value: 'pending', label: 'Pending', active: 'border-amber-300 bg-amber-50 text-amber-700' },
+                          { value: 'declined', label: 'Declined', active: 'border-red-200 bg-red-50 text-red-700' },
+                        ] as const).map(opt => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            role="radio"
+                            aria-checked={formStatus === opt.value}
+                            onClick={() => setFormStatus(opt.value)}
+                            className={`rounded-xl border px-2 py-2.5 text-xs font-semibold transition-colors sm:text-sm ${
+                              formStatus === opt.value ? opt.active : 'border-[#DDE5D4] bg-white text-gray-500 hover:text-[#304A34]'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+                    <div className="space-y-1">
+                      <FieldLabel htmlFor="guest-contact">Phone</FieldLabel>
+                      <input
+                        id="guest-contact"
+                        type="tel"
+                        value={formContact}
+                        onChange={e => setFormContact(e.target.value)}
+                        placeholder="09XX XXX XXXX"
+                        className="w-full border border-[#DDE5D4] rounded-xl bg-[#FCFDFB] px-3 py-2.5 transition-colors focus:bg-white focus:border-[#9EAF91] focus:ring-2 focus:ring-[#9EAF91]/40 outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <FieldLabel htmlFor="guest-email">Email</FieldLabel>
+                      <input
+                        id="guest-email"
+                        type="email"
+                        value={formEmail === 'Pending' ? '' : formEmail}
+                        onChange={e => setFormEmail(e.target.value)}
+                        placeholder="name@example.com"
+                        className="w-full border border-[#DDE5D4] rounded-xl bg-[#FCFDFB] px-3 py-2.5 transition-colors focus:bg-white focus:border-[#9EAF91] focus:ring-2 focus:ring-[#9EAF91]/40 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {formCompanions.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="flex items-center justify-between text-[13px] font-medium text-[#304A34]">
+                        <span>Companions</span>
+                        <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+                          {formCompanions.filter(c => c.name.trim()).length} of {formCompanions.length} named
+                        </span>
+                      </p>
+                      {formCompanions.map((comp, idx) => (
+                        <div key={idx} className="grid grid-cols-[1.75rem_1fr] gap-2 sm:grid-cols-[1.75rem_1fr_1fr]">
+                          <span className="row-span-2 mt-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-semibold text-[#4F674D] ring-1 ring-[#DDE5D4] sm:row-span-1">
+                            {idx + 2}
+                          </span>
+                          <input
+                            aria-label={`Guest ${idx + 2} name`}
+                            value={comp.name}
+                            onChange={e => handleCompanionChange(idx, 'name', e.target.value)}
+                            placeholder="Full name"
+                            className="w-full border border-[#DDE5D4] rounded-xl bg-[#FCFDFB] px-3 py-2.5 transition-colors focus:bg-white focus:border-[#9EAF91] focus:ring-2 focus:ring-[#9EAF91]/40 outline-none"
+                          />
+                          <input
+                            aria-label={`Guest ${idx + 2} relationship`}
+                            value={comp.relationship}
+                            onChange={e => handleCompanionChange(idx, 'relationship', e.target.value)}
+                            placeholder="Relationship"
+                            className="w-full border border-[#DDE5D4] rounded-xl bg-[#FCFDFB] px-3 py-2.5 transition-colors focus:bg-white focus:border-[#9EAF91] focus:ring-2 focus:ring-[#9EAF91]/40 outline-none"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="space-y-1">
+                    <FieldLabel htmlFor="guest-message">Message to the couple</FieldLabel>
+                    <textarea
+                      id="guest-message"
+                      rows={3}
+                      value={formMessage}
+                      onChange={e => setFormMessage(e.target.value)}
+                      placeholder="No message yet"
+                      className="w-full border border-[#DDE5D4] rounded-xl bg-[#FCFDFB] px-3 py-2.5 transition-colors focus:bg-white focus:border-[#9EAF91] focus:ring-2 focus:ring-[#9EAF91]/40 outline-none resize-none"
+                    />
                   </div>
                 </div>
               )}
 
-              {/* Personal Message */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">
-                  Personal Message to the Couple
-                </label>
-                <textarea 
-                  value={formMessage} 
-                  onChange={e => setFormMessage(e.target.value)} 
-                  rows={4} 
-                  placeholder="Share your excitement, well wishes, or any special message..."
-                  className="w-full border border-[#DDE5D4] rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9EAF91] outline-none resize-none"
-                ></textarea>
-              </div>
-
               {/* Action Buttons */}
-              <div className="flex justify-end space-x-3 pt-6 border-t border-[#DDE5D4]">
+              <div className="sticky bottom-0 z-10 -mx-4 flex flex-col-reverse gap-2 border-t border-[#DDE5D4] bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:justify-end sm:gap-3 sm:px-0 sm:pt-6 sm:pb-0">
                 <Button 
                   type="button" 
                   onClick={() => { setShowModal(false); resetForm(); }}
                   variant="outline"
-                  className="px-8 py-2 border-[#DDE5D4] text-gray-600 hover:bg-gray-50"
+                  className="h-11 w-full rounded-full border-[#DDE5D4] px-7 text-sm font-medium text-gray-600 hover:bg-[#F7F9F4] hover:text-[#304A34] sm:w-auto"
                   disabled={isSaving}
                 >
                   Cancel
                 </Button>
                 <Button 
                   type="submit" 
-                  className="px-10 py-2 bg-[#4F674D] text-white hover:bg-[#304A34] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-11 w-full rounded-full px-8 text-sm font-semibold tracking-wide bg-gradient-to-r from-[#4F674D] to-[#304A34] text-white shadow-[0_10px_22px_-10px_rgba(48,74,52,0.7)] transition-all hover:brightness-110 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
                   disabled={isSaving}
                 >
                   {isSaving ? (
                     <span className="flex items-center gap-2">
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      Saving...
+                      Saving…
+                    </span>
+                  ) : editingGuest ? (
+                    <span className="flex items-center gap-2">
+                      <Check className="w-4 h-4" />
+                      Save Changes
                     </span>
                   ) : (
-                    editingGuest ? 'Update Invitation' : 'Send Invitation'
+                    <span className="flex items-center gap-2">
+                      <UserPlus className="w-4 h-4" />
+                      Add to Guest List
+                    </span>
                   )}
                 </Button>
               </div>
@@ -690,45 +886,158 @@ export const ImprovedGuestList: React.FC<ImprovedGuestListProps> = ({
         </div>
       )}
 
-      {/* Success Modal */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-            <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white text-center">
-              <CheckCircle className="w-16 h-16 mx-auto mb-3" strokeWidth={2} />
-              <h3 className="text-2xl font-bold font-serif">Success!</h3>
-            </div>
-            <div className="p-6 text-center">
-              <p className="text-lg text-gray-700 mb-2">
-                <span className="font-semibold text-[#4F674D]">{savedGuestName}</span> has been successfully {operationType === 'delete' ? 'deleted' : operationType === 'edit' ? 'updated' : 'added'}!
+      {/* Delete confirmation */}
+      {guestToDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[#1F2A1E]/45 p-0 backdrop-blur-[2px] sm:items-center sm:p-4"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="delete-guest-title"
+          aria-describedby="delete-guest-desc"
+          onClick={() => setGuestToDelete(null)}
+        >
+          <div
+            className="dash-sheet w-full max-w-sm overflow-hidden rounded-t-3xl border border-[#E8DCDC] bg-[#FBFCF7] shadow-[0_30px_60px_-25px_rgba(31,42,30,0.55)] sm:rounded-3xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="px-6 pt-4 pb-6 text-center sm:pt-7">
+              <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-gray-300/70 sm:hidden" aria-hidden />
+              <span className="dash-pop-badge mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F7ECEC] ring-8 ring-[#FBF4F4]">
+                <AlertTriangle className="h-6 w-6 text-[#A04A4A]" />
+              </span>
+              <p className={`${cinzel.className} mt-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#A04A4A]/80`}>
+                Remove guest
               </p>
-              <p className="text-sm text-gray-500 mb-6">
-                {operationType === 'delete' 
-                  ? 'The guest has been removed from your list.' 
-                  : 'The guest information has been saved and is now visible in your dashboard.'}
+              <h3 id="delete-guest-title" className={`${playfair.className} mt-1 text-[1.4rem] font-semibold leading-tight text-[#304A34]`}>
+                Delete this invitation?
+              </h3>
+
+              <div className="mx-auto mt-4 max-w-[17rem] rounded-2xl border border-[#DDE5D4] bg-white px-4 py-3">
+                <p className={`${playfair.className} flex items-center justify-center gap-1.5 text-base font-semibold text-[#304A34] [overflow-wrap:anywhere]`}>
+                  {guestToDelete.isVip && <Star className="h-4 w-4 shrink-0 fill-amber-500 text-amber-500" />}
+                  {guestToDelete.name}
+                </p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  {guestToDelete.allowedGuests} {guestToDelete.allowedGuests === 1 ? 'seat' : 'seats'}
+                  {guestToDelete.tableNumber ? ` · Table ${guestToDelete.tableNumber}` : ''}
+                  {` · ${guestToDelete.status.charAt(0).toUpperCase()}${guestToDelete.status.slice(1)}`}
+                </p>
+              </div>
+
+              <p id="delete-guest-desc" className="mx-auto mt-3 max-w-[17rem] text-sm leading-relaxed text-gray-600">
+                They&apos;ll be removed from your guest list and won&apos;t be able to find their name to RSVP. This can&apos;t be undone.
               </p>
-              <Button 
-                onClick={handleSuccessModalClose}
-                className="w-full bg-[#4F674D] text-white hover:bg-[#304A34] py-3 text-base font-semibold"
-              >
-                Perfect! Close
-              </Button>
+
+              <div className="mt-6 flex flex-col-reverse gap-2 pb-[env(safe-area-inset-bottom)] sm:flex-row sm:pb-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  autoFocus
+                  onClick={() => setGuestToDelete(null)}
+                  className="h-11 w-full rounded-full border-[#DDE5D4] bg-white text-sm font-medium text-[#304A34] hover:bg-[#F7F9F4] sm:flex-1"
+                >
+                  Keep Guest
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => void confirmDeleteGuest()}
+                  className="h-11 w-full rounded-full bg-gradient-to-r from-[#B05555] to-[#8E3B3B] text-sm font-semibold text-white shadow-[0_10px_22px_-10px_rgba(142,59,59,0.7)] transition-all hover:brightness-110 active:scale-[0.99] sm:flex-1"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Yes, Delete
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
+      {/* Success Modal */}
+      {showSuccessModal && (() => {
+        const isDelete = operationType === 'delete';
+        const isEdit = operationType === 'edit';
+        const title = isDelete ? 'Guest Removed' : isEdit ? 'Changes Saved' : 'Guest Added';
+        const eyebrow = isDelete ? 'Guest list updated' : isEdit ? 'Invitation updated' : 'Invitation ready';
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#1F2A1E]/45 p-4 backdrop-blur-[2px]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="guest-success-title"
+          >
+            <div className="dash-pop relative w-full max-w-sm overflow-hidden rounded-3xl border border-[#DDE5D4] bg-[#FBFCF7] shadow-[0_30px_60px_-25px_rgba(31,42,30,0.55)]">
+              {/* Header band */}
+              <div className="relative overflow-hidden bg-gradient-to-br from-[#718566] via-[#4F674D] to-[#304A34] px-6 pt-7 pb-12 text-center">
+                <span className="pointer-events-none absolute -left-10 -top-10 h-32 w-32 rounded-full bg-white/10" aria-hidden />
+                <span className="pointer-events-none absolute -right-8 top-6 h-20 w-20 rounded-full bg-white/10" aria-hidden />
+                <p className={`${cinzel.className} relative text-[10px] font-semibold uppercase tracking-[0.3em] text-white/75`}>
+                  {eyebrow}
+                </p>
+                <h3 id="guest-success-title" className={`${playfair.className} relative mt-1.5 text-[1.6rem] font-semibold leading-tight text-white`}>
+                  {title}
+                </h3>
+              </div>
+
+              {/* Badge overlapping the band */}
+              <div className="relative -mt-9 flex justify-center">
+                <span className="dash-pop-badge flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full border-4 border-[#FBFCF7] bg-white shadow-lg">
+                  <span className={`flex h-12 w-12 items-center justify-center rounded-full ${isDelete ? 'bg-[#F3EAEA] text-[#9B4C4C]' : 'bg-[#EEF2EA] text-[#4F674D]'}`}>
+                    {isDelete ? <Trash2 className="h-6 w-6" /> : <Check className="h-7 w-7" strokeWidth={2.5} />}
+                  </span>
+                </span>
+              </div>
+
+              <div className="px-6 pt-4 pb-6 text-center">
+                <p className={`${playfair.className} text-lg font-semibold text-[#304A34] [overflow-wrap:anywhere]`}>
+                  {savedGuestName}
+                </p>
+                <div className="mx-auto mt-2 flex w-24 items-center gap-1.5" aria-hidden>
+                  <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#AAB9A0]" />
+                  <span className="h-1 w-1 rotate-45 bg-[#718566]" />
+                  <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#AAB9A0]" />
+                </div>
+                <p className="mx-auto mt-3 max-w-[17rem] text-sm leading-relaxed text-gray-600">
+                  {isDelete
+                    ? 'has been removed from your guest list and can no longer RSVP.'
+                    : isEdit
+                      ? 'is up to date. Your changes are saved to the guest list.'
+                      : 'can now search their name on your invitation and confirm their RSVP.'}
+                </p>
+
+                <div className="mt-6 flex flex-col gap-2">
+                  <Button
+                    onClick={handleSuccessModalClose}
+                    className="h-11 w-full rounded-full bg-gradient-to-r from-[#4F674D] to-[#304A34] text-sm font-semibold tracking-wide text-white shadow-[0_10px_22px_-10px_rgba(48,74,52,0.7)] transition-all hover:brightness-110 active:scale-[0.99]"
+                  >
+                    Done
+                  </Button>
+                  {operationType === 'add' && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => { setShowSuccessModal(false); resetForm(); }}
+                      className="h-11 w-full rounded-full border-[#DDE5D4] bg-white text-sm font-medium text-[#304A34] hover:bg-[#F7F9F4]"
+                    >
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Add Another Guest
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Global Loading Modal (for delete operations) */}
       {isSaving && !showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-8">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-[#DDE5D4] border-t-[#4F674D] rounded-full animate-spin mx-auto mb-4"></div>
-              <h3 className="text-xl font-bold text-[#304A34] mb-2">
-                {operationType === 'delete' ? 'Deleting Guest' : 'Processing'}...
-              </h3>
-              <p className="text-sm text-gray-500">Please wait while we process your request</p>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1F2A1E]/45 p-4 backdrop-blur-[2px]" role="status" aria-live="polite">
+          <div className="dash-pop w-full max-w-xs rounded-3xl border border-[#DDE5D4] bg-[#FBFCF7] p-7 text-center shadow-2xl">
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[#DDE5D4] border-t-[#4F674D]" />
+            <h3 className={`${playfair.className} text-lg font-semibold text-[#304A34]`}>
+              {operationType === 'delete' ? 'Removing guest…' : 'Saving…'}
+            </h3>
+            <p className="mt-1 text-xs text-gray-500">This only takes a moment.</p>
           </div>
         </div>
       )}

@@ -1,18 +1,30 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import { Cinzel, Playfair_Display } from "next/font/google"
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock"
 import { Button } from "@/components/ui/button"
+import { proposalRoleDefinitions } from "@/content/proposal-roles"
 import {
-  Crown,
-  UserCheck,
-  Edit2,
-  Trash2,
-  Search,
-  Plus,
   AlertCircle,
+  AlertTriangle,
+  Check,
+  ChevronDown,
+  Crown,
+  Edit2,
+  HeartHandshake,
+  Info,
+  Mail,
+  Plus,
+  RefreshCw,
+  Search,
+  Trash2,
+  UserCheck,
   X,
-  CheckCircle,
 } from "lucide-react"
+
+const cinzel = Cinzel({ subsets: ["latin"], weight: ["500", "600"] })
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["500", "600"] })
 
 interface Entourage {
   Name: string
@@ -34,6 +46,276 @@ interface EntourageSponsorsProps {
   isLoading: boolean
 }
 
+type Tab = "entourage" | "sponsors"
+type Confirm = { kind: "entourage"; member: Entourage } | { kind: "sponsor"; sponsor: PrincipalSponsor }
+type Done = { title: string; eyebrow: string; name: string; text: string; deleted?: boolean }
+
+const EMPTY_MEMBER = { Name: "", RoleCategory: "", RoleTitle: "", Email: "" }
+const EMPTY_SPONSOR = { MalePrincipalSponsor: "", FemalePrincipalSponsor: "" }
+
+// Suggestions for the role field: categories used by the proposal invites + common ones
+const DEFAULT_ROLE_CATEGORIES = [
+  ...new Set([
+    ...proposalRoleDefinitions.map((r) => r.roleCategory).filter((c): c is string => Boolean(c) && c !== "Principal Sponsors"),
+    "Maid of Honor",
+    "Matron of Honor",
+    "Parents of the Groom",
+    "Parents of the Bride",
+  ]),
+]
+
+const FIELD =
+  "w-full rounded-xl border border-[#DDE5D4] bg-[#FCFDFB] px-3 py-2.5 outline-none transition-colors focus:border-[#9EAF91] focus:bg-white focus:ring-2 focus:ring-[#9EAF91]/40"
+
+const sponsorLabel = (s: PrincipalSponsor) =>
+  [s.MalePrincipalSponsor, s.FemalePrincipalSponsor].filter((n) => n && n.trim()).join(" & ") || "Sponsor pair"
+
+function FieldLabel({ htmlFor, children, required = false }: { htmlFor?: string; children: ReactNode; required?: boolean }) {
+  return (
+    <label htmlFor={htmlFor} className="flex items-center justify-between gap-2 text-[13px] font-medium text-[#304A34]">
+      <span>{children}</span>
+      {required ? (
+        <span className="rounded-full bg-[#EEF2EA] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#4F674D]">Required</span>
+      ) : (
+        <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Optional</span>
+      )}
+    </label>
+  )
+}
+
+/** Role input with suggestions that filter as you type (works the same on phones). */
+function RoleCombobox({
+  value,
+  onChange,
+  options,
+}: {
+  value: string
+  onChange: (value: string) => void
+  options: string[]
+}) {
+  const [open, setOpen] = useState(false)
+  const [highlight, setHighlight] = useState(0)
+  const wrapRef = useRef<HTMLDivElement>(null)
+
+  const q = value.trim().toLowerCase()
+  const matches = (q ? options.filter((o) => o.toLowerCase().includes(q)) : options)
+    // starts-with matches first, then the rest alphabetically
+    .sort((a, b) => Number(!a.toLowerCase().startsWith(q)) - Number(!b.toLowerCase().startsWith(q)) || a.localeCompare(b))
+  const exact = options.some((o) => o.toLowerCase() === q)
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: PointerEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener("pointerdown", onDown)
+    return () => document.removeEventListener("pointerdown", onDown)
+  }, [open])
+
+  const pick = (option: string) => {
+    onChange(option)
+    setOpen(false)
+  }
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <input
+        id="ent-role"
+        required
+        role="combobox"
+        aria-expanded={open}
+        aria-controls="ent-role-list"
+        aria-autocomplete="list"
+        autoComplete="off"
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value)
+          setOpen(true)
+          setHighlight(0)
+        }}
+        onFocus={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (!open || matches.length === 0) return
+          if (e.key === "ArrowDown") {
+            e.preventDefault()
+            setHighlight((h) => Math.min(matches.length - 1, h + 1))
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault()
+            setHighlight((h) => Math.max(0, h - 1))
+          } else if (e.key === "Enter") {
+            e.preventDefault()
+            pick(matches[highlight])
+          } else if (e.key === "Escape") {
+            e.stopPropagation()
+            setOpen(false)
+          }
+        }}
+        placeholder="Type to search roles…"
+        className={`${FIELD} pr-9`}
+      />
+      <button
+        type="button"
+        tabIndex={-1}
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Show roles"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 hover:text-[#4F674D]"
+      >
+        <ChevronDown className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {open && (matches.length > 0 || q) && (
+        <ul
+          id="ent-role-list"
+          role="listbox"
+          className="absolute left-0 right-0 z-30 mt-1 max-h-52 overflow-y-auto rounded-xl border border-[#DDE5D4] bg-white py-1 shadow-lg"
+        >
+          {matches.map((option, i) => (
+            <li
+              key={option}
+              role="option"
+              aria-selected={i === highlight}
+              onPointerDown={(e) => e.preventDefault()}
+              onClick={() => pick(option)}
+              onMouseEnter={() => setHighlight(i)}
+              className={`flex cursor-pointer items-center justify-between px-3 py-2 text-sm ${
+                i === highlight ? "bg-[#EEF2EA] text-[#304A34]" : "text-gray-700"
+              }`}
+            >
+              {option}
+              {option.toLowerCase() === q && <Check className="h-3.5 w-3.5 text-[#4F674D]" />}
+            </li>
+          ))}
+          {q && !exact && (
+            <li
+              role="option"
+              aria-selected={false}
+              onPointerDown={(e) => e.preventDefault()}
+              onClick={() => pick(value.trim())}
+              className="cursor-pointer border-t border-[#EEF2EA] px-3 py-2 text-xs text-gray-500 hover:bg-[#F7F9F4]"
+            >
+              Use &ldquo;<span className="font-medium text-[#304A34]">{value.trim()}</span>&rdquo; as a new role
+            </li>
+          )}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+/** Bottom sheet on phones, centred card from sm up. */
+function FormSheet({
+  eyebrow,
+  title,
+  subtitle,
+  onClose,
+  onSubmit,
+  busy,
+  submitLabel,
+  help,
+  children,
+}: {
+  eyebrow: string
+  title: string
+  subtitle: string
+  onClose: () => void
+  onSubmit: () => void
+  busy: boolean
+  submitLabel: string
+  /** Bullet points shown when the ⓘ button is tapped */
+  help?: { title: ReactNode; points: ReactNode[] }
+  children: ReactNode
+}) {
+  const [showHelp, setShowHelp] = useState(false)
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          onSubmit()
+        }}
+        className="dash-sheet relative max-h-[94dvh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-2xl"
+      >
+        <div className="sticky top-0 z-20 border-b border-[#DDE5D4] bg-[#FBFCF7]/95 px-4 pt-3 pb-4 backdrop-blur-sm sm:px-6 sm:py-5">
+          <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-gray-300/70 sm:hidden" aria-hidden />
+          {help ? (
+            <button
+              type="button"
+              onClick={() => setShowHelp((v) => !v)}
+              aria-label="How this works"
+              aria-expanded={showHelp}
+              aria-controls="form-sheet-help"
+              className={`absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-colors sm:left-auto sm:right-16 sm:top-5 ${
+                showHelp ? "border-[#718566] bg-[#718566] text-white" : "border-[#DDE5D4] bg-white text-[#4F674D] hover:bg-[#EEF2EA]"
+              }`}
+            >
+              <Info className="h-4 w-4" />
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-[#DDE5D4] bg-white text-gray-500 shadow-sm transition-colors hover:text-[#304A34] sm:right-5 sm:top-5"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className={`px-10 text-center sm:px-0 sm:text-left ${help ? "sm:pr-24" : "sm:pr-12"}`}>
+            <p className={`${cinzel.className} text-[10px] font-semibold uppercase tracking-[0.28em] text-[#718566]`}>{eyebrow}</p>
+            <h2 className={`${playfair.className} mt-1 text-[1.45rem] font-semibold leading-tight text-[#304A34] sm:text-2xl`}>{title}</h2>
+            <p className="mx-auto mt-1.5 max-w-xs text-[11px] leading-relaxed text-gray-500 sm:mx-0 sm:max-w-none sm:text-xs">{subtitle}</p>
+          </div>
+        </div>
+
+        <div className="space-y-4 px-4 pt-4 sm:p-6">
+          {help && showHelp && (
+            <div id="form-sheet-help" className="rounded-xl border border-[#DDE5D4] bg-[#F7F9F4] px-3.5 py-3 text-[12px] leading-relaxed text-[#4B5B49] sm:text-[13px]">
+              <p className="font-semibold text-[#304A34]">{help.title}</p>
+              <ul className="mt-1.5 space-y-1">
+                {help.points.map((point, i) => (
+                  <li key={i} className="flex gap-2">
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#718566]" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {children}
+
+          <div className="sticky bottom-0 z-10 -mx-4 flex flex-col-reverse gap-2 border-t border-[#DDE5D4] bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:justify-end sm:gap-3 sm:px-0 sm:pt-5 sm:pb-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={busy}
+              className="h-11 w-full rounded-full border-[#DDE5D4] px-7 text-sm font-medium text-gray-600 hover:bg-[#F7F9F4] hover:text-[#304A34] sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={busy}
+              className="h-11 w-full rounded-full bg-gradient-to-r from-[#4F674D] to-[#304A34] px-8 text-sm font-semibold tracking-wide text-white shadow-[0_10px_22px_-10px_rgba(48,74,52,0.7)] transition-all hover:brightness-110 active:scale-[0.99] disabled:opacity-50 sm:w-auto"
+            >
+              {busy ? (
+                <span className="flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Saving…
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Check className="h-4 w-4" />
+                  {submitLabel}
+                </span>
+              )}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 export function EntourageSponsors({
   entourage,
   principalSponsors,
@@ -41,661 +323,736 @@ export function EntourageSponsors({
   onRefreshSponsors,
   isLoading,
 }: EntourageSponsorsProps) {
-  const [activeSubTab, setActiveSubTab] = useState<"entourage" | "sponsors">("entourage")
+  const [activeSubTab, setActiveSubTab] = useState<Tab>("entourage")
   const [searchQuery, setSearchQuery] = useState("")
-  
-  // Entourage state
+  const [roleFilter, setRoleFilter] = useState<string>("all")
+
+  // Entourage form
   const [showEntourageModal, setShowEntourageModal] = useState(false)
   const [editingEntourage, setEditingEntourage] = useState<Entourage | null>(null)
-  const [entourageFormData, setEntourageFormData] = useState({
-    Name: "",
-    RoleCategory: "",
-    RoleTitle: "",
-    Email: "",
-  })
+  const [entourageFormData, setEntourageFormData] = useState(EMPTY_MEMBER)
 
-  // Principal Sponsor state
+  // Sponsor form
   const [showSponsorModal, setShowSponsorModal] = useState(false)
   const [editingSponsor, setEditingSponsor] = useState<PrincipalSponsor | null>(null)
-  const [sponsorFormData, setSponsorFormData] = useState({
-    MalePrincipalSponsor: "",
-    FemalePrincipalSponsor: "",
-  })
+  const [sponsorFormData, setSponsorFormData] = useState(EMPTY_SPONSOR)
 
   const [error, setError] = useState<string | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [processingAction, setProcessingAction] = useState<string>("")
+  const [busy, setBusy] = useState<string | null>(null) // label of the running action
+  const [confirm, setConfirm] = useState<Confirm | null>(null)
+  const [done, setDone] = useState<Done | null>(null)
 
-  // Filter entourage
+  const entourageFormOpen = showEntourageModal || Boolean(editingEntourage)
+  const sponsorFormOpen = showSponsorModal || Boolean(editingSponsor)
+
+  useBodyScrollLock(entourageFormOpen || sponsorFormOpen || Boolean(confirm || done || busy))
+
+  const closeEntourageForm = () => {
+    setShowEntourageModal(false)
+    setEditingEntourage(null)
+    setEntourageFormData(EMPTY_MEMBER)
+  }
+  const closeSponsorForm = () => {
+    setShowSponsorModal(false)
+    setEditingSponsor(null)
+    setSponsorFormData(EMPTY_SPONSOR)
+  }
+
+  // Escape closes the top-most dialog (not while saving)
+  useEffect(() => {
+    if (busy) return
+    if (!(confirm || done || entourageFormOpen || sponsorFormOpen)) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return
+      if (confirm) setConfirm(null)
+      else if (done) setDone(null)
+      else if (entourageFormOpen) closeEntourageForm()
+      else closeSponsorForm()
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [busy, confirm, done, entourageFormOpen, sponsorFormOpen])
+
+  const showError = (message: string) => {
+    setError(message)
+    setTimeout(() => setError(null), 4000)
+  }
+
+  /** Runs a request with the shared "working" overlay; returns whether it succeeded. */
+  const run = async (label: string, url: string, method: string, body: unknown) => {
+    setBusy(label)
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+      if (!response.ok) throw new Error(`${method} ${url} failed`)
+      return true
+    } catch (err) {
+      console.error(err)
+      return false
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  // ── Derived data ───────────────────────────────────────────────────────
+  const roleCategories = useMemo(
+    () => [...new Set(entourage.map((m) => m.RoleCategory?.trim()).filter(Boolean))].sort(),
+    [entourage],
+  )
+  const roleSuggestions = useMemo(() => [...new Set([...roleCategories, ...DEFAULT_ROLE_CATEGORIES])], [roleCategories])
+
+  useEffect(() => {
+    if (roleFilter !== "all" && !roleCategories.includes(roleFilter)) setRoleFilter("all")
+  }, [roleCategories, roleFilter])
+
+  const query = searchQuery.trim().toLowerCase()
   const filteredEntourage = entourage.filter((member) => {
-    if (!searchQuery.trim()) return true
-    const query = searchQuery.toLowerCase()
+    if (roleFilter !== "all" && member.RoleCategory?.trim() !== roleFilter) return false
+    if (!query) return true
     return (
       member.Name.toLowerCase().includes(query) ||
-      member.RoleTitle.toLowerCase().includes(query) ||
-      member.RoleCategory.toLowerCase().includes(query) ||
+      member.RoleTitle?.toLowerCase().includes(query) ||
+      member.RoleCategory?.toLowerCase().includes(query) ||
       (member.Email && member.Email.toLowerCase().includes(query))
     )
   })
-
-  // Filter sponsors
   const filteredSponsors = principalSponsors.filter((sponsor) => {
-    if (!searchQuery.trim()) return true
-    const query = searchQuery.toLowerCase()
+    if (!query) return true
     return (
-      sponsor.MalePrincipalSponsor.toLowerCase().includes(query) ||
-      sponsor.FemalePrincipalSponsor.toLowerCase().includes(query)
+      sponsor.MalePrincipalSponsor?.toLowerCase().includes(query) ||
+      sponsor.FemalePrincipalSponsor?.toLowerCase().includes(query)
     )
   })
 
-  // Entourage handlers
-  const handleAddEntourage = async () => {
-    if (!entourageFormData.Name) {
-      setError("Name is required")
-      setTimeout(() => setError(null), 3000)
-      return
-    }
+  const sponsorPeople = principalSponsors.reduce(
+    (sum, s) => sum + (s.MalePrincipalSponsor?.trim() ? 1 : 0) + (s.FemalePrincipalSponsor?.trim() ? 1 : 0),
+    0,
+  )
 
-    setIsProcessing(true)
-    setProcessingAction("Adding entourage member")
-
-    try {
-      const response = await fetch("/api/entourage", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(entourageFormData),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to add entourage member")
-      }
-
-      setIsProcessing(false)
-      setSuccessMessage("Entourage member added successfully!")
-      setTimeout(() => setSuccessMessage(null), 3000)
-      setShowEntourageModal(false)
-      setEntourageFormData({ Name: "", RoleCategory: "", RoleTitle: "", Email: "" })
-      onRefreshEntourage()
-      window.dispatchEvent(new Event("entourageUpdated"))
-    } catch (error) {
-      console.error("Error adding entourage member:", error)
-      setIsProcessing(false)
-      setError("Failed to add entourage member")
-      setTimeout(() => setError(null), 3000)
-    }
+  // ── Entourage actions ──────────────────────────────────────────────────
+  const startEditEntourage = (member: Entourage) => {
+    setEditingEntourage(member)
+    setEntourageFormData({
+      Name: member.Name,
+      RoleCategory: member.RoleCategory,
+      RoleTitle: member.RoleTitle,
+      Email: member.Email && member.Email !== "Pending" ? member.Email : "",
+    })
   }
 
-  const handleUpdateEntourage = async () => {
-    if (!editingEntourage || !entourageFormData.Name) {
-      setError("Name is required")
-      setTimeout(() => setError(null), 3000)
+  const saveEntourage = async () => {
+    if (!entourageFormData.Name.trim()) {
+      showError("Name is required")
       return
     }
-
-    setIsProcessing(true)
-    setProcessingAction("Updating entourage member")
-
-    try {
-      const response = await fetch("/api/entourage", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: "update",
-          originalName: editingEntourage.Name,
-          ...entourageFormData,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to update entourage member")
-      }
-
-      setIsProcessing(false)
-      setSuccessMessage("Entourage member updated successfully!")
-      setTimeout(() => setSuccessMessage(null), 3000)
-      setEditingEntourage(null)
-      setEntourageFormData({ Name: "", RoleCategory: "", RoleTitle: "", Email: "" })
-      onRefreshEntourage()
-      window.dispatchEvent(new Event("entourageUpdated"))
-    } catch (error) {
-      console.error("Error updating entourage member:", error)
-      setIsProcessing(false)
-      setError("Failed to update entourage member")
-      setTimeout(() => setError(null), 3000)
+    if (!entourageFormData.RoleCategory.trim()) {
+      showError("Please choose a role")
+      return
     }
+    const editing = editingEntourage
+    const ok = editing
+      ? await run("Saving changes…", "/api/entourage", "PUT", { action: "update", originalName: editing.Name, ...entourageFormData })
+      : await run("Adding member…", "/api/entourage", "POST", entourageFormData)
+    if (!ok) {
+      showError(editing ? "We couldn't update this member. Please try again." : "We couldn't add this member. Please try again.")
+      return
+    }
+    const name = entourageFormData.Name
+    const role = entourageFormData.RoleTitle || entourageFormData.RoleCategory
+    closeEntourageForm()
+    setDone({
+      eyebrow: "Entourage updated",
+      title: editing ? "Changes Saved" : "Member Added",
+      name,
+      text: editing ? "is up to date in your entourage." : `is now part of your entourage${role ? ` as ${role}` : ""}.`,
+    })
+    onRefreshEntourage()
+    window.dispatchEvent(new Event("entourageUpdated"))
   }
 
-  const handleDeleteEntourage = async (memberName: string) => {
-    if (!confirm(`Are you sure you want to delete ${memberName}?`)) {
-      return
-    }
-
-    setIsProcessing(true)
-    setProcessingAction("Deleting entourage member")
-
-    try {
-      const response = await fetch("/api/entourage", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ Name: memberName }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to delete entourage member")
-      }
-
-      setIsProcessing(false)
-      setSuccessMessage("Entourage member deleted successfully!")
-      setTimeout(() => setSuccessMessage(null), 3000)
-      onRefreshEntourage()
-      window.dispatchEvent(new Event("entourageUpdated"))
-    } catch (error) {
-      console.error("Error deleting entourage member:", error)
-      setIsProcessing(false)
-      setError("Failed to delete entourage member")
-      setTimeout(() => setError(null), 3000)
-    }
+  // ── Sponsor actions ────────────────────────────────────────────────────
+  const startEditSponsor = (sponsor: PrincipalSponsor) => {
+    setEditingSponsor(sponsor)
+    setSponsorFormData({
+      MalePrincipalSponsor: sponsor.MalePrincipalSponsor,
+      FemalePrincipalSponsor: sponsor.FemalePrincipalSponsor,
+    })
   }
 
-  // Principal Sponsor handlers
-  const handleAddSponsor = async () => {
-    if (!sponsorFormData.MalePrincipalSponsor && !sponsorFormData.FemalePrincipalSponsor) {
-      setError("At least one sponsor name is required")
-      setTimeout(() => setError(null), 3000)
+  const saveSponsor = async () => {
+    if (!sponsorFormData.MalePrincipalSponsor.trim() && !sponsorFormData.FemalePrincipalSponsor.trim()) {
+      showError("Add at least one sponsor name")
       return
     }
-
-    setIsProcessing(true)
-    setProcessingAction("Adding principal sponsor")
-
-    try {
-      const response = await fetch("/api/principal-sponsor", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(sponsorFormData),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to add principal sponsor")
-      }
-
-      setIsProcessing(false)
-      setSuccessMessage("Principal sponsor added successfully!")
-      setTimeout(() => setSuccessMessage(null), 3000)
-      setShowSponsorModal(false)
-      setSponsorFormData({ MalePrincipalSponsor: "", FemalePrincipalSponsor: "" })
-      onRefreshSponsors()
-    } catch (error) {
-      console.error("Error adding principal sponsor:", error)
-      setIsProcessing(false)
-      setError("Failed to add principal sponsor")
-      setTimeout(() => setError(null), 3000)
-    }
-  }
-
-  const handleUpdateSponsor = async () => {
-    if (!editingSponsor) {
-      return
-    }
-
-    setIsProcessing(true)
-    setProcessingAction("Updating principal sponsor")
-
-    try {
-      const response = await fetch("/api/principal-sponsor", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          originalMale: editingSponsor.MalePrincipalSponsor,
-          originalFemale: editingSponsor.FemalePrincipalSponsor,
+    const editing = editingSponsor
+    const ok = editing
+      ? await run("Saving changes…", "/api/principal-sponsor", "PUT", {
+          originalMale: editing.MalePrincipalSponsor,
+          originalFemale: editing.FemalePrincipalSponsor,
           ...sponsorFormData,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to update principal sponsor")
-      }
-
-      setIsProcessing(false)
-      setSuccessMessage("Principal sponsor updated successfully!")
-      setTimeout(() => setSuccessMessage(null), 3000)
-      setEditingSponsor(null)
-      setSponsorFormData({ MalePrincipalSponsor: "", FemalePrincipalSponsor: "" })
-      onRefreshSponsors()
-    } catch (error) {
-      console.error("Error updating principal sponsor:", error)
-      setIsProcessing(false)
-      setError("Failed to update principal sponsor")
-      setTimeout(() => setError(null), 3000)
-    }
-  }
-
-  const handleDeleteSponsor = async (sponsor: PrincipalSponsor) => {
-    const displayName = `${sponsor.MalePrincipalSponsor} & ${sponsor.FemalePrincipalSponsor}`
-    if (!confirm(`Are you sure you want to delete ${displayName}?`)) {
+        })
+      : await run("Adding sponsors…", "/api/principal-sponsor", "POST", sponsorFormData)
+    if (!ok) {
+      showError(editing ? "We couldn't update these sponsors. Please try again." : "We couldn't add these sponsors. Please try again.")
       return
     }
+    const name = sponsorLabel(sponsorFormData)
+    closeSponsorForm()
+    setDone({
+      eyebrow: "Principal sponsors updated",
+      title: editing ? "Changes Saved" : "Sponsors Added",
+      name,
+      text: editing ? "are up to date in your principal sponsors." : "are now listed as your principal sponsors.",
+    })
+    onRefreshSponsors()
+  }
 
-    setIsProcessing(true)
-    setProcessingAction("Deleting principal sponsor")
+  // ── Delete (after confirmation) ────────────────────────────────────────
+  const runDelete = async () => {
+    if (!confirm) return
+    const target = confirm
+    setConfirm(null)
 
-    try {
-      const response = await fetch("/api/principal-sponsor", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          MalePrincipalSponsor: sponsor.MalePrincipalSponsor,
-          FemalePrincipalSponsor: sponsor.FemalePrincipalSponsor,
-        }),
+    if (target.kind === "entourage") {
+      const ok = await run("Removing member…", "/api/entourage", "DELETE", { Name: target.member.Name })
+      if (!ok) return showError("We couldn't remove this member. Please try again.")
+      setDone({ eyebrow: "Entourage updated", title: "Member Removed", name: target.member.Name, text: "has been removed from your entourage.", deleted: true })
+      onRefreshEntourage()
+      window.dispatchEvent(new Event("entourageUpdated"))
+    } else {
+      const ok = await run("Removing sponsors…", "/api/principal-sponsor", "DELETE", {
+        MalePrincipalSponsor: target.sponsor.MalePrincipalSponsor,
+        FemalePrincipalSponsor: target.sponsor.FemalePrincipalSponsor,
       })
-
-      if (!response.ok) {
-        throw new Error("Failed to delete principal sponsor")
-      }
-
-      setIsProcessing(false)
-      setSuccessMessage("Principal sponsor deleted successfully!")
-      setTimeout(() => setSuccessMessage(null), 3000)
+      if (!ok) return showError("We couldn't remove these sponsors. Please try again.")
+      setDone({
+        eyebrow: "Principal sponsors updated",
+        title: "Sponsors Removed",
+        name: sponsorLabel(target.sponsor),
+        text: "have been removed from your principal sponsors.",
+        deleted: true,
+      })
       onRefreshSponsors()
-    } catch (error) {
-      console.error("Error deleting principal sponsor:", error)
-      setIsProcessing(false)
-      setError("Failed to delete principal sponsor")
-      setTimeout(() => setError(null), 3000)
     }
   }
+
+  const openAdd = () => {
+    if (activeSubTab === "entourage") {
+      setEditingEntourage(null)
+      setEntourageFormData(roleFilter !== "all" ? { ...EMPTY_MEMBER, RoleCategory: roleFilter } : EMPTY_MEMBER)
+      setShowEntourageModal(true)
+    } else {
+      setEditingSponsor(null)
+      setSponsorFormData(EMPTY_SPONSOR)
+      setShowSponsorModal(true)
+    }
+  }
+
+  const mobileActionBtn = "flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border text-sm font-medium transition-colors"
+  const emptyState = (title: string, text: string, icon: ReactNode) => (
+    <div className="rounded-xl border border-[#DDE5D4] bg-white px-6 py-12 text-center">
+      <span className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#F7F9F4] text-[#AAB9A0]">{icon}</span>
+      <h3 className={`${playfair.className} text-lg font-semibold text-[#304A34]`}>{title}</h3>
+      <p className="mt-1 text-sm text-gray-500">{text}</p>
+    </div>
+  )
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-[#111827]">Entourage & Principal Sponsors</h2>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Heading */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-bold text-[#111827] sm:text-2xl">Entourage & Principal Sponsors</h2>
+        <button
+          type="button"
+          onClick={() => (activeSubTab === "entourage" ? onRefreshEntourage() : onRefreshSponsors())}
+          disabled={isLoading}
+          className="inline-flex items-center gap-1.5 rounded-full border border-[#DDE5D4] bg-white px-3 py-1.5 text-xs font-medium text-[#4F674D] transition-colors hover:bg-[#F7F9F4] disabled:opacity-50"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
+          Refresh
+        </button>
       </div>
-
-      {/* Success/Error Messages */}
-      {successMessage && (
-        <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
-          <CheckCircle className="h-5 w-5 flex-shrink-0" />
-          <span>{successMessage}</span>
-          <button onClick={() => setSuccessMessage(null)} className="ml-auto">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="ml-auto">
+        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span className="flex-1">{error}</span>
+          <button onClick={() => setError(null)} aria-label="Dismiss">
             <X className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {/* Sub Tabs */}
-      <div className="bg-white rounded-xl p-2 shadow-sm border border-[#E5E7EB]">
-        <div className="flex gap-2">
-          <button
-            onClick={() => setActiveSubTab("entourage")}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-              activeSubTab === "entourage"
-                ? "bg-[#FBFCF7] text-[#304A34] shadow-sm"
-                : "text-[#6B7280] hover:bg-[#F9FAFB]"
-            }`}
-          >
-            <Crown className="h-5 w-5" />
-            Entourage ({entourage.length})
-          </button>
-          <button
-            onClick={() => setActiveSubTab("sponsors")}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-              activeSubTab === "sponsors"
-                ? "bg-[#FBFCF7] text-[#304A34] shadow-sm"
-                : "text-[#6B7280] hover:bg-[#F9FAFB]"
-            }`}
-          >
-            <UserCheck className="h-5 w-5" />
-            Principal Sponsors ({principalSponsors.length})
-          </button>
-        </div>
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
+        {[
+          { label: "Entourage", value: entourage.length, tone: "border-[#DDE5D4] bg-white text-[#4F674D]" },
+          { label: "Role groups", value: roleCategories.length, tone: "border-amber-200 bg-amber-50 text-amber-700" },
+          { label: "Sponsor pairs", value: principalSponsors.length, tone: "border-purple-200 bg-purple-50 text-purple-700" },
+          { label: "Sponsors", value: sponsorPeople, tone: "border-blue-200 bg-blue-50 text-blue-700" },
+        ].map((stat) => (
+          <div key={stat.label} className={`rounded-lg border p-3 shadow-sm sm:p-4 ${stat.tone}`}>
+            <div className="text-xl font-bold sm:text-2xl">{stat.value}</div>
+            <div className="text-[10px] uppercase tracking-wide text-gray-600 sm:text-xs">{stat.label}</div>
+          </div>
+        ))}
       </div>
 
-      {/* Search and Add */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-[#E5E7EB]">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex-1 w-full">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#6B7280]" />
+      {/* Segmented switch */}
+      <div className="grid grid-cols-2 gap-1 rounded-xl border border-[#DDE5D4] bg-[#F7F9F4] p-1" role="tablist">
+        {(
+          [
+            { id: "entourage", label: "Entourage", short: "Entourage", count: entourage.length, icon: <Crown className="h-4 w-4 shrink-0" /> },
+            { id: "sponsors", label: "Principal Sponsors", short: "Sponsors", count: principalSponsors.length, icon: <UserCheck className="h-4 w-4 shrink-0" /> },
+          ] as const
+        ).map((tab) => {
+          const active = activeSubTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={active}
+              onClick={() => {
+                setActiveSubTab(tab.id)
+                setSearchQuery("")
+              }}
+              className={`flex items-center justify-center gap-1.5 rounded-lg px-2 py-2.5 text-xs font-semibold transition-all sm:gap-2 sm:text-sm ${
+                active ? "bg-white text-[#304A34] shadow-sm ring-1 ring-[#DDE5D4]" : "text-gray-500 hover:text-[#304A34]"
+              }`}
+            >
+              {tab.icon}
+              <span className="sm:hidden">{tab.short}</span>
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${active ? "bg-[#EEF2EA] text-[#4F674D]" : "bg-white/70 text-gray-500"}`}>
+                {tab.count}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Search + add */}
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={activeSubTab === "entourage" ? "Search by name, role or email..." : "Search sponsors..."}
+            className="w-full rounded-lg border border-[#DDE5D4] bg-white py-2.5 pl-10 pr-4 outline-none focus:ring-2 focus:ring-[#9EAF91]"
+          />
+        </div>
+        <Button onClick={openAdd} className="h-11 rounded-full bg-gradient-to-r from-[#4F674D] to-[#304A34] px-6 text-white hover:brightness-110 sm:h-10">
+          <Plus className="mr-1.5 h-4 w-4" />
+          {activeSubTab === "entourage" ? "Add Member" : "Add Sponsors"}
+        </Button>
+      </div>
+
+      {/* Role filter chips (entourage) */}
+      {activeSubTab === "entourage" && roleCategories.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {["all", ...roleCategories].map((cat) => {
+            const active = roleFilter === cat
+            const count = cat === "all" ? entourage.length : entourage.filter((m) => m.RoleCategory?.trim() === cat).length
+            return (
+              <button
+                key={cat}
+                onClick={() => setRoleFilter(cat)}
+                className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  active ? "border-[#718566] bg-[#718566] text-white" : "border-[#DDE5D4] bg-white text-gray-600 hover:text-[#304A34]"
+                }`}
+              >
+                {cat === "all" ? "All roles" : cat} <span className={active ? "text-white/80" : "text-gray-400"}>{count}</span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {/* ── Entourage list ─────────────────────────────────────────────── */}
+      {activeSubTab === "entourage" &&
+        (filteredEntourage.length === 0 ? (
+          emptyState(
+            query || roleFilter !== "all" ? "No matching members" : "No entourage yet",
+            isLoading
+              ? "Loading entourage..."
+              : query || roleFilter !== "all"
+                ? "Try a different name or role."
+                : "Add your wedding party, or send proposal invites — confirmed roles appear here.",
+            <Crown className="h-7 w-7" />,
+          )
+        ) : (
+          <>
+            <div className="space-y-3 md:hidden">
+              {filteredEntourage.map((member, index) => (
+                <div key={`${member.Name}-${index}`} className="rounded-xl border border-[#DDE5D4] bg-white p-4 shadow-sm">
+                  <div className="flex items-start gap-3">
+                    <span className={`${cinzel.className} flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF2EA] text-xs font-semibold text-[#4F674D]`}>
+                      {member.Name.trim().charAt(0).toUpperCase() || "?"}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-gray-900 [overflow-wrap:anywhere]">{member.Name}</p>
+                      <div className="mt-1 flex flex-wrap gap-1.5">
+                        {member.RoleCategory && (
+                          <span className="rounded-full bg-[#F4F5EA] px-2.5 py-0.5 text-[11px] font-medium text-[#304A34]">{member.RoleCategory}</span>
+                        )}
+                        {member.RoleTitle && member.RoleTitle !== member.RoleCategory && (
+                          <span className="rounded-full border border-[#DDE5D4] px-2.5 py-0.5 text-[11px] text-gray-500">{member.RoleTitle}</span>
+                        )}
+                      </div>
+                      {member.Email && member.Email !== "Pending" && (
+                        <p className="mt-1.5 text-xs text-gray-500 [overflow-wrap:anywhere]">{member.Email}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-3 flex gap-2 border-t border-[#EEF2EA] pt-3">
+                    <button onClick={() => startEditEntourage(member)} className={`${mobileActionBtn} border-[#DDE5D4] text-[#304A34] active:bg-[#F7F9F4]`}>
+                      <Edit2 className="h-4 w-4" /> Edit
+                    </button>
+                    <button onClick={() => setConfirm({ kind: "entourage", member })} className={`${mobileActionBtn} border-red-100 text-red-600 active:bg-red-50`}>
+                      <Trash2 className="h-4 w-4" /> Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden overflow-hidden rounded-xl border border-[#DDE5D4] bg-white shadow-sm md:block">
+              <table className="w-full text-left">
+                <thead className="bg-[#DDE5D4] text-[#304A34]">
+                  <tr>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase lg:px-6">Name</th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase lg:px-6">Role</th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase lg:px-6">Title</th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase lg:px-6">Email</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold uppercase lg:px-6">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#DDE5D4]">
+                  {filteredEntourage.map((member, index) => (
+                    <tr key={`${member.Name}-${index}`} className="transition-colors hover:bg-gray-50">
+                      <td className="px-4 py-4 font-medium text-gray-800 lg:px-6">{member.Name}</td>
+                      <td className="px-4 py-4 lg:px-6">
+                        {member.RoleCategory ? (
+                          <span className="rounded-full bg-[#F4F5EA] px-2.5 py-1 text-xs font-medium text-[#304A34]">{member.RoleCategory}</span>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-600 lg:px-6">{member.RoleTitle || "—"}</td>
+                      <td className="px-4 py-4 text-xs text-gray-500 lg:px-6">
+                        {member.Email && member.Email !== "Pending" ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Mail className="h-3 w-3" />
+                            {member.Email}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className="px-4 py-4 lg:px-6">
+                        <div className="flex items-center justify-end gap-3">
+                          <button onClick={() => startEditEntourage(member)} className="text-blue-500 transition-colors hover:text-blue-700" title="Edit">
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => setConfirm({ kind: "entourage", member })}
+                            className="text-red-500 transition-colors hover:text-red-700"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ))}
+
+      {/* ── Sponsor list ───────────────────────────────────────────────── */}
+      {activeSubTab === "sponsors" &&
+        (filteredSponsors.length === 0 ? (
+          emptyState(
+            query ? "No matching sponsors" : "No principal sponsors yet",
+            isLoading ? "Loading principal sponsors..." : query ? "Try a different name." : "Add your Ninong and Ninang pairs here.",
+            <HeartHandshake className="h-7 w-7" />,
+          )
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {filteredSponsors.map((sponsor, index) => (
+              <div key={`${sponsorLabel(sponsor)}-${index}`} className="group rounded-2xl border border-[#DDE5D4] bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <p className={`${cinzel.className} text-[10px] font-semibold uppercase tracking-[0.24em] text-[#718566]`}>Pair {index + 1}</p>
+                  <HeartHandshake className="h-4 w-4 text-[#C3CFB8]" aria-hidden />
+                </div>
+                <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                  <div className="min-w-0 rounded-xl bg-[#F7F9F4] px-3 py-2.5 text-center">
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Ninong</p>
+                    <p className={`${playfair.className} mt-0.5 text-sm font-semibold text-[#304A34] [overflow-wrap:anywhere]`}>
+                      {sponsor.MalePrincipalSponsor || "—"}
+                    </p>
+                  </div>
+                  <span className={`${playfair.className} text-lg italic text-[#AAB9A0]`} aria-hidden>&amp;</span>
+                  <div className="min-w-0 rounded-xl bg-[#F7F9F4] px-3 py-2.5 text-center">
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Ninang</p>
+                    <p className={`${playfair.className} mt-0.5 text-sm font-semibold text-[#304A34] [overflow-wrap:anywhere]`}>
+                      {sponsor.FemalePrincipalSponsor || "—"}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 flex gap-2 border-t border-[#EEF2EA] pt-3">
+                  <button onClick={() => startEditSponsor(sponsor)} className={`${mobileActionBtn} border-[#DDE5D4] text-[#304A34] hover:bg-[#F7F9F4]`}>
+                    <Edit2 className="h-4 w-4" /> Edit
+                  </button>
+                  <button onClick={() => setConfirm({ kind: "sponsor", sponsor })} className={`${mobileActionBtn} border-red-100 text-red-600 hover:bg-red-50`}>
+                    <Trash2 className="h-4 w-4" /> Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+
+      {/* ── Forms ──────────────────────────────────────────────────────── */}
+      {entourageFormOpen && (
+        <FormSheet
+          eyebrow="Wedding Party"
+          title={editingEntourage ? "Edit Member" : "Add Member"}
+          subtitle={editingEntourage ? "Update this member's name or role." : "Add someone to your entourage."}
+          onClose={closeEntourageForm}
+          onSubmit={() => void saveEntourage()}
+          busy={Boolean(busy)}
+          submitLabel={editingEntourage ? "Save Changes" : "Add Member"}
+          help={{
+            title: (
+              <>
+                <span className="text-[#4F674D]">{entourageFormData.Name.trim() || "This member"}</span> will appear in the Entourage section of
+                your invitation.
+              </>
+            ),
+            points: [
+              <>
+                <span className="font-medium">Role</span> is the group heading they&apos;re listed under (e.g., Bridesmaids).
+              </>,
+              <>
+                <span className="font-medium">Title</span> is their own label within the group (e.g., Maid of Honor).
+              </>,
+              "Pick a role from the list so they land in the right group; a new role shows as its own group.",
+              "People who accept a proposal invite are added here automatically.",
+            ],
+          }}
+        >
+          <div className="space-y-1">
+            <FieldLabel htmlFor="ent-name" required>Full name</FieldLabel>
+            <input
+              id="ent-name"
+              required
+              autoComplete="off"
+              value={entourageFormData.Name}
+              onChange={(e) => setEntourageFormData({ ...entourageFormData, Name: e.target.value })}
+              placeholder="e.g., Maria Santos"
+              className={FIELD}
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1">
+              <FieldLabel htmlFor="ent-role" required>Role</FieldLabel>
+              <RoleCombobox
+                value={entourageFormData.RoleCategory}
+                onChange={(v) => setEntourageFormData((f) => ({ ...f, RoleCategory: v }))}
+                options={roleSuggestions}
+              />
+            </div>
+            <div className="space-y-1">
+              <FieldLabel htmlFor="ent-title">Title</FieldLabel>
               <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={`Search ${activeSubTab}...`}
-                className="w-full pl-10 pr-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none transition-all"
+                id="ent-title"
+                value={entourageFormData.RoleTitle}
+                onChange={(e) => setEntourageFormData({ ...entourageFormData, RoleTitle: e.target.value })}
+                placeholder="e.g., Maid of Honor"
+                className={FIELD}
               />
             </div>
           </div>
-          <Button
-            onClick={() => {
-              if (activeSubTab === "entourage") {
-                setShowEntourageModal(true)
-                setEditingEntourage(null)
-                setEntourageFormData({ Name: "", RoleCategory: "", RoleTitle: "", Email: "" })
-              } else {
-                setShowSponsorModal(true)
-                setEditingSponsor(null)
-                setSponsorFormData({ MalePrincipalSponsor: "", FemalePrincipalSponsor: "" })
-              }
-            }}
-            className="bg-gradient-to-r from-[#4F674D] to-[#304A34] hover:from-[#304A34] hover:to-[#4F674D] text-white"
+          <div className="space-y-1">
+            <FieldLabel htmlFor="ent-email">Email</FieldLabel>
+            <input
+              id="ent-email"
+              type="email"
+              value={entourageFormData.Email}
+              onChange={(e) => setEntourageFormData({ ...entourageFormData, Email: e.target.value })}
+              placeholder="name@example.com"
+              className={FIELD}
+            />
+          </div>
+        </FormSheet>
+      )}
+
+      {sponsorFormOpen && (
+        <FormSheet
+          eyebrow="Principal Sponsors"
+          title={editingSponsor ? "Edit Sponsors" : "Add Sponsors"}
+          subtitle="Add a Ninong and Ninang pair. At least one name is needed."
+          onClose={closeSponsorForm}
+          onSubmit={() => void saveSponsor()}
+          busy={Boolean(busy)}
+          submitLabel={editingSponsor ? "Save Changes" : "Add Sponsors"}
+          help={{
+            title: "Each pair appears together under Principal Sponsors on your invitation.",
+            points: [
+              "Ninong is listed on the left, Ninang on the right.",
+              "Add titles you'd like shown (e.g., Mr., Mrs., Dr.).",
+              "If one side is still unknown, leave it blank and fill it in later.",
+              "Sponsors who accept a proposal invite are added here automatically.",
+            ],
+          }}
+        >
+          <div className="space-y-1">
+            <FieldLabel htmlFor="sp-male">Ninong</FieldLabel>
+            <input
+              id="sp-male"
+              autoComplete="off"
+              value={sponsorFormData.MalePrincipalSponsor}
+              onChange={(e) => setSponsorFormData({ ...sponsorFormData, MalePrincipalSponsor: e.target.value })}
+              placeholder="e.g., Mr. Jose Santos"
+              className={FIELD}
+            />
+          </div>
+          <div className="space-y-1">
+            <FieldLabel htmlFor="sp-female">Ninang</FieldLabel>
+            <input
+              id="sp-female"
+              autoComplete="off"
+              value={sponsorFormData.FemalePrincipalSponsor}
+              onChange={(e) => setSponsorFormData({ ...sponsorFormData, FemalePrincipalSponsor: e.target.value })}
+              placeholder="e.g., Mrs. Ana Santos"
+              className={FIELD}
+            />
+          </div>
+        </FormSheet>
+      )}
+
+      {/* ── Delete confirmation ────────────────────────────────────────── */}
+      {confirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[#1F2A1E]/45 p-0 backdrop-blur-[2px] sm:items-center sm:p-4"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="ent-confirm-title"
+          onClick={() => setConfirm(null)}
+        >
+          <div
+            className="dash-sheet w-full max-w-sm overflow-hidden rounded-t-3xl border border-[#E8DCDC] bg-[#FBFCF7] shadow-[0_30px_60px_-25px_rgba(31,42,30,0.55)] sm:rounded-3xl"
+            onClick={(e) => e.stopPropagation()}
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Add {activeSubTab === "entourage" ? "Entourage" : "Sponsor"}
-          </Button>
-        </div>
-      </div>
-
-      {/* Entourage List */}
-      {activeSubTab === "entourage" && (
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                <tr>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#111827]">Name</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#111827]">Role Category</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#111827]">Role Title</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#111827]">Email</th>
-                  <th className="text-center px-6 py-4 text-sm font-semibold text-[#111827]">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E5E7EB]">
-                {filteredEntourage.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-[#6B7280]">
-                      {isLoading ? "Loading entourage..." : "No entourage members found"}
-                    </td>
-                  </tr>
-                ) : (
-                  filteredEntourage.map((member, index) => (
-                    <tr key={index} className="hover:bg-[#F9FAFB] transition-colors">
-                      <td className="px-6 py-4 font-medium text-[#111827]">{member.Name}</td>
-                      <td className="px-6 py-4 text-[#6B7280]">{member.RoleCategory || "-"}</td>
-                      <td className="px-6 py-4 text-[#6B7280]">{member.RoleTitle || "-"}</td>
-                      <td className="px-6 py-4 text-[#6B7280]">
-                        {member.Email && member.Email !== "Pending" ? member.Email : "-"}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => {
-                              setEditingEntourage(member)
-                              setEntourageFormData({
-                                Name: member.Name,
-                                RoleCategory: member.RoleCategory,
-                                RoleTitle: member.RoleTitle,
-                                Email: member.Email || "",
-                              })
-                            }}
-                            className="p-2 text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#304A34] rounded-lg transition-colors"
-                            title="Edit"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteEntourage(member.Name)}
-                            className="p-2 text-[#6B7280] hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Principal Sponsors List */}
-      {activeSubTab === "sponsors" && (
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E7EB] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                <tr>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#111827]">Male Principal Sponsor</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-[#111827]">Female Principal Sponsor</th>
-                  <th className="text-center px-6 py-4 text-sm font-semibold text-[#111827]">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E5E7EB]">
-                {filteredSponsors.length === 0 ? (
-                  <tr>
-                    <td colSpan={3} className="px-6 py-12 text-center text-[#6B7280]">
-                      {isLoading ? "Loading principal sponsors..." : "No principal sponsors found"}
-                    </td>
-                  </tr>
-                ) : (
-                  filteredSponsors.map((sponsor, index) => (
-                    <tr key={index} className="hover:bg-[#F9FAFB] transition-colors">
-                      <td className="px-6 py-4 font-medium text-[#111827]">{sponsor.MalePrincipalSponsor}</td>
-                      <td className="px-6 py-4 font-medium text-[#111827]">{sponsor.FemalePrincipalSponsor}</td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => {
-                              setEditingSponsor(sponsor)
-                              setSponsorFormData({
-                                MalePrincipalSponsor: sponsor.MalePrincipalSponsor,
-                                FemalePrincipalSponsor: sponsor.FemalePrincipalSponsor,
-                              })
-                            }}
-                            className="p-2 text-[#6B7280] hover:bg-[#F9FAFB] hover:text-[#304A34] rounded-lg transition-colors"
-                            title="Edit"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteSponsor(sponsor)}
-                            className="p-2 text-[#6B7280] hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Entourage Modal */}
-      {(showEntourageModal || editingEntourage) && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-[#111827]">
-                {editingEntourage ? "Edit Entourage Member" : "Add Entourage Member"}
+            <div className="px-6 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-center sm:pt-7 sm:pb-6">
+              <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-gray-300/70 sm:hidden" aria-hidden />
+              <span className="dash-pop-badge mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F7ECEC] ring-8 ring-[#FBF4F4]">
+                <AlertTriangle className="h-6 w-6 text-[#A04A4A]" />
+              </span>
+              <p className={`${cinzel.className} mt-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#A04A4A]/80`}>
+                {confirm.kind === "entourage" ? "Remove member" : "Remove sponsors"}
+              </p>
+              <h3 id="ent-confirm-title" className={`${playfair.className} mt-1 text-[1.4rem] font-semibold leading-tight text-[#304A34]`}>
+                {confirm.kind === "entourage" ? "Remove from entourage?" : "Remove this sponsor pair?"}
               </h3>
-              <button
-                onClick={() => {
-                  setShowEntourageModal(false)
-                  setEditingEntourage(null)
-                  setEntourageFormData({ Name: "", RoleCategory: "", RoleTitle: "", Email: "" })
-                }}
-                className="p-2 hover:bg-[#F9FAFB] rounded-lg transition-colors"
-              >
-                <X className="h-5 w-5 text-[#6B7280]" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">Name *</label>
-                <input
-                  type="text"
-                  value={entourageFormData.Name}
-                  onChange={(e) => setEntourageFormData({ ...entourageFormData, Name: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
-                  placeholder="Enter name"
-                />
+              <div className="mx-auto mt-4 max-w-[17rem] rounded-2xl border border-[#DDE5D4] bg-white px-4 py-3">
+                <p className={`${playfair.className} text-base font-semibold text-[#304A34] [overflow-wrap:anywhere]`}>
+                  {confirm.kind === "entourage" ? confirm.member.Name : sponsorLabel(confirm.sponsor)}
+                </p>
+                {confirm.kind === "entourage" && (confirm.member.RoleTitle || confirm.member.RoleCategory) && (
+                  <p className="mt-0.5 text-xs text-gray-500">{confirm.member.RoleTitle || confirm.member.RoleCategory}</p>
+                )}
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">Role Category</label>
-                <input
-                  type="text"
-                  value={entourageFormData.RoleCategory}
-                  onChange={(e) => setEntourageFormData({ ...entourageFormData, RoleCategory: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
-                  placeholder="e.g., Bridesmaid, Groomsman"
-                />
+              <p className="mx-auto mt-3 max-w-[17rem] text-sm leading-relaxed text-gray-600">
+                {confirm.kind === "entourage"
+                  ? "They'll no longer appear in your entourage on the invitation. This can't be undone."
+                  : "They'll no longer appear as principal sponsors on the invitation. This can't be undone."}
+              </p>
+              <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row">
+                <Button
+                  type="button"
+                  variant="outline"
+                  autoFocus
+                  onClick={() => setConfirm(null)}
+                  className="h-11 w-full rounded-full border-[#DDE5D4] bg-white text-sm font-medium text-[#304A34] hover:bg-[#F7F9F4] sm:flex-1"
+                >
+                  Keep
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => void runDelete()}
+                  className="h-11 w-full rounded-full bg-gradient-to-r from-[#B05555] to-[#8E3B3B] text-sm font-semibold text-white shadow-[0_10px_22px_-10px_rgba(142,59,59,0.7)] transition-all hover:brightness-110 active:scale-[0.99] sm:flex-1"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Yes, Remove
+                </Button>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">Role Title</label>
-                <input
-                  type="text"
-                  value={entourageFormData.RoleTitle}
-                  onChange={(e) => setEntourageFormData({ ...entourageFormData, RoleTitle: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
-                  placeholder="e.g., Maid of Honor, Best Man"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">Email</label>
-                <input
-                  type="email"
-                  value={entourageFormData.Email}
-                  onChange={(e) => setEntourageFormData({ ...entourageFormData, Email: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
-                  placeholder="Enter email"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <Button
-                onClick={() => {
-                  setShowEntourageModal(false)
-                  setEditingEntourage(null)
-                  setEntourageFormData({ Name: "", RoleCategory: "", RoleTitle: "", Email: "" })
-                }}
-                variant="outline"
-                className="flex-1 border-[#E5E7EB] text-[#6B7280]"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={editingEntourage ? handleUpdateEntourage : handleAddEntourage}
-                className="flex-1 bg-gradient-to-r from-[#4F674D] to-[#304A34] hover:from-[#304A34] hover:to-[#4F674D] text-white"
-              >
-                {editingEntourage ? "Update" : "Add"} Member
-              </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Principal Sponsor Modal */}
-      {(showSponsorModal || editingSponsor) && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-[#111827]">
-                {editingSponsor ? "Edit Principal Sponsor" : "Add Principal Sponsor"}
+      {/* ── Working (delete; form saves show inside the button) ───────── */}
+      {busy && !entourageFormOpen && !sponsorFormOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#1F2A1E]/45 p-4 backdrop-blur-[2px]" role="status" aria-live="polite">
+          <div className="dash-pop w-full max-w-xs rounded-3xl border border-[#DDE5D4] bg-[#FBFCF7] p-7 text-center shadow-2xl">
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[#DDE5D4] border-t-[#4F674D]" />
+            <h3 className={`${playfair.className} text-lg font-semibold text-[#304A34]`}>{busy}</h3>
+            <p className="mt-1 text-xs text-gray-500">This only takes a moment.</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Success ────────────────────────────────────────────────────── */}
+      {done && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1F2A1E]/45 p-4 backdrop-blur-[2px]"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ent-done-title"
+        >
+          <div className="dash-pop relative w-full max-w-sm overflow-hidden rounded-3xl border border-[#DDE5D4] bg-[#FBFCF7] shadow-[0_30px_60px_-25px_rgba(31,42,30,0.55)]">
+            <div className="relative overflow-hidden bg-gradient-to-br from-[#718566] via-[#4F674D] to-[#304A34] px-6 pt-7 pb-12 text-center">
+              <span className="pointer-events-none absolute -left-10 -top-10 h-32 w-32 rounded-full bg-white/10" aria-hidden />
+              <span className="pointer-events-none absolute -right-8 top-6 h-20 w-20 rounded-full bg-white/10" aria-hidden />
+              <p className={`${cinzel.className} relative text-[10px] font-semibold uppercase tracking-[0.3em] text-white/75`}>{done.eyebrow}</p>
+              <h3 id="ent-done-title" className={`${playfair.className} relative mt-1.5 text-[1.6rem] font-semibold leading-tight text-white`}>
+                {done.title}
               </h3>
-              <button
-                onClick={() => {
-                  setShowSponsorModal(false)
-                  setEditingSponsor(null)
-                  setSponsorFormData({ MalePrincipalSponsor: "", FemalePrincipalSponsor: "" })
-                }}
-                className="p-2 hover:bg-[#F9FAFB] rounded-lg transition-colors"
-              >
-                <X className="h-5 w-5 text-[#6B7280]" />
-              </button>
             </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">Male Principal Sponsor</label>
-                <input
-                  type="text"
-                  value={sponsorFormData.MalePrincipalSponsor}
-                  onChange={(e) => setSponsorFormData({ ...sponsorFormData, MalePrincipalSponsor: e.target.value })}
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
-                  placeholder="Enter male sponsor name"
-                />
+            <div className="relative -mt-9 flex justify-center">
+              <span className="dash-pop-badge flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full border-4 border-[#FBFCF7] bg-white shadow-lg">
+                <span
+                  className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                    done.deleted ? "bg-[#F3EAEA] text-[#9B4C4C]" : "bg-[#EEF2EA] text-[#4F674D]"
+                  }`}
+                >
+                  {done.deleted ? <Trash2 className="h-6 w-6" /> : <Check className="h-7 w-7" strokeWidth={2.5} />}
+                </span>
+              </span>
+            </div>
+            <div className="px-6 pt-4 pb-6 text-center">
+              <p className={`${playfair.className} text-lg font-semibold text-[#304A34] [overflow-wrap:anywhere]`}>{done.name}</p>
+              <div className="mx-auto mt-2 flex w-24 items-center gap-1.5" aria-hidden>
+                <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#AAB9A0]" />
+                <span className="h-1 w-1 rotate-45 bg-[#718566]" />
+                <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#AAB9A0]" />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">Female Principal Sponsor</label>
-                <input
-                  type="text"
-                  value={sponsorFormData.FemalePrincipalSponsor}
-                  onChange={(e) =>
-                    setSponsorFormData({ ...sponsorFormData, FemalePrincipalSponsor: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none"
-                  placeholder="Enter female sponsor name"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
+              <p className="mx-auto mt-3 max-w-[17rem] text-sm leading-relaxed text-gray-600">{done.text}</p>
               <Button
-                onClick={() => {
-                  setShowSponsorModal(false)
-                  setEditingSponsor(null)
-                  setSponsorFormData({ MalePrincipalSponsor: "", FemalePrincipalSponsor: "" })
-                }}
-                variant="outline"
-                className="flex-1 border-[#E5E7EB] text-[#6B7280]"
+                onClick={() => setDone(null)}
+                className="mt-6 h-11 w-full rounded-full bg-gradient-to-r from-[#4F674D] to-[#304A34] text-sm font-semibold tracking-wide text-white shadow-[0_10px_22px_-10px_rgba(48,74,52,0.7)] transition-all hover:brightness-110 active:scale-[0.99]"
               >
-                Cancel
+                Done
               </Button>
-              <Button
-                onClick={editingSponsor ? handleUpdateSponsor : handleAddSponsor}
-                className="flex-1 bg-gradient-to-r from-[#4F674D] to-[#304A34] hover:from-[#304A34] hover:to-[#4F674D] text-white"
-              >
-                {editingSponsor ? "Update" : "Add"} Sponsor
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Loading Modal */}
-      {isProcessing && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-[#E5E7EB] border-t-[#4F674D] rounded-full animate-spin mx-auto mb-4"></div>
-              <h3 className="text-xl font-bold text-[#111827] mb-2">{processingAction}...</h3>
-              <p className="text-sm text-[#6B7280]">Please wait while we process your request</p>
             </div>
           </div>
         </div>
@@ -703,4 +1060,3 @@ export function EntourageSponsors({
     </div>
   )
 }
-
