@@ -318,14 +318,14 @@ export const siteConfig = {
     backgroundMusic: BRAND.backgroundMusic,
   },
   googleAPI:{
-    messageForm: "https://docs.google.com/forms/d/e/1FAIpQLSca1e79uyyBKmkGGQcyYuttA337arthx8cLTsIevSEPim6zHg/formResponse",   //done
-    message: "https://script.google.com/macros/s/AKfycbzNiuhmvI-7DX64h7crCq3NT5YodXqliMCY2oAddqqE1UVj-xpCBeADkj5sIekhmEZK/exec",  //done
-    guestList: "https://script.google.com/macros/s/AKfycbxet5dATlP3E-z74lGMO46wZVoCXs5thvptztX3uSkewfltRJYOPSB0iHcA4s1aZnWy/exec",  //done
-    guestRequest: "https://script.google.com/macros/s/AKfycbxgDT8bNXtI8mfgU1sYPW1Q5W8chFUdhMqeX8uaIGqGrCoiNCHixEUVJmMw7LBehFI/exec",   //done
-    entourage: "https://script.google.com/macros/s/AKfycbwqSbhBP2TnMRoxKcIVqoY6nIRheDSXBo1KS-AW_yyN8Uh-r1FEsVXD0HEHmjCRzP1j/exec",  //done
-    sponsors: "https://script.google.com/macros/s/AKfycbyfcBSMRoBbedn_h1l806MPuSFufBFgpwwPyyDbSPmzJPVuST2r-6trfrcbhMlRxpfX/exec",  //done 
+    messageForm: "https://docs.google.com/forms/d/e/1FAIpQLSegw4bHofUAKJHcoN5MF5Cllnzbw6eM05NLdX3caKO5OjF_9w/formResponse",   //done
+    message: "https://script.google.com/macros/s/AKfycbzMDf8s5dqA-f1Z4Don-y5Enjq1Xn2oSWoWIefnr7MkhtJUWvxOXMsPUmDlr-XmvdWa/exec",  //done
+    guestList: "https://script.google.com/macros/s/AKfycbxxP6-xxvvVhNNGBuwPDsU1jDJJV74Siou6nHsrX9nwVwKjm3tAhBZ-7kgitNRaxpYZ/exec",  //done
+    guestRequest: "https://script.google.com/macros/s/AKfycbxj-Si9B3PEzI6VJsgcYbWwItrzZBitbwUrIcrqPYKu6OCAQcp0aP6FeQpziuIeiVdR/exec",   //done
+    entourage: "https://script.google.com/macros/s/AKfycbzPTHITvdCC8F5Uwx8qGS-ZVT0diXSf14QfNCOTLKrslRvFcy0G-f6MhEUyHCcZtMv6/exec",  //done
+    sponsors: "https://script.google.com/macros/s/AKfycbxkcbOQn0rIJ_-AYi-DdzFamgIS4U41Pv3eGn3szonzbYEasSe3P_Pua0PrEPm4A9_Y/exec",  //done 
 ////google share 
-    googleShare: "https://docs.google.com/spreadsheets/d/1YzvB4E1VXbNYeqfXxbzo88AzdmPjEO3LMCKzh4srQRk/edit?usp=sharing",
+    googleShare: "https://docs.google.com/spreadsheets/d/1qMv6vQJUEmU_FtswtDQ1D7MLoEP-kW_HTSrz4WMurAA/edit?usp=sharing",
     videoMessageForm:
       "https://docs.google.com/forms/d/e/1FAIpQLSfeGlEl4CMXWefdvCw6AOPHFS1ROku_rs-Gbofa2LkVJ0sLGQ/viewform", 
   },
@@ -1280,7 +1280,7 @@ Now, as they prepare to say yes before God and the people they love most, Cather
   // Snap & Share (components/sections/snap-share.tsx). {couple} → "Groom & Bride" nicknames.
   snapShare: {
     googleDriveLink:
-      "https://drive.google.com/drive/folders/1XWGl7DCog_VTfCOCMz4Sp-7LXTD27ak1?usp=sharing",
+      "https://drive.google.com/drive/folders/1Xyqy5xqY9CINoBP8eGYGjbmWBULq0kpm?usp=sharing",
     albumQR: "/QR/AlbumQR.png",
     hashtag: HASHTAGS,
     instructions: "Please scan this QR Code and upload the photos and videos you have taken during our wedding reception. We are delighted to see your snaps too!",
