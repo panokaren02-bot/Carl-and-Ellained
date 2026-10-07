@@ -321,7 +321,7 @@ export const siteConfig = {
     message: "https://script.google.com/macros/s/AKfycbxGujZOqAlCyFxztMaxIezUpylUODNgI4W4mmps6Ot0C1Ka8sPEKIr22ywMcpX2ItET/exec",  //done
     guestList: "https://script.google.com/macros/s/AKfycbzjNZHSIZw8ccDdWiZHD0uGl6cZJb1Fgqdq3Q2yGZPNWGzfhWT9ISJBJOpTEm5vQDEI/exec",  //done
     guestRequest: "https://script.google.com/macros/s/AKfycbwI0mx9ufWHIHYBSyzE9gORBOnM9IN4rm-9IsJd9J1NWhjueA8wlrpQ30TzplPSWCh4/exec",   //done
-    entourage: "https://script.google.com/macros/s/AKfycbz6KGt6qWIrEhLEC5wZXIr3ALy8COUl2euEk2gtEmEoTg3h1ome_RSsvWUE0Pz2YAH6/exec",  //done
+    entourage: "https://script.google.com/macros/s/AKfycbzODfaLzIby874R00CNgsODHfoBvzxQOw64nGxdGgFURPpt2Xo70v7KYsB5eY8epnBJ/exec",  //done
     sponsors: "https://script.google.com/macros/s/AKfycbw7FEGNwHGTxSy41k_cMZP3fzbQZFDG6Iq5Rs9K4Pwm8z1IglNj1Isl3d0rdhzVEuU1/exec",  //done 
 ////google share 
     googleShare: "https://docs.google.com/spreadsheets/d/1tNrAdJJQDMQtVl9I6ncbw5wLpsiER5UA4ELCMDI4nfw/edit?usp=sharing",
