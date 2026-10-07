@@ -305,13 +305,32 @@ const ROLE_CATEGORY_ORDER = [
   "Veil Sponsors",
   "Cord Sponsors",
   "Ribbon Sponsors",
+  "Little Love Bearer",
+  "Candle Bearer",
   "Little Groom",
   "Little Bride",
+  // Ring | Coin side by side, Bible centered below (see BEARER_BLOCK_CATEGORIES)
   "Ring Bearer",
-  "Bible Bearer",
   "Coin Bearer",
+  "Bible Bearer",
+  // Side-by-side pairs (see PAIRED_COLUMN_SECTIONS)
+  "Little Tiny Groom",
+  "Little Promise Bearer",
+  "Little Groomsmen",
+  "Little Bridesmaids",
   "Flower Ladies",
 ]
+
+const BEARER_BLOCK_CATEGORIES = ["Ring Bearer", "Coin Bearer", "Bible Bearer"] as const
+
+// Two categories shown as left | right columns under their own titles
+const PAIRED_COLUMN_SECTIONS: { key: string; left: string; right: string }[] = [
+  { key: "LittleTinyGroomPromise", left: "Little Tiny Groom", right: "Little Promise Bearer" },
+  { key: "LittleGroomsmenBridesmaids", left: "Little Groomsmen", right: "Little Bridesmaids" },
+]
+
+// Secondary sponsor groups whose names are split into two columns
+const TWO_COLUMN_SECONDARY_GROUPS = new Set(["Little Love Bearer", "Candle Bearer", "Cord Sponsors"])
 
 const SINGLE_COLUMN_SECTIONS = new Set([
   "Best Man",
@@ -361,6 +380,8 @@ function normalizeRoleCategory(category: string): string {
   }
   const alias = honorAliases[normalized.toLowerCase()]
   if (alias) return alias
+  if (/^little love bearers?$/i.test(normalized)) return "Little Love Bearer"
+  if (/^candle bearers?$/i.test(normalized)) return "Candle Bearer"
   if (normalized.toLowerCase() === "peer sponsors") {
     return "Peer Sponsors"
   }
@@ -645,6 +666,27 @@ export function Entourage() {
         )}
       </div>
     )
+  }
+
+  // Rows of left | right names (right-aligned left column, left-aligned right column)
+  const renderPairRows = (keyPrefix: string, left: EntourageMember[], right: EntourageMember[]) => {
+    const maxLen = Math.max(left.length, right.length)
+    const rows = []
+    for (let i = 0; i < maxLen; i++) {
+      const l = left[i]
+      const r = right[i]
+      rows.push(
+        <React.Fragment key={`${keyPrefix}-row-${i}`}>
+          <div className="px-0.5 sm:px-1 md:px-1.5 min-w-0 overflow-hidden">
+            {l ? <NameItem member={l} align="right" /> : <div className="py-0.5" />}
+          </div>
+          <div className="px-0.5 sm:px-1 md:px-1.5 min-w-0 overflow-hidden">
+            {r ? <NameItem member={r} align="left" /> : <div className="py-0.5" />}
+          </div>
+        </React.Fragment>
+      )
+    }
+    return rows
   }
 
   const TwoColumnLayout = ({
@@ -1219,6 +1261,74 @@ export function Entourage() {
                   )
                 }
 
+                // Ring Bearer | Coin Bearer side by side, Bible Bearer centered below
+                if ((BEARER_BLOCK_CATEGORIES as readonly string[]).includes(category)) {
+                  const firstBearer = BEARER_BLOCK_CATEGORIES.find((c) => (grouped[c]?.length ?? 0) > 0)
+                  if (category !== firstBearer) return null
+                  const ringBearer = grouped["Ring Bearer"] || []
+                  const coinBearer = grouped["Coin Bearer"] || []
+                  const bibleBearer = grouped["Bible Bearer"] || []
+                  const hasSidePair = ringBearer.length > 0 || coinBearer.length > 0
+
+                  return (
+                    <div key="BearerBlock">
+                      {categoryIndex > 0 && (
+                        <div className="flex justify-center py-2 sm:py-2.5 md:py-3 mb-2 sm:mb-2.5 md:mb-3">
+                          <div className="w-full max-w-md h-px" style={dividerLineStyle} />
+                        </div>
+                      )}
+                      {hasSidePair && (
+                        <TwoColumnLayout
+                          leftTitle={ringBearer.length > 0 ? "Ring Bearer" : undefined}
+                          rightTitle={coinBearer.length > 0 ? "Coin Bearer" : undefined}
+                        >
+                          {renderPairRows("bearer", ringBearer, coinBearer)}
+                        </TwoColumnLayout>
+                      )}
+                      {bibleBearer.length > 0 && (
+                        <TwoColumnLayout singleTitle="Bible Bearer" centerContent={true}>
+                          <div className="col-span-full">
+                            <div className="flex flex-col items-center gap-5 sm:gap-6">
+                              {bibleBearer.map((member, idx) => (
+                                <NameItem key={`bible-bearer-${idx}-${member.name}`} member={member} align="center" />
+                              ))}
+                            </div>
+                          </div>
+                        </TwoColumnLayout>
+                      )}
+                    </div>
+                  )
+                }
+
+                // Two categories side by side (e.g. Little Tiny Groom | Little Promise Bearer)
+                const pairedSection = PAIRED_COLUMN_SECTIONS.find(
+                  (pair) => pair.left === category || pair.right === category
+                )
+                if (pairedSection) {
+                  const leftMembers = grouped[pairedSection.left] || []
+                  const rightMembers = grouped[pairedSection.right] || []
+                  const firstPresent = [pairedSection.left, pairedSection.right].find(
+                    (c) => (grouped[c]?.length ?? 0) > 0
+                  )
+                  if (category !== firstPresent) return null
+
+                  return (
+                    <div key={pairedSection.key}>
+                      {categoryIndex > 0 && (
+                        <div className="flex justify-center py-2 sm:py-2.5 md:py-3 mb-2 sm:mb-2.5 md:mb-3">
+                          <div className="w-full max-w-md h-px" style={dividerLineStyle} />
+                        </div>
+                      )}
+                      <TwoColumnLayout
+                        leftTitle={leftMembers.length > 0 ? pairedSection.left : undefined}
+                        rightTitle={rightMembers.length > 0 ? pairedSection.right : undefined}
+                      >
+                        {renderPairRows(pairedSection.key, leftMembers, rightMembers)}
+                      </TwoColumnLayout>
+                    </div>
+                  )
+                }
+
                 // Special handling for Little Groom and Little Bride - combine into single two-column layout
                 if (category === "Little Groom" || category === "Little Bride") {
                   // Get both little ones groups
@@ -1365,16 +1475,34 @@ export function Entourage() {
                   return null
                 }
 
-                // Secondary Sponsors block: render all three groups under one heading
-                if (category === "Candle Sponsors" || category === "Veil Sponsors" || category === "Cord Sponsors" || category === "Ribbon Sponsors") {
+                // Secondary Sponsors block: render all groups under one heading
+                const secondarySponsorGroups = [
+                  "Candle Sponsors",
+                  "Veil Sponsors",
+                  "Cord Sponsors",
+                  "Ribbon Sponsors",
+                  "Little Love Bearer",
+                  "Candle Bearer",
+                ] as const
+                if ((secondarySponsorGroups as readonly string[]).includes(category)) {
                   // Only render the full block once — when processing the first one that exists in order
-                  const secondarySponsorGroups = ["Candle Sponsors", "Veil Sponsors", "Cord Sponsors", "Ribbon Sponsors"] as const
                   const firstPresentGroup = secondarySponsorGroups.find((g) => (grouped[g]?.length ?? 0) > 0)
                   if (category !== firstPresentGroup) return null
 
                   const renderPairedGroup = (groupName: string) => {
                     const grpMembers = grouped[groupName] || []
                     if (grpMembers.length === 0) return null
+                    // Names split into left | right columns
+                    if (TWO_COLUMN_SECONDARY_GROUPS.has(groupName) && grpMembers.length > 1) {
+                      const half = Math.ceil(grpMembers.length / 2)
+                      return (
+                        <div key={groupName} className="mb-2 sm:mb-2.5 md:mb-3">
+                          <TwoColumnLayout singleTitle={displayRoleCategory(groupName)} centerContent={true}>
+                            {renderPairRows(groupName, grpMembers.slice(0, half), grpMembers.slice(half))}
+                          </TwoColumnLayout>
+                        </div>
+                      )
+                    }
                     return (
                       <div key={groupName} className="mb-2 sm:mb-2.5 md:mb-3">
                         <TwoColumnLayout singleTitle={displayRoleCategory(groupName)} centerContent={true}>

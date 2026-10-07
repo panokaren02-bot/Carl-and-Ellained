@@ -240,7 +240,7 @@ const ATTIRE = {
 // NEXT_PUBLIC_SITE_URL (env) overrides this when set.
 const SITE_URL = "https://jv-and-jemiree.weddinginvitationrsvp.com/"
 // Image shown when the link is shared (Facebook, Messenger, Viber, X, …) — 1200×630 JPG in /public
-const LINK_PREVIEW_IMAGE = "/Details/LinkPreviewnew.png"
+const LINK_PREVIEW_IMAGE = "/Details/LinkPreview.png"
 
 // Site address with env override applied and no trailing slash — no need to edit
 export const canonicalSiteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? SITE_URL).replace(/\/$/, "")
@@ -317,14 +317,14 @@ export const siteConfig = {
     backgroundMusic: BRAND.backgroundMusic,
   },
   googleAPI:{
-    messageForm: "https://docs.google.com/forms/d/e/1FAIpQLSegw4bHofUAKJHcoN5MF5Cllnzbw6eM05NLdX3caKO5OjF_9w/formResponse",   //done
-    message: "https://script.google.com/macros/s/AKfycbzMDf8s5dqA-f1Z4Don-y5Enjq1Xn2oSWoWIefnr7MkhtJUWvxOXMsPUmDlr-XmvdWa/exec",  //done
-    guestList: "https://script.google.com/macros/s/AKfycbxxP6-xxvvVhNNGBuwPDsU1jDJJV74Siou6nHsrX9nwVwKjm3tAhBZ-7kgitNRaxpYZ/exec",  //done
-    guestRequest: "https://script.google.com/macros/s/AKfycbxj-Si9B3PEzI6VJsgcYbWwItrzZBitbwUrIcrqPYKu6OCAQcp0aP6FeQpziuIeiVdR/exec",   //done
-    entourage: "https://script.google.com/macros/s/AKfycbzPTHITvdCC8F5Uwx8qGS-ZVT0diXSf14QfNCOTLKrslRvFcy0G-f6MhEUyHCcZtMv6/exec",  //done
-    sponsors: "https://script.google.com/macros/s/AKfycbxkcbOQn0rIJ_-AYi-DdzFamgIS4U41Pv3eGn3szonzbYEasSe3P_Pua0PrEPm4A9_Y/exec",  //done 
+    messageForm: "https://docs.google.com/forms/d/e/1FAIpQLSeKU3VDbGp78i8cG3IcsAS8bu4lE2bK7hJGqxmaDdqSHwnfhQ/formResponse",   //done
+    message: "https://script.google.com/macros/s/AKfycbxGujZOqAlCyFxztMaxIezUpylUODNgI4W4mmps6Ot0C1Ka8sPEKIr22ywMcpX2ItET/exec",  //done
+    guestList: "https://script.google.com/macros/s/AKfycbzjNZHSIZw8ccDdWiZHD0uGl6cZJb1Fgqdq3Q2yGZPNWGzfhWT9ISJBJOpTEm5vQDEI/exec",  //done
+    guestRequest: "https://script.google.com/macros/s/AKfycbwI0mx9ufWHIHYBSyzE9gORBOnM9IN4rm-9IsJd9J1NWhjueA8wlrpQ30TzplPSWCh4/exec",   //done
+    entourage: "https://script.google.com/macros/s/AKfycbz6KGt6qWIrEhLEC5wZXIr3ALy8COUl2euEk2gtEmEoTg3h1ome_RSsvWUE0Pz2YAH6/exec",  //done
+    sponsors: "https://script.google.com/macros/s/AKfycbw7FEGNwHGTxSy41k_cMZP3fzbQZFDG6Iq5Rs9K4Pwm8z1IglNj1Isl3d0rdhzVEuU1/exec",  //done 
 ////google share 
-    googleShare: "https://docs.google.com/spreadsheets/d/1qMv6vQJUEmU_FtswtDQ1D7MLoEP-kW_HTSrz4WMurAA/edit?usp=sharing",
+    googleShare: "https://docs.google.com/spreadsheets/d/1tNrAdJJQDMQtVl9I6ncbw5wLpsiER5UA4ELCMDI4nfw/edit?usp=sharing",
     videoMessageForm:
       "https://docs.google.com/forms/d/e/1FAIpQLSfeGlEl4CMXWefdvCw6AOPHFS1ROku_rs-Gbofa2LkVJ0sLGQ/viewform", 
   },
@@ -1484,7 +1484,7 @@ Now, as they prepare to say yes before God and the people they love most, Cather
   // Snap & Share (components/sections/snap-share.tsx). {couple} → "Groom & Bride" nicknames.
   snapShare: {
     googleDriveLink:
-      "https://drive.google.com/drive/folders/1Xyqy5xqY9CINoBP8eGYGjbmWBULq0kpm?usp=sharing",
+      "https://drive.google.com/drive/folders/1He7ZrfQI357gHcd0nLD7O56nou11fIk_?usp=sharing",
     albumQR: "/QR/AlbumQR.png",
     hashtag: HASHTAGS,
     instructions: "Please scan this QR Code and upload the photos and videos you have taken during our wedding reception. We are delighted to see your snaps too!",
