@@ -18,6 +18,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { useSiteConfig } from "@/hooks/use-site-config"
+import { PlainBubbles } from "@/components/loader/PlainBubbles"
 import { sectionType } from "@/lib/section-typography"
 import { Cinzel } from "next/font/google"
 
@@ -39,29 +40,40 @@ const aboveTheBeyond = localFont({
 })
 
 // Palette lives in globals.css → motif / welcome tokens.
+// Cards are plain light with teal text; buttons are coral (#D96F70).
+const TEAL = "#16828F"
+const BUTTON = "#D96F70"
+const BUTTON_HOVER = "color-mix(in srgb, #D96F70 85%, black)"
 const IVORY = "var(--color-motif-soft)"
-const PAPER = "var(--color-welcome-bg-soft)"
-const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 55%, transparent)"
-const DEEP_GRADIENT =
-  "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)"
+const PAPER = "var(--color-motif-soft)"
+const HAIRLINE = "color-mix(in srgb, #16828F 22%, transparent)"
 
 const palette = {
-  body: "var(--color-welcome-text)",
-  soft: "var(--color-welcome-text-soft)",
-  heading: "var(--color-welcome-navy)",
-  label: "var(--color-motif-accent)",
-  accent: "var(--color-motif-deep)",
+  body: TEAL,
+  soft: "color-mix(in srgb, #16828F 70%, transparent)",
+  heading: TEAL,
+  label: TEAL,
+  accent: TEAL,
 } as const
 
-const sectionBg = `
-  radial-gradient(820px 460px at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 75%, transparent) 0%, transparent 65%),
-  radial-gradient(560px 380px at 0% 70%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
-  radial-gradient(560px 380px at 100% 90%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
-  linear-gradient(180deg, var(--color-motif-cream) 0%, var(--color-welcome-bg-soft) 55%, var(--color-motif-silver) 100%)
-`.trim()
+// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+const sectionBg = "var(--color-bg-pattern-base)"
+
+// Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
+const onBg = {
+  color: "var(--color-on-pattern)",
+  textShadow: "0 1px 0 var(--color-on-pattern-glow), 0 2px 12px var(--color-on-pattern-glow)",
+} as const
+
+// Same, for the softer lines in the bottom bar
+const onBgSoft = { ...onBg, color: "var(--color-on-pattern-soft)" } as const
+
+const onBgLineStyle = {
+  background: "var(--color-on-pattern-line)",
+} as const
 
 const dividerLineStyle = {
-  background: "linear-gradient(to right, transparent, var(--color-motif-medium), transparent)",
+  background: "linear-gradient(to right, transparent, color-mix(in srgb, #16828F 40%, transparent), transparent)",
 } as const
 
 const CORNER_DECO_CLASS =
@@ -75,9 +87,9 @@ const ct = {
 } as const
 
 const cardStyle = {
-  background: `linear-gradient(180deg, ${PAPER} 0%, var(--color-motif-cream) 100%)`,
+  background: PAPER,
   boxShadow:
-    "0 22px 48px -28px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
+    "0 22px 48px -28px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)",
 } as const
 
 type IconProps = { className?: string }
@@ -158,14 +170,6 @@ function SpecialCharFont({ text }: { text: string }) {
 function FooterCard({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <div className={`relative w-full min-w-0 overflow-hidden rounded-[1.5rem] p-5 sm:p-6 ${className}`} style={cardStyle}>
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-24"
-        style={{
-          background:
-            "radial-gradient(60% 100% at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 70%, transparent), transparent)",
-        }}
-      />
       <div className="relative z-[1] min-w-0">{children}</div>
     </div>
   )
@@ -242,6 +246,53 @@ export function Footer() {
     el.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 
+  // Same layout as the Event Details section: one combined row, or separate ceremony / reception rows
+  const { ceremony, reception } = siteConfig
+  const venues = siteConfig.eventDetails.venues
+  const isCombined = venues.layout === "combined"
+  type SummaryRow = {
+    key: string
+    Icon: typeof Church
+    label: string
+    place: string
+    times: { label: string; time: string; showLabel: boolean }[]
+  }
+  const summaryRows: SummaryRow[] = isCombined
+    ? [
+        {
+          key: "combined",
+          Icon: Church,
+          label: venues.combined.badge,
+          place: ceremony.location,
+          times: [
+            { label: venues.combined.ceremonyLabel, time: ceremony.time, showLabel: true },
+            ...(venues.combined.showReceptionTime
+              ? [{ label: venues.combined.receptionLabel, time: reception.time, showLabel: true }]
+              : []),
+          ].filter((t) => t.time),
+        },
+      ]
+    : [
+        ...(venues.ceremony.show
+          ? [{
+              key: "ceremony",
+              Icon: Church,
+              label: content.summary.ceremonyLabel,
+              place: ceremony.location,
+              times: ceremony.time ? [{ label: content.summary.ceremonyLabel, time: ceremony.time, showLabel: false }] : [],
+            }]
+          : []),
+        ...(venues.reception.show
+          ? [{
+              key: "reception",
+              Icon: GlassWater,
+              label: content.summary.receptionLabel,
+              place: reception.location,
+              times: reception.time ? [{ label: content.summary.receptionLabel, time: reception.time, showLabel: false }] : [],
+            }]
+          : []),
+      ].filter((row) => row.place || row.times.length > 0)
+
   const initial = reduceMotion ? false : "hidden"
 
   return (
@@ -249,6 +300,9 @@ export function Footer() {
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
+      {/* Same circle pattern as the hero */}
+      <PlainBubbles />
+
       {/* Corner decorations (from site.ts) */}
       <div className="pointer-events-none absolute left-0 top-0 z-10">
         <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
@@ -279,7 +333,8 @@ export function Footer() {
               aria-label={`${coupleDisplayName} monogram`}
               className="block h-32 w-32 sm:h-40 sm:w-40 md:h-48 md:w-48"
               style={{
-                background: DEEP_GRADIENT,
+                background: "var(--color-on-pattern)",
+                filter: "drop-shadow(0 2px 10px var(--color-on-pattern-glow))",
                 WebkitMaskImage: `url("${siteConfig.couple.monogram}")`,
                 maskImage: `url("${siteConfig.couple.monogram}")`,
                 WebkitMaskSize: "contain",
@@ -299,12 +354,12 @@ export function Footer() {
           <motion.h2
             variants={rise}
             className={`${theSeasons.className} mt-4 text-2xl uppercase tracking-[0.12em] sm:mt-5 sm:text-3xl md:text-4xl`}
-            style={{ color: palette.heading }}
+            style={onBg}
           >
             {groomName}
             <span
               className={`${aboveTheBeyond.className} mx-2 inline-block normal-case tracking-normal sm:mx-3`}
-              style={{ color: "var(--color-welcome-script)", fontSize: "1.1em" }}
+              style={{ fontSize: "1.1em" }}
               aria-hidden
             >
               &amp;
@@ -317,16 +372,16 @@ export function Footer() {
             <motion.p
               variants={rise}
               className={`${cinzel.className} mt-2 text-[0.7rem] font-semibold uppercase tracking-[0.28em] sm:text-xs`}
-              style={{ color: palette.label }}
+              style={onBg}
             >
               {ceremonyDate}
             </motion.p>
           ) : null}
 
           <motion.div variants={rise} className="mt-4 flex items-center justify-center gap-2" aria-hidden>
-            <span className="h-px w-12 sm:w-20" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-medium))" }} />
-            <span className="h-1.5 w-1.5 rotate-45" style={{ background: palette.label }} />
-            <span className="h-px w-12 sm:w-20" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-medium))" }} />
+            <span className="h-px w-12 sm:w-20" style={{ background: "var(--color-on-pattern-line)" }} />
+            <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-on-pattern-line)" }} />
+            <span className="h-px w-12 sm:w-20" style={{ background: "var(--color-on-pattern-line)" }} />
           </motion.div>
         </motion.div>
 
@@ -369,7 +424,7 @@ export function Footer() {
                         className="h-1.5 rounded-full transition-all duration-500"
                         style={{
                           width: i === currentQuoteIndex ? "1.25rem" : "0.375rem",
-                          background: i === currentQuoteIndex ? palette.label : "var(--color-motif-medium)",
+                          background: i === currentQuoteIndex ? palette.label : "color-mix(in srgb, #16828F 25%, transparent)",
                         }}
                       />
                     ))}
@@ -384,7 +439,7 @@ export function Footer() {
                 <div className="flex items-start gap-3">
                   <span
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                    style={{ background: DEEP_GRADIENT }}
+                    style={{ background: TEAL }}
                     aria-hidden
                   >
                     <CalendarHeart className="h-4.5 w-4.5" style={{ color: IVORY }} />
@@ -397,60 +452,50 @@ export function Footer() {
                   </div>
                 </div>
 
-                {/* Day at a glance — ceremony & reception */}
-                {content.summary.show && (
+                {/* Day at a glance — mirrors the Event Details cards (eventDetails.venues.layout) */}
+                {content.summary.show && summaryRows.length > 0 && (
                   <div className="mt-4 space-y-2">
-                    {[
-                      {
-                        key: "ceremony",
-                        Icon: Church,
-                        label: content.summary.ceremonyLabel,
-                        time: siteConfig.ceremony.time,
-                        place: siteConfig.ceremony.location,
-                      },
-                      {
-                        key: "reception",
-                        Icon: GlassWater,
-                        label: content.summary.receptionLabel,
-                        time: siteConfig.reception.time,
-                        place: siteConfig.reception.location,
-                      },
-                    ]
-                      .filter((row) => row.time || row.place)
-                      .map(({ key, Icon, label, time, place }) => (
-                        <div
-                          key={key}
-                          className="flex items-start gap-3 rounded-2xl px-3 py-2.5"
-                          style={{ background: "color-mix(in srgb, var(--color-motif-silver) 45%, transparent)" }}
+                    {summaryRows.map(({ key, Icon, label, place, times }) => (
+                      <div
+                        key={key}
+                        className="flex items-start gap-3 rounded-2xl px-3 py-2.5"
+                        style={{ background: "color-mix(in srgb, #16828F 7%, transparent)" }}
+                      >
+                        <span
+                          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+                          style={{ background: IVORY, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+                          aria-hidden
                         >
-                          <span
-                            className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-                            style={{ background: IVORY, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
-                            aria-hidden
-                          >
-                            <Icon className="h-4 w-4" style={{ color: palette.accent }} />
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-                              <p className={`${cinzel.className} text-[0.66rem] font-semibold uppercase tracking-[0.16em]`} style={{ color: palette.heading }}>
-                                {label}
-                              </p>
-                              {time ? (
-                                <p className={`${cinzel.className} inline-flex items-center gap-1 text-[0.68rem] font-semibold tracking-[0.06em]`} style={{ color: palette.label }}>
+                          <Icon className="h-4 w-4" style={{ color: palette.accent }} />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className={`${cinzel.className} text-[0.66rem] font-semibold uppercase tracking-[0.16em]`} style={{ color: palette.heading }}>
+                            {label}
+                          </p>
+                          {place ? (
+                            <p className={`font-goudy-italic mt-0.5 flex items-start gap-1 text-[0.82rem] leading-snug`} style={{ color: palette.body }}>
+                              <MapPin className="mt-[0.2em] h-3 w-3 shrink-0" style={{ color: palette.soft }} aria-hidden />
+                              <span className="min-w-0">{place}</span>
+                            </p>
+                          ) : null}
+                          {times.length > 0 && (
+                            <div className="mt-1.5 flex flex-wrap gap-1.5">
+                              {times.map((t) => (
+                                <span
+                                  key={t.label}
+                                  className={`${cinzel.className} inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.62rem] font-semibold tracking-[0.06em]`}
+                                  style={{ background: IVORY, color: palette.label, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+                                >
                                   <Clock className="h-3 w-3" aria-hidden />
-                                  {time}
-                                </p>
-                              ) : null}
+                                  {t.showLabel ? <span className="uppercase tracking-[0.12em]">{t.label}</span> : null}
+                                  {t.time}
+                                </span>
+                              ))}
                             </div>
-                            {place ? (
-                              <p className={`font-goudy-italic mt-0.5 flex items-start gap-1 text-[0.82rem] leading-snug`} style={{ color: palette.body }}>
-                                <MapPin className="mt-[0.2em] h-3 w-3 shrink-0" style={{ color: "var(--color-motif-medium)" }} aria-hidden />
-                                <span className="min-w-0">{place}</span>
-                              </p>
-                            ) : null}
-                          </div>
+                          )}
                         </div>
-                      ))}
+                      </div>
+                    ))}
                   </div>
                 )}
 
@@ -474,10 +519,10 @@ export function Footer() {
                       onClick={scrollTo(content.rsvp.href)}
                       className={`${cinzel.className} ${ct.label} mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-full border px-5 py-2.5 font-semibold uppercase tracking-[0.14em] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 active:scale-[0.98]`}
                       style={{
-                        background: DEEP_GRADIENT,
-                        borderColor: "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)",
+                        background: BUTTON,
+                        borderColor: BUTTON,
                         color: IVORY,
-                        boxShadow: "0 12px 24px -12px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)",
+                        boxShadow: "0 12px 24px -12px color-mix(in srgb, #D96F70 60%, transparent)",
                       }}
                     >
                       {content.rsvp.button}
@@ -513,14 +558,12 @@ export function Footer() {
                             title={label}
                             aria-label={label}
                             className="group inline-flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-0.5"
-                            style={{ background: IVORY, color: palette.accent, boxShadow: `inset 0 0 0 1px ${HAIRLINE}, 0 6px 14px -10px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)` }}
+                            style={{ background: BUTTON, color: IVORY, boxShadow: "0 6px 14px -8px color-mix(in srgb, #D96F70 70%, transparent)" }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.background = DEEP_GRADIENT
-                              e.currentTarget.style.color = IVORY
+                              e.currentTarget.style.background = BUTTON_HOVER
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.background = IVORY
-                              e.currentTarget.style.color = palette.accent
+                              e.currentTarget.style.background = BUTTON
                             }}
                           >
                             <Icon className="h-4 w-4 sm:h-[1.1rem] sm:w-[1.1rem]" />
@@ -540,26 +583,26 @@ export function Footer() {
                       href={item.href}
                       onClick={scrollTo(item.href)}
                       className="group flex min-w-0 items-center justify-between gap-1.5 rounded-full py-2 pl-3.5 pr-2 transition-all duration-300 hover:-translate-y-0.5"
-                      style={{ background: IVORY, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+                      style={{ background: BUTTON }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = "inset 0 0 0 1px color-mix(in srgb, var(--color-motif-accent) 55%, transparent), 0 8px 18px -12px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)"
+                        e.currentTarget.style.background = BUTTON_HOVER
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = `inset 0 0 0 1px ${HAIRLINE}`
+                        e.currentTarget.style.background = BUTTON
                       }}
                     >
                       <span
                         className={`${cinzel.className} min-w-0 truncate text-[0.64rem] font-semibold uppercase tracking-[0.12em] sm:text-[0.68rem]`}
-                        style={{ color: palette.heading }}
+                        style={{ color: IVORY }}
                       >
                         {item.label}
                       </span>
                       <span
                         className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-colors duration-300"
-                        style={{ background: "color-mix(in srgb, var(--color-motif-silver) 70%, transparent)" }}
+                        style={{ background: "color-mix(in srgb, var(--color-motif-soft) 22%, transparent)" }}
                         aria-hidden
                       >
-                        <ChevronRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" style={{ color: palette.accent }} />
+                        <ChevronRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" style={{ color: IVORY }} />
                       </span>
                     </a>
                   ))}
@@ -570,40 +613,40 @@ export function Footer() {
 
           {/* Bottom bar */}
           <div className="pt-6 sm:pt-8">
-            <span className="mb-6 block h-px w-full sm:mb-8" style={dividerLineStyle} aria-hidden />
+            <span className="mb-6 block h-px w-full sm:mb-8" style={onBgLineStyle} aria-hidden />
             <div className="flex flex-col items-center justify-between gap-4 text-center md:flex-row md:gap-6 md:text-left">
               <div className="min-w-0">
-                <p className={`font-goudy-italic ${ct.body}`} style={{ color: palette.body }}>
+                <p className={`font-goudy-italic ${ct.body}`} style={{ ...onBg, fontWeight: 600 }}>
                   {fill(content.copyright)}
                 </p>
                 {content.tagline ? (
-                  <p className={`font-goudy-italic mt-1 ${ct.body}`} style={{ color: palette.soft }}>
+                  <p className={`font-goudy-italic mt-1 ${ct.body}`} style={onBgSoft}>
                     {fill(content.tagline)}
                   </p>
                 ) : null}
               </div>
               {content.credit.show && (
                 <div className="min-w-0 space-y-1 md:text-right">
-                  <p className={`font-goudy-italic ${ct.body}`} style={{ color: palette.soft }}>
+                  <p className={`font-goudy-italic ${ct.body}`} style={onBgSoft}>
                     {content.credit.developedBy}{" "}
                     <a
                       href={content.credit.developerUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold underline decoration-[var(--color-motif-medium)] underline-offset-2 hover:opacity-80"
-                      style={{ color: palette.accent }}
+                      className="font-semibold underline decoration-[var(--color-on-pattern-line)] underline-offset-2 hover:opacity-80"
+                      style={{ color: "var(--color-on-pattern)" }}
                     >
                       {content.credit.developerName}
                     </a>
                   </p>
-                  <p className={`font-goudy-italic ${ct.body}`} style={{ color: palette.soft }}>
+                  <p className={`font-goudy-italic ${ct.body}`} style={onBgSoft}>
                     {content.credit.promoText}{" "}
                     <a
                       href={content.credit.promoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold underline decoration-[var(--color-motif-medium)] underline-offset-2 hover:opacity-80"
-                      style={{ color: palette.accent }}
+                      className="font-semibold underline decoration-[var(--color-on-pattern-line)] underline-offset-2 hover:opacity-80"
+                      style={{ color: "var(--color-on-pattern)" }}
                     >
                       {content.credit.promoName}
                     </a>

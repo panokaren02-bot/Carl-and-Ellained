@@ -101,7 +101,7 @@ function MessageCard({ msg }: { msg: Message }) {
         </button>
       </header>
 
-      <div className="relative mt-3 flex-1 rounded-xl border border-[#EEF2EA] bg-gradient-to-br from-[#FBFCF7] to-[#F4F5EA] px-4 pt-4 pb-3">
+      <div className="relative mt-3 flex-1 rounded-xl border border-[#EEF2EA] bg-[#F8F9F1] px-4 pt-4 pb-3">
         <Quote className="absolute left-3 top-3 h-5 w-5 rotate-180 text-[#C3CFB8]" aria-hidden />
         <p
           className={`${playfair.className} whitespace-pre-wrap pl-6 text-[0.95rem] italic leading-relaxed text-[#304A34] [overflow-wrap:anywhere] sm:text-base ${

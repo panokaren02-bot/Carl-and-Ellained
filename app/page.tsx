@@ -84,14 +84,8 @@ const sectionsRevealVariants = {
   },
 }
 
-/** WebGL Silk needs hex; read motif token from globals.css when available. */
-const SILK_COLOR_FALLBACK = "#9EAF91" // --color-welcome-gold
-
-function readMotifHexVar(name: string, fallback: string) {
-  if (typeof window === "undefined") return fallback
-  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-  return /^#[\da-fA-F]{6}$/.test(raw) ? raw : fallback
-}
+/** WebGL Silk needs a hex color. */
+const SILK_COLOR = "#16828F"
 
 export default function Home() {
   // Skip loading/landing only when returning from /gallery.
@@ -116,11 +110,6 @@ export default function Home() {
   )
   const [heroEnterFromLoading, setHeroEnterFromLoading] = useState(false)
   const [enteringFromInvite, setEnteringFromInvite] = useState(false)
-  const [silkColor, setSilkColor] = useState(SILK_COLOR_FALLBACK)
-
-  useEffect(() => {
-    setSilkColor(readMotifHexVar("--color-welcome-gold", SILK_COLOR_FALLBACK))
-  }, [])
 
   // When returning from /gallery, scroll to the #gallery hash in the URL
   useEffect(() => {
@@ -226,7 +215,7 @@ export default function Home() {
                   <Silk
                     speed={8}
                     scale={0.9}
-                    color={silkColor}
+                    color={SILK_COLOR}
                     noiseIntensity={0}
                     rotation={0.3}
                   />
@@ -263,16 +252,17 @@ export default function Home() {
               >
                <Welcome />
               {/* <CoupleVideo />  */}
-              {/* <LoveStory /> */}
+              <LoveStory />
               <Countdown />
               {/* <Gallery /> */}
               {/* <MessageVideo /> */}
-              <Messages />
+              
               <Details />
               <WeddingTimeline />
               <Entourage />
               <GuestList />
               <BookOfGuests />
+              <Messages />
               <FAQ />
               <Registry />
               <WeddingPlaylist /> 

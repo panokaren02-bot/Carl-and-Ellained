@@ -20,6 +20,7 @@ import { parseWeddingDate } from '@/lib/wedding-date';
 import { InviteParticles } from '@/components/loader/InviteParticles';
 import { InvitePhotoBackdrop } from '@/components/loader/invite-photo-backdrop';
 import { PlainAtmosphere } from '@/components/loader/PlainAtmosphere';
+import { PlainBubbles } from '@/components/loader/PlainBubbles';
 import './envelope-invite.css';
 
 interface HeroProps {
@@ -30,6 +31,9 @@ interface HeroProps {
 }
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+// Short joining words in the headline ("Save the Date") are set in script — matches the loading screen
+const SCRIPT_WORDS = new Set(['the', 'of', 'and', '&', 'a']);
 
 function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
@@ -87,6 +91,7 @@ export const Hero: React.FC<HeroProps> = ({
   const isPlain = content.display === 'plain';
   const plainTheme = content.plainTheme ?? defaultSiteConfig.loadingScreen.plainTheme;
   const cornerDecos = content.cornerDecos ?? defaultSiteConfig.loadingScreen.cornerDecos;
+  const plainInvite = content.plainInvite ?? defaultSiteConfig.loadingScreen.plainInvite;
   const reduceMotion = useReducedMotion();
   const openedRef = useRef(false);
   const enterBtnRef = useRef<HTMLButtonElement>(null);
@@ -482,7 +487,7 @@ export const Hero: React.FC<HeroProps> = ({
 
   return (
     <motion.div
-      className={`env-invite-screen${isPlain ? ' env-invite-screen--plain' : ''} ${visible ? '' : 'is-hidden'}`}
+      className={`env-invite-screen${isPlain ? ' env-invite-screen--plain' : ''}${isPlain && enterFromLoading && visible && !reduceMotion ? ' is-arriving' : ''} ${visible ? '' : 'is-hidden'}`}
       data-phase={isExiting ? 'exiting' : phase}
       aria-hidden={!visible}
       initial={false}
@@ -491,7 +496,10 @@ export const Hero: React.FC<HeroProps> = ({
           ? { opacity: 0, y: 0, scale: 1 }
           : visible
             ? { opacity: 1, y: 0, scale: 1 }
-            : { opacity: 0, y: 18, scale: 0.985 }
+            : isPlain
+              ? // plain: the background matches the loader's, so only fade — the envelope itself arrives (CSS .is-arriving)
+                { opacity: 0, y: 0, scale: 1 }
+              : { opacity: 0, y: 18, scale: 0.985 }
       }
       transition={
         isExiting
@@ -518,6 +526,7 @@ export const Hero: React.FC<HeroProps> = ({
       {isPlain && (
         <>
           <PlainAtmosphere fixed baseColor={plainTheme.background} />
+          <PlainBubbles fixed />
           <div className="env-invite-plain-corners" aria-hidden="true">
             {(
               [
@@ -677,7 +686,30 @@ export const Hero: React.FC<HeroProps> = ({
                   >
                     <div className="env-invite-letter-frame" aria-hidden="true" />
                     <div className="env-invite-letter-inner">
-                      <span className="env-invite-letter-label">{content.headline}</span>
+                      {isPlain && plainInvite.ornament && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={plainInvite.ornament}
+                          alt=""
+                          aria-hidden="true"
+                          className="env-invite-letter-ornament"
+                        />
+                      )}
+                      <span className="env-invite-letter-label" aria-label={content.headline}>
+                        {content.headline.split(/\s+/).filter(Boolean).map((word, i) => (
+                          <span
+                            key={i}
+                            aria-hidden="true"
+                            className={
+                              SCRIPT_WORDS.has(word.toLowerCase())
+                                ? 'env-invite-letter-label__script'
+                                : 'env-invite-letter-label__word'
+                            }
+                          >
+                            {word}
+                          </span>
+                        ))}
+                      </span>
                       <span className="env-invite-letter-date">{letterDateNumeric}</span>
                       <span className="env-invite-letter-invited">{content.eyebrow}</span>
                       <div

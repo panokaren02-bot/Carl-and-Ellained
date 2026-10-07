@@ -8,6 +8,7 @@ import { useSiteConfig } from "@/hooks/use-site-config"
 import { parseWeddingDate } from "@/lib/wedding-date"
 import { InvitePhotoBackdrop } from "@/components/loader/invite-photo-backdrop"
 import { PlainAtmosphere } from "@/components/loader/PlainAtmosphere"
+import { PlainBubbles } from "@/components/loader/PlainBubbles"
 import { siteConfig as defaultSiteConfig } from "@/content/site"
 import "@/components/loader/loading-screen.css"
 
@@ -261,6 +262,7 @@ export function Hero() {
       {isPlain ? (
         <>
           <PlainAtmosphere baseColor={plainTheme.background} />
+          <PlainBubbles />
           <div className="home-hero-plain-corners" aria-hidden="true">
             {(
               [

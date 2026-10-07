@@ -9,6 +9,7 @@ import { Cinzel } from "next/font/google"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { fetchUntilReady, isAbortError } from "@/lib/fetch-until-ready"
 import { fetchInvitationList, readCachedInvitationList } from "@/lib/invitation-data"
+import { PlainBubbles } from "@/components/loader/PlainBubbles"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -35,19 +36,25 @@ const SCRIPT = "var(--color-welcome-script)"
 const BODY = "var(--color-welcome-text)"
 const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)"
 
-const sectionBg = `
-  radial-gradient(820px 460px at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 75%, transparent) 0%, transparent 65%),
-  radial-gradient(560px 380px at 0% 60%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
-  radial-gradient(560px 380px at 100% 85%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
-  linear-gradient(180deg, var(--color-welcome-bg-soft) 0%, var(--color-motif-cream) 100%)
-`.trim()
+// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+const sectionBg = "var(--color-bg-pattern-base)"
+
+// Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
+const onBg = {
+  color: "var(--color-on-pattern)",
+  textShadow: "0 1px 0 var(--color-on-pattern-glow), 0 2px 12px var(--color-on-pattern-glow)",
+} as const
+
+const onBgLineStyle = {
+  background: "var(--color-on-pattern-line)",
+} as const
 
 const dividerLineStyle = {
   background: "linear-gradient(to right, transparent, var(--color-motif-medium), transparent)",
 } as const
 
 const cardStyle = {
-  background: `linear-gradient(180deg, ${PAPER} 0%, var(--color-motif-cream) 100%)`,
+  background: PAPER,
   boxShadow:
     "0 26px 56px -30px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
 } as const
@@ -73,9 +80,9 @@ function DecoImg({ src, className }: { src: string; className: string }) {
 function OutsideDivider() {
   return (
     <div className="flex items-center justify-center gap-2">
-      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-medium))" }} />
-      <span className="h-1.5 w-1.5 rotate-45" style={{ background: ACCENT }} aria-hidden />
-      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-medium))" }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "var(--color-on-pattern-line)" }} />
+      <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-on-pattern-line)" }} aria-hidden />
+      <span className="h-px w-10 sm:w-16" style={{ background: "var(--color-on-pattern-line)" }} />
     </div>
   )
 }
@@ -204,7 +211,7 @@ function EntourageTitle({ title, subtitle }: { title: string; subtitle: string }
         className={`${theSeasons.className} block uppercase leading-[0.9] tracking-[0.04em] min-[400px]:tracking-[0.08em] sm:tracking-[0.12em] md:tracking-[0.14em]`}
         style={{
           fontSize: "var(--title-size)",
-          color: NAVY,
+          ...onBg,
         }}
       >
         {title}
@@ -214,8 +221,7 @@ function EntourageTitle({ title, subtitle }: { title: string; subtitle: string }
         className={`${aboveTheBeyond.className} relative z-10 mx-auto mt-1.5 block w-fit max-w-full px-1 leading-[0.88] sm:mt-2 sm:leading-[0.9]`}
         style={{
           fontSize: "var(--script-size)",
-          color: SCRIPT,
-          textShadow: "0 1px 0 var(--color-motif-soft)",
+          ...onBg,
         }}
       >
         {subtitle}
@@ -693,9 +699,11 @@ export function Entourage() {
   return (
     <div
       ref={sectionRef}
-      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full`}
+      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
+      {/* Same circle pattern as the hero */}
+      <PlainBubbles />
       <Section
         id="entourage"
         className="relative z-10 overflow-hidden pt-8 pb-8 sm:pt-10 sm:pb-10 md:pt-12 md:pb-12 lg:pt-14 lg:pb-14"
@@ -724,7 +732,7 @@ export function Entourage() {
         </div>
         <p
           className={`${cinzel.className} mx-auto max-w-[20rem] px-2 text-[0.625rem] font-semibold leading-snug tracking-[0.12em] min-[400px]:max-w-none min-[400px]:text-[0.6875rem] min-[400px]:tracking-[0.16em] sm:text-[0.8125rem] sm:tracking-[0.2em] md:text-sm md:tracking-[0.22em]`}
-          style={{ color: ACCENT }}
+          style={onBg}
         >
           {content.eyebrow}
         </p>
@@ -734,7 +742,7 @@ export function Entourage() {
 
         <p
           className="font-goudy-italic mx-auto mt-4 max-w-xl px-2 text-sm leading-relaxed sm:mt-5 sm:text-base md:mt-6"
-          style={{ color: BODY }}
+          style={{ ...onBg, fontWeight: 600 }}
         >
           {content.description}
         </p>
@@ -742,7 +750,7 @@ export function Entourage() {
         <div className="mt-4 flex items-center justify-center sm:mt-5">
           <span
             className="h-px w-16 sm:w-24 md:w-32"
-            style={dividerLineStyle}
+            style={onBgLineStyle}
           />
         </div>
       </div>

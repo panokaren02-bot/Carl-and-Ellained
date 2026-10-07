@@ -102,6 +102,12 @@
   --sidebar-accent-foreground: oklch(0.145 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: #AFC8E6;
+
+  /* Decoration tint: the botanical PNGs in /public/deco are painted in sage
+     (hue ≈ 92°). This shifts them onto the motif teal (--color-motif-accent
+     #118394, hue ≈ 188°) while keeping the watercolor shading.
+     Set to "none" to show the original artwork. */
+  --deco-filter: hue-rotate(92deg) saturate(1.6) brightness(0.85);
 }
 
 .dark {
@@ -147,95 +153,459 @@
   --font-serif: "Great Vibes", "Great Vibes Fallback";
   
 /* ==========================================
-   MOTIF COLORS
-   Theme: Sage Green Botanical
-   Ivory + Sage + Olive + Deep Forest
-   ========================================== */
+ *  MOTIF COLORS
+ *  Theme: Peach + Teal Coastal Romantic
+ *  Warm Peach + Coral + Coastal Teal + Beige
+ * ========================================== */
 
-/* Background / Linen */
---color-motif-cream: #F4F5EA; /* Soft ivory */
---color-motif-yellow: #9EAF91; /* Muted sage */
---color-motif-soft: #FBFCF7; /* Warm white */
+/* ------------------------------------------
+ * Background / Linen
+ * ------------------------------------------ */
 
-/* Sage Green Accents */
---color-motif-accent: #718566; /* Olive sage */
---color-motif-deep: #4F674D; /* Deep botanical green */
---color-motif-medium: #AAB9A0; /* Soft sage */
+ --color-motif-cream: #F7F1ED;
+ /* Warm coastal ivory */
+ 
+ --color-motif-yellow: #E1D0C8;
+ /* Soft warm beige / sand */
+ 
+ --color-motif-soft: #FCFAF8;
+ /* Almost-white romantic paper */
+ 
+ 
+ /* ------------------------------------------
+  * Peach / Coral Accents
+  * ------------------------------------------ */
+ 
+ --color-motif-accent: #E98583;
+ /* Muted coral peach */
+ 
+ --color-motif-deep: #D96F70;
+ /* Deeper romantic coral */
+ 
+ --color-motif-medium: #FFA08B;
+ /* Soft peach */
+ 
+ 
+ /* ------------------------------------------
+  * Coastal Teal Accents
+  * ------------------------------------------ */
+ 
+ --color-motif-teal: #16828F;
+ /* Deep coastal teal */
+ 
+ --color-motif-teal-medium: #59B2BD;
+ /* Soft ocean teal */
+ 
+ --color-motif-teal-light: #A0C9CE;
+ /* Pale coastal blue */
+ 
+ 
+ /* ------------------------------------------
+  * Floral / Romantic Accent
+  * ------------------------------------------ */
+ 
+ --color-motif-blush: #F2B8AA;
+ /* Peach blush */
+ 
+ 
+ /* ------------------------------------------
+  * Neutral / Paper
+  * ------------------------------------------ */
+ 
+ --color-motif-silver: #D9E8E9;
+ /* Very light blue-teal neutral */
+ 
+ 
+ /* ==========================================
+  *  WELCOME SECTION
+  * ========================================== */
+ 
+ 
+ /* ------------------------------------------
+  * Main background
+  * ------------------------------------------ */
+ 
+ --color-welcome-bg:
+     color-mix(
+         in srgb,
+         var(--color-motif-cream) 72%,
+         white
+     );
+ 
+ 
+ /* ------------------------------------------
+  * Soft background
+  * ------------------------------------------ */
+ 
+ --color-welcome-bg-soft:
+     color-mix(
+         in srgb,
+         var(--color-motif-teal-light) 22%,
+         white
+     );
+ 
+ 
+ /* ==========================================
+  *  TYPOGRAPHY
+  * ========================================== */
+ 
+ 
+ /* ------------------------------------------
+  * Main body text
+  * ------------------------------------------ */
+ 
+ --color-welcome-text: #16828F;
+ /* Coastal teal */
+ 
+ 
+ /* ------------------------------------------
+  * Secondary / softer text
+  * ------------------------------------------ */
+ 
+ --color-welcome-text-soft:
+     color-mix(
+         in srgb,
+         #16828F 62%,
+         white
+     );
+ 
+ 
+ /* ------------------------------------------
+  * Small headings
+  * ------------------------------------------ */
+ 
+ --color-welcome-heading: #D96F70;
+ /* Romantic coral */
+ 
+ 
+ /* ------------------------------------------
+  * Script / romantic accent
+  * ------------------------------------------ */
+ 
+ --color-welcome-script: #E98583;
+ /* Soft coral peach */
+ 
+ 
+ /* ------------------------------------------
+  * Main hero heading
+  * ------------------------------------------ */
+ 
+ --color-welcome-navy: #126C77;
+ /* Deep coastal teal */
+ 
+ 
+ /* ==========================================
+  *  BUTTONS / DECORATION
+  * ========================================== */
+ 
+ 
+ /* ------------------------------------------
+  * Buttons
+  * ------------------------------------------ */
+ 
+ --color-welcome-green: #16828F;
+ /* Deep coastal teal */
+ 
+ 
+ /* ------------------------------------------
+  * Decorative coastal / floral lines
+  * ------------------------------------------ */
+ 
+ --color-welcome-botanical: #59B2BD;
+ /* Ocean teal */
+ 
+ 
+ /* ------------------------------------------
+  * Gold decorative details
+  * ------------------------------------------ */
+ 
+ --color-welcome-gold: #FFA08B;
+ /* Peach replaces traditional gold */
+ 
+ 
+ /* ------------------------------------------
+  * Floral accents
+  * ------------------------------------------ */
+ 
+ --color-welcome-blush: #F2B8AA;
+ /* Soft peach blush */
+ 
+ 
+ /* ==========================================
+  *  ADDITIONAL COASTAL ROMANTIC COLORS
+  * ========================================== */
+ 
+ /* Deep ocean */
+ --color-coastal-deep: #126C77;
+ 
+ /* Ocean teal */
+ --color-coastal-teal: #16828F;
+ 
+ /* Seafoam teal */
+ --color-coastal-soft: #59B2BD;
+ 
+ /* Pale sea glass */
+ --color-coastal-light: #A0C9CE;
+ 
+ /* Coral */
+ --color-romantic-coral: #E98583;
+ 
+ /* Deep coral */
+ --color-romantic-deep: #D96F70;
+ 
+ /* Peach */
+ --color-romantic-peach: #FFA08B;
+ 
+ /* Peach blush */
+ --color-romantic-blush: #F2B8AA;
+ 
+ /* Sand */
+ --color-coastal-sand: #E1D0C8;
+ 
+ /* Warm ivory */
+ --color-coastal-ivory: #F7F1ED;
+ 
+ 
+ /* ==========================================
+  *  COUPLE NAME MASK / LOCKUP
+  * ========================================== */
+ 
+ --couple-name-fill: var(--color-welcome-navy);
+ 
+ /* mid + accent match the fill → the names render in one plain color */
+ --couple-name-fill-mid: var(--couple-name-fill);
+ 
+ --couple-name-fill-accent: var(--couple-name-fill);
+ 
+ --couple-name-fill-soft: var(--color-motif-soft);
 
-/* Floral Accent */
---color-motif-blush: #C3CFB8; /* Sage beige */
 
-/* Neutral / Paper */
---color-motif-silver: #DDE5D4; /* Pale sage */
+ /* ==========================================
+  *  BACKGROUND — CIRCLE PATTERN
+  *  Used by every plain-mode section (loader,
+  *  envelope, hero, details, entourage, ...)
+  *  via components/loader/PlainBubbles.
+  *  Light + peach, flat colors (no gradients).
+  * ========================================== */
+ 
+ /* Flat base painted behind the circles — light peach */
+ --color-bg-pattern-base:
+     color-mix(
+         in srgb,
+         var(--color-romantic-blush) 30%,
+         var(--color-motif-cream)
+     );
+ 
+ /* Main circles — peach family */
+ --color-bg-circle-deep: color-mix(in srgb, var(--color-romantic-peach) 40%, transparent);
+ --color-bg-circle-mid: color-mix(in srgb, var(--color-romantic-blush) 55%, transparent);
+ --color-bg-circle-light: color-mix(in srgb, white 55%, transparent);
+ 
+ /* Accent circles — a touch of other palette colors */
+ --color-bg-circle-accent-1: color-mix(in srgb, var(--color-romantic-coral) 30%, transparent);
+ --color-bg-circle-accent-2: color-mix(in srgb, var(--color-coastal-light) 40%, transparent);
+ --color-bg-circle-accent-3: color-mix(in srgb, var(--color-coastal-sand) 60%, transparent);
+ 
+ /* Text and divider lines sitting directly on the pattern */
+ --color-on-pattern: var(--color-welcome-navy);
+ --color-on-pattern-soft: var(--color-motif-teal);
+ --color-on-pattern-glow: color-mix(in srgb, white 70%, transparent);
+ --color-on-pattern-line: var(--color-romantic-coral);
+ 
+ 
+ /* ==========================================
+  *  HERO COUNTDOWN — fades up from the bottom
+  *  (components/sections/hero.tsx, plain mode)
+  * ========================================== */
+ 
+ /* Solid at the very bottom, fading to transparent upward */
+ --color-countdown-fade: var(--color-coastal-deep);
+ 
+ /* Numbers + heading on the faded band */
+ --color-countdown-text: var(--color-motif-soft);
+ 
+ /* Unit labels (Days, Hours, ...) */
+ --color-countdown-label: var(--color-romantic-blush);
+ 
+ 
+ /* ==========================================
+  *  ENVELOPE — TEAL FAMILY
+  *  The invitation envelope (components/loader/
+  *  envelope-invite.css). Letter inside stays light.
+  * ========================================== */
+ 
+ /* Main paper */
+ --color-envelope-paper:
+     color-mix(
+         in srgb,
+         var(--color-motif-teal) 88%,
+         var(--color-motif-teal-medium)
+     );
+ 
+ /* Back panel / inside */
+ --color-envelope-base: var(--color-motif-teal);
+ 
+ /* Lit edges */
+ --color-envelope-highlight:
+     color-mix(
+         in srgb,
+         var(--color-motif-teal-medium) 85%,
+         var(--color-motif-teal-light)
+     );
+ 
+ /* Flap folds */
+ --color-envelope-fold:
+     color-mix(
+         in srgb,
+         var(--color-motif-teal) 62%,
+         var(--color-coastal-deep)
+     );
+ 
+ /* Shadows */
+ --color-envelope-shadow: var(--color-coastal-deep);
+ 
+ /* Crease hairlines on the paper */
+ --color-envelope-crease: color-mix(in srgb, var(--color-motif-soft) 22%, transparent);
 
 
-/* ==========================================
-   WELCOME SECTION
-   ========================================== */
+ /* ==========================================
+  *  OPTIONAL SEMANTIC COLORS
+  *  Use these when assigning colors to
+  *  specific UI components.
+  * ========================================== */
+ 
+ /* Primary CTA */
+ --color-primary: #16828F;
+ 
+ /* Primary CTA hover */
+ --color-primary-hover: #126C77;
+ 
+ /* Romantic CTA */
+ --color-romantic: #E98583;
+ 
+ /* Romantic hover */
+ --color-romantic-hover: #D96F70;
+ 
+ /* Soft highlight */
+ --color-highlight: #FFA08B;
+ 
+ /* Section accent */
+ --color-section-accent: #59B2BD;
+ 
+ /* Light section */
+ --color-section-light: #A0C9CE;
+ 
+ /* Card background */
+ --color-card: #FCFAF8;
+ 
+ /* Border */
+ --color-border: #E1D0C8;
+ 
+ /* Dark text */
+ --color-text-dark: #126C77;
+ 
+ /* Muted text */
+ --color-text-muted:
+     color-mix(
+         in srgb,
+         #126C77 60%,
+         white
+     );
+ 
+ 
+ /* ==========================================
+  *  COLOR USAGE GUIDE
+  * ========================================== */
+ 
+ /*
+    COASTAL TEAL
+    #16828F
+    Use for:
+    - Buttons
+    - Important headings
+    - Icons
+    - Navigation
+    - Strong text
+    - Primary UI elements
+ 
+ 
+    DEEP COASTAL TEAL
+    #126C77
+    Use for:
+    - Hero couple names
+    - Main heading
+    - Dark overlays
+    - Strong contrast elements
+ 
+ 
+    SOFT TEAL
+    #59B2BD
+    Use for:
+    - Decorative leaves
+    - Lines
+    - Borders
+    - Secondary buttons
+    - Section accents
+ 
+ 
+    PALE SEA GLASS
+    #A0C9CE
+    Use for:
+    - Soft backgrounds
+    - Decorative circles
+    - Image overlays
+    - Subtle cards
+ 
+ 
+    CORAL
+    #E98583
+    Use for:
+    - Romantic script
+    - Floral elements
+    - Small highlights
+    - Important decorative details
+ 
+ 
+    DEEP CORAL
+    #D96F70
+    Use sparingly for:
+    - Hover states
+    - Active states
+    - Small emphasis
+ 
+ 
+    PEACH
+    #FFA08B
+    Use for:
+    - Secondary decorative elements
+    - Small badges
+    - Accent backgrounds
+    - Romantic highlights
+ 
+ 
+    PEACH BLUSH
+    #F2B8AA
+    Use for:
+    - Flowers
+    - Soft decorations
+    - Background shapes
+ 
+    SAND
+    #E1D0C8
+    Use for:
+    - Borders
+    - Paper texture
+    - Neutral decorative elements
+ 
+ 
+    IVORY
+    #F7F1ED
+    Use for:
+    - Main page background
+    - Linen sections
+    - Large negative spaces
+ */
 
-/* Main background */
---color-welcome-bg:
-    color-mix(
-        in srgb,
-        var(--color-motif-cream) 70%,
-        white
-    );
-
-/* Soft background */
---color-welcome-bg-soft:
-    color-mix(
-        in srgb,
-        var(--color-motif-cream) 40%,
-        white
-    );
-
-
-/* ==========================================
-   TYPOGRAPHY
-   ========================================== */
-
-/* Main body text */
---color-welcome-text: #4F674D; /* Deep sage */
-
-/* Secondary / softer text */
---color-welcome-text-soft:
-    color-mix(
-        in srgb,
-        #4F674D 65%,
-        white
-    );
-
-/* Small headings */
---color-welcome-heading: #718566; /* Olive sage */
-
-/* Script / romantic accent */
---color-welcome-script: #718566; /* Elegant sage */
-
-/* Main hero heading */
---color-welcome-navy: #304A34; /* Deep forest */
-
-
-/* ==========================================
-   BUTTONS / DECORATION
-   ========================================== */
-
-/* Buttons */
---color-welcome-green: #4F674D; /* Deep botanical */
-
-/* Decorative botanical lines */
---color-welcome-botanical: #718566; /* Olive sage */
-
-/* Gold decorative details */
---color-welcome-gold: #9EAF91; /* Muted sage */
-
-/* Floral accents */
---color-welcome-blush: #C3CFB8; /* Soft sage beige */
-
-/* Couple-name mask lockup (loader, hero, sections) */
---couple-name-fill: var(--color-welcome-navy);
---couple-name-fill-mid: var(--color-motif-deep);
---couple-name-fill-accent: var(--color-welcome-heading);
---couple-name-fill-soft: var(--color-motif-soft);
   /* ─────────────────────────────────────────────────────────── */
   --font-imperial-script: "Imperial Script", cursive;
   --font-anastasia-script: "CoupleAnastasia";
@@ -317,6 +687,16 @@ html {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
+}
+
+/* Botanical decorations follow the motif (see --deco-filter). Matches corner
+   decos and eucalyptus sprigs only — not the wax seal or couple illustration.
+   The encoded variants cover images served through next/image. */
+img[src*="-deco.png"],
+img[src*="/lovestorydeco/"],
+img[src*="-deco.png&"],
+img[src*="%2Flovestorydeco%2F"] {
+  filter: var(--deco-filter);
 }
 
 /* Couple names only — Anastasia Script (public/fonts/AnastasiaScript.ttf). */

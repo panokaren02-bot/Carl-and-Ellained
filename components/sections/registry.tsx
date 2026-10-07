@@ -8,6 +8,7 @@ import { Gift, Heart } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { layeredSectionTitleSize, sectionType } from "@/lib/section-typography"
+import { PlainBubbles } from "@/components/loader/PlainBubbles"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -28,6 +29,12 @@ const aboveTheBeyond = localFont({
 
 const CORNER_DECO_CLASS =
   "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
+
+// Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
+const onBg = {
+  color: "var(--color-on-pattern)",
+  textShadow: "0 1px 0 var(--color-on-pattern-glow), 0 2px 12px var(--color-on-pattern-glow)",
+} as const
 
 const ct = {
   body: sectionType.text,
@@ -51,22 +58,6 @@ const itemVariants: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
 }
 
-// Colors come from siteConfig.registry.colors (content/site.ts)
-type RegistryColors = {
-  title: string
-  script: string
-  eyebrow: string
-  body: string
-  soft: string
-  card: string
-  cardEdge: string
-  accountCard: string
-  button: string
-  line: string
-  glow: string
-  background: string
-}
-
 function DecoImg({ src, className }: { src: string; className: string }) {
   if (!src) return null
   return (
@@ -75,17 +66,18 @@ function DecoImg({ src, className }: { src: string; className: string }) {
   )
 }
 
-function DiamondDivider({ c }: { c: RegistryColors }) {
+// Sits directly on the circle pattern, so drawn in ivory
+function DiamondDivider() {
   return (
     <div className="flex items-center justify-center gap-2" aria-hidden>
-      <span className="h-px w-10 sm:w-16" style={{ background: `linear-gradient(to right, transparent, ${c.line})` }} />
-      <span className="h-1.5 w-1.5 rotate-45" style={{ background: c.eyebrow }} />
-      <span className="h-px w-10 sm:w-16" style={{ background: `linear-gradient(to left, transparent, ${c.line})` }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "var(--color-on-pattern-line)" }} />
+      <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-on-pattern-line)" }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "var(--color-on-pattern-line)" }} />
     </div>
   )
 }
 
-function RegistryTitle({ title, subtitle, c }: { title: string; subtitle: string; c: RegistryColors }) {
+function RegistryTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <h2
       className="welcome-title-lockup relative mx-auto w-full max-w-full text-center"
@@ -102,14 +94,14 @@ function RegistryTitle({ title, subtitle, c }: { title: string; subtitle: string
       <span
         aria-hidden
         className={`${theSeasons.className} block uppercase leading-[0.9] tracking-[0.04em] min-[400px]:tracking-[0.08em] sm:tracking-[0.12em] md:tracking-[0.14em]`}
-        style={{ fontSize: "var(--title-size)", color: c.title }}
+        style={{ fontSize: "var(--title-size)", ...onBg }}
       >
         {title}
       </span>
       <span
         aria-hidden
         className={`${aboveTheBeyond.className} relative z-10 mx-auto mt-1.5 block w-fit max-w-full px-1 leading-[0.88] sm:mt-2 sm:leading-[0.9]`}
-        style={{ fontSize: "var(--script-size)", color: c.script, textShadow: `0 1px 0 ${c.accountCard}` }}
+        style={{ fontSize: "var(--script-size)", ...onBg }}
       >
         {subtitle}
       </span>
@@ -121,24 +113,21 @@ export function Registry() {
   const siteConfig = useSiteConfig()
   const content = siteConfig.registry
   const { decos } = content
-  const c = content.colors
+  const c = content.colors // siteConfig.registry.colors (content/site.ts)
   const { brideNickname, groomNickname } = siteConfig.couple
   const reduceMotion = useReducedMotion()
   const [activeTab, setActiveTab] = useState(0)
   const initial = reduceMotion ? false : "hidden"
 
-  const buttonGradient = `linear-gradient(180deg, color-mix(in srgb, ${c.button} 70%, white) 0%, ${c.button} 55%, color-mix(in srgb, ${c.button} 70%, black) 100%)`
-  const sectionBg = `
-    radial-gradient(820px 460px at 50% 0%, color-mix(in srgb, ${c.glow} 75%, transparent) 0%, transparent 65%),
-    radial-gradient(560px 380px at 0% 60%, color-mix(in srgb, ${c.line} 22%, transparent) 0%, transparent 60%),
-    radial-gradient(560px 380px at 100% 85%, color-mix(in srgb, ${c.line} 22%, transparent) 0%, transparent 60%),
-    linear-gradient(180deg, ${c.background} 0%, ${c.card} 50%, ${c.background} 100%)
-  `.trim()
+  const buttonBg = c.button
+  const buttonText = "var(--color-motif-soft)"
+  // Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+  const sectionBg = "var(--color-bg-pattern-base)"
   const cardStyle = {
-    background: `linear-gradient(180deg, ${c.card} 0%, ${c.cardEdge} 100%)`,
-    boxShadow: `0 26px 56px -30px color-mix(in srgb, ${c.title} 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)`,
+    background: c.card,
+    boxShadow: `0 26px 56px -30px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)`,
   }
-  const dividerLineStyle = { background: `linear-gradient(to right, transparent, ${c.line}, transparent)` }
+  const dividerLineStyle = { background: "var(--color-on-pattern-line)" }
 
   const accounts = content.showAccounts
     ? content.accounts.filter((a) => a.show && (a.accountNumber || a.qr))
@@ -148,9 +137,11 @@ export function Registry() {
 
   return (
     <div
-      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full`}
+      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
+      {/* Same circle pattern as the hero */}
+      <PlainBubbles />
       <section
         id="registry"
         className="relative z-10 overflow-hidden pt-14 pb-12 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20"
@@ -181,19 +172,19 @@ export function Registry() {
             src={decos.headerOrnament}
             className="mx-auto mb-3 block h-auto w-28 select-none sm:mb-4 sm:w-36 md:w-44"
           />
-          <DiamondDivider c={c} />
+          <DiamondDivider />
           <p
             className={`${cinzel.className} mx-auto mt-4 max-w-[20rem] px-2 text-[0.6875rem] font-semibold uppercase leading-snug tracking-[0.16em] min-[400px]:max-w-none min-[400px]:text-[0.75rem] sm:mt-5 sm:text-[0.875rem] sm:tracking-[0.22em]`}
-            style={{ color: c.eyebrow }}
+            style={onBg}
           >
             {content.eyebrow}
           </p>
           <div className="mx-auto mt-3 sm:mt-4 md:mt-5">
-            <RegistryTitle title={content.title} subtitle={content.subtitle} c={c} />
+            <RegistryTitle title={content.title} subtitle={content.subtitle} />
           </div>
           <p
             className={`font-goudy-italic mx-auto mt-4 max-w-xl px-2 sm:mt-5 md:mt-6 ${ct.bodyLg}`}
-            style={{ color: c.body }}
+            style={{ ...onBg, fontWeight: 600 }}
           >
             {content.description}
           </p>
@@ -212,26 +203,17 @@ export function Registry() {
             whileInView="show"
             viewport={{ once: true, amount: 0.05 }}
           >
-            {/* Top glow */}
-            <span
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-0 h-44 rounded-t-[inherit]"
-              style={{
-                background: `radial-gradient(60% 100% at 50% 0%, color-mix(in srgb, ${c.glow} 75%, transparent), transparent)`,
-              }}
-            />
-
             {/* Seal sitting on the top edge */}
             <motion.div variants={itemVariants} className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
               <span
                 className="flex h-14 w-14 items-center justify-center rounded-full sm:h-16 sm:w-16"
                 style={{
-                  background: buttonGradient,
+                  background: buttonBg,
                   boxShadow: `0 0 0 5px ${c.card}, 0 0 0 6px color-mix(in srgb, ${c.line} 60%, transparent), 0 16px 30px -12px color-mix(in srgb, ${c.title} 65%, transparent)`,
                 }}
                 aria-hidden
               >
-                <Gift className="h-6 w-6 sm:h-7 sm:w-7" style={{ color: c.accountCard }} />
+                <Gift className="h-6 w-6 sm:h-7 sm:w-7" style={{ color: buttonText }} />
               </span>
             </motion.div>
 
@@ -296,9 +278,9 @@ export function Registry() {
                           style={
                             selected
                               ? {
-                                  background: buttonGradient,
-                                  color: c.accountCard,
-                                  boxShadow: `0 6px 14px -8px color-mix(in srgb, ${c.title} 70%, transparent)`,
+                                  background: buttonBg,
+                                  color: buttonText,
+                                  boxShadow: `0 6px 14px -8px color-mix(in srgb, ${c.button} 70%, transparent)`,
                                 }
                               : { color: c.title }
                           }
@@ -326,7 +308,8 @@ export function Registry() {
                       className="flex flex-col items-center rounded-2xl px-5 py-5"
                       style={{
                         background: c.accountCard,
-                        boxShadow: `0 18px 34px -22px color-mix(in srgb, ${c.title} 60%, transparent)`,
+                        border: `1px solid ${c.glow}`,
+                        boxShadow: `0 18px 34px -22px color-mix(in srgb, ${c.title} 45%, transparent)`,
                       }}
                     >
                       {accounts.length === 1 && (

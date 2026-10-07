@@ -1,0 +1,87 @@
+/* Plain mode — flat circle pattern (loader, envelope, hero and page sections)
+   Crisp, overlapping translucent circles; each pops in as it scrolls into
+   view, then wanders and breathes. Colors live in app/globals.css. */
+
+.plain-bubbles {
+  /* colors come from app/globals.css → "BACKGROUND — CIRCLE PATTERN" */
+  --plain-bubble-base: var(--color-bg-pattern-base);
+  --plain-bubble-deep: var(--color-bg-circle-deep);
+  --plain-bubble-mid: var(--color-bg-circle-mid);
+  --plain-bubble-light: var(--color-bg-circle-light);
+  --plain-bubble-accent-1: var(--color-bg-circle-accent-1);
+  --plain-bubble-accent-2: var(--color-bg-circle-accent-2);
+  --plain-bubble-accent-3: var(--color-bg-circle-accent-3);
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  /* paints its own flat base, so it fully replaces whatever sits underneath */
+  background: var(--plain-bubble-base);
+}
+
+.plain-bubbles--fixed {
+  position: fixed;
+}
+
+.plain-bubble {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  border-radius: 50%;
+  scale: 0;
+  /* entrance (scale), wander (translate) and breathe (transform) run on separate
+     properties so they compose instead of fighting */
+  animation:
+    plain-bubble-in 1.2s cubic-bezier(0.34, 1.45, 0.64, 1) var(--pop-delay, 0ms) forwards,
+    plain-bubble-drift var(--dur) ease-in-out calc(var(--i) * -1.3s) infinite,
+    plain-bubble-breathe var(--breathe) ease-in-out calc(var(--i) * -0.7s) infinite alternate;
+  /* the pop-in waits until this circle scrolls into view (data-in, set by PlainBubbles) */
+  animation-play-state: paused, running, running;
+  will-change: translate, transform;
+}
+
+.plain-bubble[data-in] {
+  animation-play-state: running;
+}
+
+.plain-bubble--d { background: var(--plain-bubble-deep); }
+.plain-bubble--m { background: var(--plain-bubble-mid); }
+.plain-bubble--l { background: var(--plain-bubble-light); }
+.plain-bubble--c { background: var(--plain-bubble-accent-1); }
+.plain-bubble--p { background: var(--plain-bubble-accent-2); }
+.plain-bubble--b { background: var(--plain-bubble-accent-3); }
+
+@keyframes plain-bubble-in {
+  from { scale: 0; }
+  to { scale: 1; }
+}
+
+/* a slow, looping wander along a soft loop rather than a straight back-and-forth */
+@keyframes plain-bubble-drift {
+  0%, 100% { translate: 0 0; }
+  25% { translate: var(--dx) calc(var(--dy) * 0.4); }
+  50% { translate: calc(var(--dx) * 0.35) var(--dy); }
+  75% { translate: calc(var(--dx) * -0.6) calc(var(--dy) * 0.45); }
+}
+
+@keyframes plain-bubble-breathe {
+  from { transform: scale(1); }
+  to { transform: scale(var(--swell)); }
+}
+
+/* Reduced motion: circles shown in place, still */
+.is-reduced-motion .plain-bubble {
+  animation: none;
+  scale: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plain-bubble {
+    animation: none;
+    scale: 1;
+  }
+}

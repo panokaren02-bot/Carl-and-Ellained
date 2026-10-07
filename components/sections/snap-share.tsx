@@ -32,19 +32,20 @@ const OUTSIDE_TEXT_MUTED = "rgba(255, 255, 255, 0.88)"
 const OUTSIDE_TITLE_SHADOW = "0 2px 6px rgba(0, 0, 0, 0.28), 0 0 18px rgba(0, 0, 0, 0.12)"
 const READABLE_SHADOW = "0 1px 3px rgba(0,0,0,0.55), 0 2px 10px rgba(0,0,0,0.35)"
 
-// Card palette — globals.css motif / welcome tokens.
+// Card palette — cards are plain light with teal text; buttons are coral (#D96F70).
+const TEAL = "#16828F"
+const BUTTON = "#D96F70"
 const IVORY = "var(--color-motif-soft)"
-const PAPER = "var(--color-welcome-bg-soft)"
-const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 55%, transparent)"
-const PALE = "color-mix(in srgb, var(--color-motif-silver) 55%, var(--color-motif-soft))"
-const DEEP_GRADIENT =
-  "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)"
+const PAPER = "var(--color-motif-soft)"
+const HAIRLINE = "color-mix(in srgb, #16828F 22%, transparent)"
+const PALE = "color-mix(in srgb, #16828F 10%, var(--color-motif-soft))"
+const TEAL_SOFT = "color-mix(in srgb, #16828F 70%, transparent)"
 
 const palette = {
-  body: "var(--color-welcome-text)",
-  heading: "var(--color-welcome-navy)",
-  label: "var(--color-motif-accent)",
-  accent: "var(--color-motif-deep)",
+  body: TEAL,
+  heading: TEAL,
+  label: TEAL,
+  accent: TEAL,
 } as const
 
 const outsideDividerLineStyle = {
@@ -52,7 +53,7 @@ const outsideDividerLineStyle = {
 } as const
 
 const insideDividerLineStyle = {
-  background: "linear-gradient(to right, transparent, var(--color-motif-medium), transparent)",
+  background: "linear-gradient(to right, transparent, color-mix(in srgb, #16828F 45%, transparent), transparent)",
 } as const
 
 const ct = {
@@ -64,12 +65,11 @@ const ct = {
 } as const
 
 const cardStyle = {
-  background: `linear-gradient(180deg, ${PAPER} 0%, var(--color-motif-cream) 100%)`,
-  boxShadow:
-    "0 24px 50px -28px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
+  background: PAPER,
+  boxShadow: "0 24px 50px -28px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)",
 } as const
 
-const QR_FG = "#304A34" // --color-welcome-navy (canvas needs a literal color)
+const QR_FG = TEAL // canvas needs a literal color
 
 function OutsideDivider() {
   return (
@@ -119,14 +119,6 @@ function SnapShareTitle({ title, subtitle }: { title: string; subtitle: string }
 function ContentCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={`relative overflow-hidden rounded-[1.5rem] sm:rounded-[1.75rem] ${className}`} style={cardStyle}>
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-28"
-        style={{
-          background:
-            "radial-gradient(60% 100% at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 70%, transparent), transparent)",
-        }}
-      />
       <div className="relative z-20 flex flex-col gap-3 px-4 py-6 sm:gap-4 sm:px-6 sm:py-7 md:px-7">{children}</div>
     </div>
   )
@@ -156,12 +148,12 @@ function PrimaryButton({
     <button
       type="button"
       onClick={onClick}
-      className={`${cinzel.className} inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-2.5 font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-motif-accent)] sm:px-6 ${ct.btn}`}
+      className={`${cinzel.className} inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-2.5 font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16828F] sm:px-6 ${ct.btn}`}
       style={{
-        background: active ? "var(--color-welcome-navy)" : DEEP_GRADIENT,
-        borderColor: "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)",
+        background: active ? TEAL : BUTTON,
+        borderColor: active ? TEAL : BUTTON,
         color: IVORY,
-        boxShadow: "0 12px 24px -12px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)",
+        boxShadow: "0 12px 24px -12px color-mix(in srgb, #D96F70 60%, transparent)",
       }}
     >
       {children}
@@ -289,7 +281,7 @@ export function SnapShare() {
           {content.website.downloadButton}
         </PrimaryButton>
       </div>
-      <p className={`font-goudy-italic ${ct.body} text-center`} style={{ color: "var(--color-welcome-text-soft)" }}>
+      <p className={`font-goudy-italic ${ct.body} text-center`} style={{ color: TEAL_SOFT }}>
         {content.website.note}
       </p>
     </ContentCard>
@@ -314,7 +306,7 @@ export function SnapShare() {
               className="flex w-full min-w-0 items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 transition-all duration-200 active:scale-[0.98]"
               style={{
                 background: isCopied ? PALE : IVORY,
-                boxShadow: `inset 0 0 0 1px ${isCopied ? "color-mix(in srgb, var(--color-motif-accent) 50%, transparent)" : HAIRLINE}`,
+                boxShadow: `inset 0 0 0 1px ${isCopied ? "color-mix(in srgb, #16828F 50%, transparent)" : HAIRLINE}`,
               }}
             >
               <span
@@ -325,7 +317,7 @@ export function SnapShare() {
               </span>
               <span
                 className={`${cinzel.className} flex flex-shrink-0 items-center gap-1 whitespace-nowrap ${sectionType.label} font-semibold uppercase tracking-wider`}
-                style={{ color: isCopied ? palette.accent : palette.label }}
+                style={{ color: isCopied ? TEAL : BUTTON }}
               >
                 {isCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                 {isCopied ? content.hashtags.copied : content.hashtags.copy}
@@ -344,7 +336,7 @@ export function SnapShare() {
             })
           }
           className="flex w-full items-center justify-center gap-1.5 rounded-full py-2.5 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
-          style={copiedAllHashtags ? { background: PALE, color: palette.accent } : { background: DEEP_GRADIENT, color: IVORY }}
+          style={copiedAllHashtags ? { background: PALE, color: palette.accent } : { background: BUTTON, color: IVORY }}
         >
           {copiedAllHashtags ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
           <span className={`${cinzel.className} ${ct.btn} font-semibold uppercase tracking-[0.12em]`}>
@@ -370,10 +362,10 @@ export function SnapShare() {
               type="button"
               onClick={() => shareOnSocial(platform)}
               className="group flex w-full min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-3 transition-all duration-200 hover:-translate-y-0.5"
-              style={{ background: IVORY, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
+              style={{ background: BUTTON, boxShadow: "0 10px 20px -12px color-mix(in srgb, #D96F70 60%, transparent)" }}
             >
-              <Icon className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5" style={{ color: palette.label }} />
-              <span className={`${cinzel.className} ${ct.btn} truncate font-semibold uppercase tracking-[0.08em]`} style={{ color: palette.heading }}>
+              <Icon className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5" style={{ color: IVORY }} />
+              <span className={`${cinzel.className} ${ct.btn} truncate font-semibold uppercase tracking-[0.08em]`} style={{ color: IVORY }}>
                 {label}
               </span>
             </button>
@@ -417,8 +409,8 @@ export function SnapShare() {
           href={uploadLink}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${cinzel.className} inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:-translate-y-0.5 sm:px-6 ${ct.btn}`}
-          style={{ background: IVORY, color: palette.heading, boxShadow: `inset 0 0 0 1px color-mix(in srgb, var(--color-motif-accent) 55%, transparent)` }}
+          className={`${cinzel.className} inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 sm:px-6 ${ct.btn}`}
+          style={{ background: BUTTON, color: IVORY, boxShadow: "0 12px 24px -12px color-mix(in srgb, #D96F70 60%, transparent)" }}
         >
           <Share2 className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" />
           {content.upload.uploadButton}

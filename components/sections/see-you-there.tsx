@@ -5,6 +5,7 @@ import localFont from "next/font/local"
 import Image from "next/image"
 import { motion, useReducedMotion, type Variants } from "motion/react"
 import { useSiteConfig } from "@/hooks/use-site-config"
+import { PlainBubbles } from "@/components/loader/PlainBubbles"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -33,12 +34,14 @@ const photoTitleShadow =
 const CORNER_DECO_CLASS =
   "block h-auto w-auto max-w-[150px] sm:max-w-[230px] md:max-w-[300px] lg:max-w-[360px] select-none opacity-90"
 
-const plainBg = `
-  radial-gradient(70% 55% at 50% 42%, color-mix(in srgb, var(--color-motif-soft) 90%, transparent) 0%, transparent 70%),
-  radial-gradient(620px 420px at 0% 100%, color-mix(in srgb, var(--color-motif-blush) 45%, transparent) 0%, transparent 60%),
-  radial-gradient(620px 420px at 100% 0%, color-mix(in srgb, var(--color-motif-silver) 80%, transparent) 0%, transparent 60%),
-  linear-gradient(180deg, var(--color-motif-cream) 0%, var(--color-welcome-bg-soft) 50%, var(--color-motif-cream) 100%)
-`.trim()
+// Plain background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+const plainBg = "var(--color-bg-pattern-base)"
+
+// Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
+const onBg = {
+  color: "var(--color-on-pattern)",
+  textShadow: "0 1px 0 var(--color-on-pattern-glow), 0 2px 12px var(--color-on-pattern-glow)",
+} as const
 
 const stagger: Variants = {
   hidden: {},
@@ -90,6 +93,9 @@ function PlainSeeYouThere() {
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative isolate w-full overflow-hidden`}
       style={{ background: plainBg }}
     >
+      {/* Same circle pattern as the hero */}
+      <PlainBubbles />
+
       {/* Corner decorations (from site.ts) */}
       <div className="pointer-events-none absolute left-0 top-0 z-10">
         <DecoImg src={plain.decos.topLeft} className={CORNER_DECO_CLASS} />
@@ -115,7 +121,7 @@ function PlainSeeYouThere() {
           <motion.p
             variants={rise}
             className={`${cinzel.className} text-[0.65rem] font-semibold uppercase tracking-[0.3em] sm:text-xs`}
-            style={{ color: "var(--color-motif-accent)" }}
+            style={onBg}
           >
             {plain.eyebrow}
           </motion.p>
@@ -128,7 +134,7 @@ function PlainSeeYouThere() {
           <span
             aria-hidden
             className={`${theSeasons.className} block uppercase leading-[0.88] tracking-[0.06em] sm:tracking-[0.08em]`}
-            style={{ fontSize: titleSize, color: "var(--color-welcome-navy)", textShadow: "0 1px 0 var(--color-motif-soft)" }}
+            style={{ fontSize: titleSize, ...onBg }}
           >
             <SpecialCharFont text={content.titleLine1} />
             <br />
@@ -140,23 +146,23 @@ function PlainSeeYouThere() {
           <motion.p
             variants={rise}
             className={`${aboveTheBeyond.className} mt-3 text-[1.5rem] leading-tight sm:mt-4 sm:text-[2rem] md:text-[2.35rem]`}
-            style={{ color: "var(--color-welcome-script)" }}
+            style={onBg}
           >
             {fill(plain.script)}
           </motion.p>
         ) : null}
 
         <motion.div variants={rise} className="my-5 flex items-center justify-center gap-2 sm:my-6" aria-hidden>
-          <span className="h-px w-12 sm:w-20" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-medium))" }} />
-          <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-motif-accent)" }} />
-          <span className="h-px w-12 sm:w-20" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-medium))" }} />
+          <span className="h-px w-12 sm:w-20" style={{ background: "var(--color-on-pattern-line)" }} />
+          <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-on-pattern-line)" }} />
+          <span className="h-px w-12 sm:w-20" style={{ background: "var(--color-on-pattern-line)" }} />
         </motion.div>
 
         {plain.message ? (
           <motion.p
             variants={rise}
             className="font-goudy-italic mx-auto mt-4 max-w-md text-sm leading-relaxed sm:mt-5 sm:text-base"
-            style={{ color: "var(--color-welcome-text-soft)" }}
+            style={{ ...onBg, fontWeight: 600 }}
           >
             {fill(plain.message)}
           </motion.p>

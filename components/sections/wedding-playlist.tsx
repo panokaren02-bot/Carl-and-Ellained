@@ -7,6 +7,7 @@ import { Cinzel } from "next/font/google"
 import localFont from "next/font/local"
 import { Music2, Disc3 } from "lucide-react"
 import { motion, useReducedMotion, type Variants } from "motion/react"
+import { PlainBubbles } from "@/components/loader/PlainBubbles"
 
 interface SpotifyPlaybackUpdate {
   playingURI: string
@@ -99,27 +100,29 @@ const aboveTheBeyond = localFont({
 })
 
 // Palette lives in globals.css → motif / welcome tokens.
+// Card is plain light with teal text; buttons are coral (#D96F70).
+const TEAL = "#16828F"
+const BUTTON = "#D96F70"
 const IVORY = "var(--color-motif-soft)"
-const PAPER = "var(--color-welcome-bg-soft)"
-const NAVY = "var(--color-welcome-navy)"
-const BODY = "var(--color-welcome-text)"
-const ACCENT = "var(--color-motif-accent)"
-const SCRIPT = "var(--color-welcome-script)"
-const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 55%, transparent)"
-const DEEP_GRADIENT =
-  "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)"
+const PAPER = "var(--color-motif-soft)"
+const NAVY = TEAL
+const BODY = TEAL
+const ACCENT = TEAL
+const HAIRLINE = "color-mix(in srgb, #16828F 22%, transparent)"
 
-const sectionBg = `
-  radial-gradient(820px 460px at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 75%, transparent) 0%, transparent 65%),
-  radial-gradient(560px 380px at 0% 60%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
-  radial-gradient(560px 380px at 100% 85%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
-  linear-gradient(180deg, var(--color-welcome-bg-soft) 0%, var(--color-motif-cream) 100%)
-`.trim()
+// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+const sectionBg = "var(--color-bg-pattern-base)"
+
+// Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
+const onBg = {
+  color: "var(--color-on-pattern)",
+  textShadow: "0 1px 0 var(--color-on-pattern-glow), 0 2px 12px var(--color-on-pattern-glow)",
+} as const
 
 const cardStyle = {
-  background: `linear-gradient(180deg, ${PAPER} 0%, var(--color-motif-cream) 100%)`,
+  background: PAPER,
   boxShadow:
-    "0 28px 60px -32px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
+    "0 28px 60px -32px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)",
 } as const
 
 const CORNER_DECO_CLASS =
@@ -146,12 +149,13 @@ function DecoImg({ src, className }: { src: string; className: string }) {
   )
 }
 
+// Sits directly on the circle pattern, so drawn in ivory
 function DiamondDivider() {
   return (
     <div className="flex items-center justify-center gap-2" aria-hidden>
-      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-medium))" }} />
-      <span className="h-1.5 w-1.5 rotate-45" style={{ background: ACCENT }} />
-      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-medium))" }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "var(--color-on-pattern-line)" }} />
+      <span className="h-1.5 w-1.5 rotate-45" style={{ background: "var(--color-on-pattern-line)" }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: "var(--color-on-pattern-line)" }} />
     </div>
   )
 }
@@ -187,7 +191,7 @@ function PlaylistTitle({ title, script }: { title: string; script: string }) {
     >
       <span
         className={`${theSeasons.className} block uppercase leading-[0.85] tracking-[0.06em] min-[400px]:tracking-[0.1em] sm:tracking-[0.14em] md:tracking-[0.16em]`}
-        style={{ fontSize: "var(--title-size)", color: NAVY }}
+        style={{ fontSize: "var(--title-size)", ...onBg }}
       >
         <SpecialCharFont text={title} />
       </span>
@@ -196,7 +200,7 @@ function PlaylistTitle({ title, script }: { title: string; script: string }) {
           <span
             aria-hidden
             className={`${aboveTheBeyond.className} mx-auto mt-2 block w-fit max-w-full px-1 leading-[0.9] sm:mt-3`}
-            style={{ fontSize: "var(--script-size)", color: SCRIPT, textShadow: "0 1px 0 var(--color-motif-soft)" }}
+            style={{ fontSize: "var(--script-size)", ...onBg }}
           >
             {script}
           </span>
@@ -283,9 +287,11 @@ export function WeddingPlaylist() {
 
   return (
     <div
-      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full`}
+      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
+      {/* Same circle pattern as the hero */}
+      <PlainBubbles />
       <section
         id="playlist"
         className="relative z-10 overflow-hidden pt-10 pb-9 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20"
@@ -321,7 +327,7 @@ export function WeddingPlaylist() {
             {content.eyebrow ? (
               <p
                 className={`${cinzel.className} mt-3 text-[0.625rem] font-semibold uppercase tracking-[0.2em] sm:mt-5 sm:text-[0.8rem] sm:tracking-[0.24em]`}
-                style={{ color: ACCENT }}
+                style={onBg}
               >
                 {content.eyebrow}
               </p>
@@ -331,7 +337,7 @@ export function WeddingPlaylist() {
             </div>
             <p
               className={`font-goudy-italic ${ct.bodyLg} mx-auto mt-3 max-w-lg px-2 leading-relaxed sm:mt-5`}
-              style={{ color: BODY }}
+              style={{ ...onBg, fontWeight: 600 }}
             >
               {subtitle}
             </p>
@@ -346,22 +352,13 @@ export function WeddingPlaylist() {
             whileInView="show"
             viewport={{ once: true, amount: 0.1 }}
           >
-            <span
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-0 h-40"
-              style={{
-                background:
-                  "radial-gradient(60% 100% at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 75%, transparent), transparent)",
-              }}
-            />
-
             <div className="relative z-20 grid grid-cols-1 items-center gap-4 px-3 py-4 sm:gap-6 sm:px-7 sm:py-9 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-10 md:px-10 md:py-10">
               {/* Info */}
               <div className="flex flex-row items-center gap-3 px-1 text-left sm:flex-col sm:gap-0 sm:px-0 sm:text-center md:items-start md:text-left">
                 <span
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full sm:h-16 sm:w-16"
                   style={{
-                    background: DEEP_GRADIENT,
+                    background: TEAL,
                     boxShadow: `0 0 0 4px ${PAPER}, 0 0 0 5px ${HAIRLINE}, 0 14px 28px -12px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)`,
                   }}
                   aria-hidden
@@ -394,18 +391,18 @@ export function WeddingPlaylist() {
                 <span
                   aria-hidden
                   className="my-5 hidden h-px w-24 md:block"
-                  style={{ background: "linear-gradient(to right, var(--color-motif-medium), transparent)" }}
+                  style={{ background: "linear-gradient(to right, color-mix(in srgb, #16828F 45%, transparent), transparent)" }}
                 />
                 <a
                   href={spotifyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`${cinzel.className} mt-5 hidden items-center sm:inline-flex justify-center gap-2 rounded-full border px-7 py-2.5 font-semibold uppercase tracking-[0.2em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-motif-accent)] sm:py-3 md:mt-0 ${ct.btn}`}
+                  className={`${cinzel.className} mt-5 hidden items-center sm:inline-flex justify-center gap-2 rounded-full border px-7 py-2.5 font-semibold uppercase tracking-[0.2em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16828F] sm:py-3 md:mt-0 ${ct.btn}`}
                   style={{
-                    background: DEEP_GRADIENT,
-                    borderColor: "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)",
+                    background: BUTTON,
+                    borderColor: BUTTON,
                     color: IVORY,
-                    boxShadow: "0 12px 24px -12px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)",
+                    boxShadow: "0 12px 24px -12px color-mix(in srgb, #D96F70 60%, transparent)",
                   }}
                 >
                   <Music2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -423,7 +420,7 @@ export function WeddingPlaylist() {
                   title={`${playlistName} — Spotify playlist`}
                   aria-label={`${playlistName} — Spotify playlist`}
                   className="h-[232px] w-full overflow-hidden rounded-xl sm:h-[352px] [&_iframe]:block [&_iframe]:border-0"
-                  style={{ background: "color-mix(in srgb, var(--color-motif-silver) 50%, transparent)" }}
+                  style={{ background: "color-mix(in srgb, #16828F 8%, transparent)" }}
                 />
               </div>
 
@@ -434,9 +431,9 @@ export function WeddingPlaylist() {
                 rel="noopener noreferrer"
                 className={`${cinzel.className} inline-flex w-full items-center justify-center gap-2 rounded-full py-2.5 font-semibold uppercase tracking-[0.18em] transition-all active:scale-[0.98] sm:hidden ${ct.btn}`}
                 style={{
-                  background: DEEP_GRADIENT,
+                  background: BUTTON,
                   color: IVORY,
-                  boxShadow: "0 10px 20px -12px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)",
+                  boxShadow: "0 10px 20px -12px color-mix(in srgb, #D96F70 60%, transparent)",
                 }}
               >
                 <Music2 className="h-3.5 w-3.5" />

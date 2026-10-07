@@ -8,6 +8,7 @@ import { Cinzel } from "next/font/google"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { layeredSectionTitleSize, sectionType } from "@/lib/section-typography"
 import { fetchInvitationList } from "@/lib/invitation-data"
+import { PlainBubbles } from "@/components/loader/PlainBubbles"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -27,22 +28,27 @@ const aboveTheBeyond = localFont({
 })
 
 // Palette lives in globals.css → motif / welcome tokens.
+// Cards are plain light with teal text; buttons/badges are coral (#D96F70); guest names are coral.
+const TEAL = "#16828F"
+const BUTTON = "#D96F70"
 const IVORY = "var(--color-motif-soft)"
-const PAPER = "var(--color-welcome-bg-soft)"
-const NAVY = "var(--color-welcome-navy)"
-const BODY = "var(--color-welcome-text)"
-const ACCENT = "var(--color-motif-accent)"
-const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 55%, transparent)"
-const DEEP_GRADIENT =
-  "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)"
-const SAGE_GRADIENT = "linear-gradient(145deg, var(--color-motif-medium) 0%, var(--color-motif-accent) 100%)"
+const PAPER = "var(--color-motif-soft)"
+const NAVY = TEAL
+const BODY = TEAL
+const ACCENT = TEAL
+const HAIRLINE = "color-mix(in srgb, #16828F 22%, transparent)"
+const TEAL_SOFT = "color-mix(in srgb, #16828F 65%, transparent)"
+const DEEP_GRADIENT = BUTTON
+const SAGE_GRADIENT = TEAL
 
-const sectionBg = `
-  radial-gradient(820px 460px at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 75%, transparent) 0%, transparent 65%),
-  radial-gradient(560px 380px at 0% 60%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
-  radial-gradient(560px 380px at 100% 85%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
-  linear-gradient(180deg, var(--color-motif-cream) 0%, var(--color-welcome-bg-soft) 50%, var(--color-motif-cream) 100%)
-`.trim()
+// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+const sectionBg = "var(--color-bg-pattern-base)"
+
+// Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
+const onBg = {
+  color: "var(--color-on-pattern)",
+  textShadow: "0 1px 0 var(--color-on-pattern-glow), 0 2px 12px var(--color-on-pattern-glow)",
+} as const
 
 const palette = {
   body: BODY,
@@ -52,28 +58,24 @@ const palette = {
 } as const
 
 const cardStyle = {
-  background: `linear-gradient(180deg, ${PAPER} 0%, var(--color-motif-cream) 100%)`,
+  background: PAPER,
   boxShadow:
-    "0 22px 48px -26px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
-} as const
-
-const dividerLineStyle = {
-  background: "linear-gradient(to right, transparent, var(--color-motif-medium), transparent)",
+    "0 22px 48px -26px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)",
 } as const
 
 const CORNER_DECO_CLASS =
   "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
 
 const refreshButtonStyle = {
-  borderColor: HAIRLINE,
-  backgroundColor: IVORY,
-  boxShadow: "0 4px 14px -4px color-mix(in srgb, var(--color-welcome-navy) 30%, transparent)",
+  borderColor: BUTTON,
+  backgroundColor: BUTTON,
+  boxShadow: "0 4px 14px -4px color-mix(in srgb, #D96F70 45%, transparent)",
 } as const
 
 const chipPrimaryStyle = {
   color: NAVY,
-  borderColor: "color-mix(in srgb, var(--color-motif-accent) 45%, transparent)",
-  backgroundColor: "color-mix(in srgb, var(--color-motif-silver) 70%, var(--color-motif-soft))",
+  borderColor: "color-mix(in srgb, #16828F 40%, transparent)",
+  backgroundColor: "color-mix(in srgb, #16828F 10%, var(--color-motif-soft))",
 } as const
 
 const chipSecondaryStyle = {
@@ -109,12 +111,14 @@ function DecoImg({ src, className }: { src: string; className: string }) {
   )
 }
 
-function DiamondDivider() {
+// onBg = sits directly on the circle pattern (plain line in --color-on-pattern-line)
+function DiamondDivider({ onBg: onPattern = false }: { onBg?: boolean }) {
+  const line = onPattern ? "var(--color-on-pattern-line)" : "color-mix(in srgb, #16828F 55%, transparent)"
   return (
     <div className="flex items-center justify-center gap-2" aria-hidden>
-      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right, transparent, var(--color-motif-medium))" }} />
-      <span className="h-1.5 w-1.5 rotate-45" style={{ background: ACCENT }} />
-      <span className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left, transparent, var(--color-motif-medium))" }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: onPattern ? line : `linear-gradient(to right, transparent, ${line})` }} />
+      <span className="h-1.5 w-1.5 rotate-45" style={{ background: onPattern ? line : ACCENT }} />
+      <span className="h-px w-10 sm:w-16" style={{ background: onPattern ? line : `linear-gradient(to left, transparent, ${line})` }} />
     </div>
   )
 }
@@ -143,7 +147,7 @@ function BookOfGuestsTitle({ title, subtitle }: { title: string; subtitle: strin
         className={`${theSeasons.className} block uppercase leading-[0.78] tracking-[0.08em] min-[400px]:tracking-[0.11em] sm:tracking-[0.13em] md:tracking-[0.14em] pb-1 sm:pb-1.5`}
         style={{
           fontSize: "var(--title-size)",
-          color: "var(--color-welcome-navy)",
+          ...onBg,
         }}
       >
         {title}
@@ -153,7 +157,7 @@ function BookOfGuestsTitle({ title, subtitle }: { title: string; subtitle: strin
         className={`${aboveTheBeyond.className} mx-auto block w-fit max-w-full px-1 leading-[0.88] sm:leading-[0.9] mt-2 sm:mt-2.5 md:mt-3`}
         style={{
           fontSize: "var(--script-size)",
-          color: "var(--color-welcome-script)",
+          ...onBg,
         }}
       >
         {subtitle}
@@ -325,6 +329,9 @@ export function BookOfGuests() {
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative isolate z-10 overflow-hidden pt-12 pb-10 sm:pt-14 sm:pb-12 md:pt-16 md:pb-14 lg:pt-20 lg:pb-16`}
       style={{ background: sectionBg }}
     >
+      {/* Same circle pattern as the hero */}
+      <PlainBubbles />
+
       {/* Corner decorations (from site.ts) */}
       <div className="pointer-events-none absolute left-0 top-0 z-10">
         <DecoImg src={decos.topLeft} className={CORNER_DECO_CLASS} />
@@ -351,18 +358,21 @@ export function BookOfGuests() {
           src={decos.headerOrnament}
           className="mx-auto mb-3 block h-auto w-28 select-none sm:mb-4 sm:w-36 md:w-44"
         />
-        <DiamondDivider />
+        <DiamondDivider onBg />
         <div className="mt-4 mb-4 sm:mt-5 sm:mb-5">
           <BookOfGuestsTitle title={copy.title} subtitle={copy.subtitle} />
         </div>
         <p
           className={`font-goudy-italic mx-auto max-w-2xl px-2 ${sectionType.textRelaxed}`}
-          style={{ color: BODY }}
+          style={{ ...onBg, fontWeight: 600 }}
         >
           {copy.description}
         </p>
         <div className="flex items-center justify-center pt-4 sm:pt-5">
-          <span className="h-px w-16 sm:w-24 md:w-32" style={dividerLineStyle} />
+          <span
+            className="h-px w-16 sm:w-24 md:w-32"
+            style={{ background: "var(--color-on-pattern-line)" }}
+          />
         </div>
       </motion.div>
 
@@ -379,19 +389,11 @@ export function BookOfGuests() {
             className="relative overflow-hidden rounded-[1.75rem] sm:rounded-[2.25rem]"
             style={cardStyle}
           >
-            {/* Inner frame + top glow */}
+            {/* Inner frame */}
             <span
               aria-hidden
               className="pointer-events-none absolute inset-2.5 rounded-[1.4rem] border sm:inset-3 sm:rounded-[1.85rem]"
               style={{ borderColor: HAIRLINE }}
-            />
-            <span
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-0 h-40"
-              style={{
-                background:
-                  "radial-gradient(60% 100% at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 75%, transparent), transparent)",
-              }}
             />
 
             <button
@@ -405,7 +407,7 @@ export function BookOfGuests() {
             >
               <RefreshCw
                 className={`h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-500 ${isRefreshing ? "animate-spin" : "group-hover:rotate-180"}`}
-                style={{ color: ACCENT }}
+                style={{ color: IVORY }}
                 aria-hidden
               />
             </button>
@@ -479,7 +481,7 @@ export function BookOfGuests() {
 
               <p
                 className={`${cinzel.className} ${ct.meta} mt-3 sm:mt-4 uppercase tracking-[0.14em]`}
-                style={{ color: "var(--color-welcome-text-soft)" }}
+                style={{ color: TEAL_SOFT }}
               >
                 {copy.updatedLabel} {formatLastUpdate(lastUpdate)}
               </p>
@@ -499,11 +501,11 @@ export function BookOfGuests() {
             >
               <p
                 className={`${cinzel.className} ${ct.label} uppercase tracking-[0.22em] font-semibold`}
-                style={{ color: palette.label }}
+                style={onBg}
               >
                 {copy.listEyebrow}
               </p>
-              <p className={`font-goudy-italic ${ct.body} mt-1.5`} style={{ color: palette.body }}>
+              <p className={`font-goudy-italic ${ct.body} mt-1.5`} style={{ ...onBg, fontWeight: 600 }}>
                 {copy.listDescription}
               </p>
             </motion.div>
@@ -532,7 +534,7 @@ export function BookOfGuests() {
                       {/* Hairline inner frame — turns olive on hover */}
                       <span
                         aria-hidden
-                        className="pointer-events-none absolute inset-1.5 rounded-[0.85rem] border transition-colors duration-300 group-hover:border-[color-mix(in_srgb,var(--color-motif-accent)_45%,transparent)]"
+                        className="pointer-events-none absolute inset-1.5 rounded-[0.85rem] border transition-colors duration-300 group-hover:border-[color-mix(in_srgb,#16828F_45%,transparent)]"
                         style={{ borderColor: HAIRLINE }}
                       />
 
@@ -542,7 +544,7 @@ export function BookOfGuests() {
                           className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-transform duration-500 group-hover:scale-105 sm:h-12 sm:w-12"
                           style={{
                             background: SAGE_GRADIENT,
-                            boxShadow: `0 0 0 2px ${IVORY}, 0 0 0 3px ${HAIRLINE}, 0 6px 14px -6px color-mix(in srgb, var(--color-motif-deep) 55%, transparent)`,
+                            boxShadow: `0 0 0 2px ${IVORY}, 0 0 0 3px ${HAIRLINE}, 0 6px 14px -6px color-mix(in srgb, #16828F 55%, transparent)`,
                           }}
                         >
                           <span className={`${theSeasons.className} text-[1rem] tracking-[0.06em] sm:text-[1.08rem]`} style={{ color: IVORY }}>
@@ -554,7 +556,7 @@ export function BookOfGuests() {
                           <div className="flex min-w-0 items-center gap-1.5">
                             <h3
                               className={`${theSeasons.className} min-w-0 truncate text-[0.98rem] uppercase leading-tight tracking-[0.07em] sm:text-[1.06rem]`}
-                              style={{ color: palette.heading }}
+                              style={{ color: BUTTON }}
                               title={guest.name}
                             >
                               {guest.name}
@@ -579,18 +581,18 @@ export function BookOfGuests() {
                               <Users className="h-2.5 w-2.5" aria-hidden />
                               {guest.allowedGuests} {guest.allowedGuests === 1 ? copy.guestSingular : copy.guestPlural}
                             </span>
-                            <span aria-hidden className="h-[3px] w-[3px] shrink-0 rotate-45" style={{ background: "var(--color-motif-medium)" }} />
+                            <span aria-hidden className="h-[3px] w-[3px] shrink-0 rotate-45" style={{ background: TEAL_SOFT }} />
                             <span className="inline-flex min-w-0 items-center gap-1 whitespace-nowrap">
                               <Armchair className="h-2.5 w-2.5 shrink-0" aria-hidden />
                               {hasTable ? (
                                 <span className="truncate" style={{ color: palette.heading }}>{guest.tableNumber}</span>
                               ) : (
-                                <span style={{ color: "var(--color-welcome-text-soft)" }}>{copy.noTable}</span>
+                                <span style={{ color: TEAL_SOFT }}>{copy.noTable}</span>
                               )}
                             </span>
                             {guest.role ? (
                               <>
-                                <span aria-hidden className="h-[3px] w-[3px] shrink-0 rotate-45" style={{ background: "var(--color-motif-medium)" }} />
+                                <span aria-hidden className="h-[3px] w-[3px] shrink-0 rotate-45" style={{ background: TEAL_SOFT }} />
                                 <span className="max-w-full truncate">{guest.role}</span>
                               </>
                             ) : null}
@@ -606,7 +608,7 @@ export function BookOfGuests() {
                         return (
                           <div
                             className="relative z-[1] mt-2.5 rounded-xl px-2.5 pb-2 pt-1.5"
-                            style={{ background: "color-mix(in srgb, var(--color-motif-silver) 45%, transparent)" }}
+                            style={{ background: "color-mix(in srgb, #16828F 7%, transparent)" }}
                           >
                             {/* Label row */}
                             <div className="mb-1.5 flex items-center gap-1.5">
@@ -616,7 +618,7 @@ export function BookOfGuests() {
                               >
                                 {copy.companionsLabel}
                               </span>
-                              <span className="h-px flex-1" style={{ background: "linear-gradient(to right, var(--color-motif-medium), transparent)" }} aria-hidden />
+                              <span className="h-px flex-1" style={{ background: "linear-gradient(to right, color-mix(in srgb, #16828F 50%, transparent), transparent)" }} aria-hidden />
                               <span
                                 className={`${cinzel.className} rounded-full px-1.5 py-[1px] text-[0.46rem] font-semibold leading-none tracking-[0.06em]`}
                                 style={{ background: IVORY, color: palette.label, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}
@@ -646,7 +648,7 @@ export function BookOfGuests() {
                                   {companion.relationship && companion.relationship.trim() !== "" ? (
                                     <span
                                       className={`${cinzel.className} shrink-0 text-[0.44rem] font-semibold uppercase leading-none tracking-[0.1em] sm:text-[0.48rem]`}
-                                      style={{ color: "var(--color-welcome-text-soft)" }}
+                                      style={{ color: TEAL_SOFT }}
                                     >
                                       · {companion.relationship}
                                     </span>
@@ -673,7 +675,7 @@ export function BookOfGuests() {
 
                       <p
                         className="font-goudy-italic relative z-[1] mt-1.5 text-right text-[0.56rem] leading-none sm:text-[0.6rem]"
-                        style={{ color: "var(--color-welcome-text-soft)" }}
+                        style={{ color: TEAL_SOFT }}
                       >
                         {copy.confirmedLabel} {formatDate(guest.updatedAt)}
                       </p>
@@ -694,7 +696,7 @@ export function BookOfGuests() {
                       className="h-1.5 rounded-full transition-all duration-500"
                       style={{
                         width: isActive ? "1.5rem" : "0.375rem",
-                        background: isActive ? ACCENT : "var(--color-motif-medium)",
+                        background: isActive ? "var(--color-on-pattern)" : "color-mix(in srgb, var(--color-on-pattern) 35%, transparent)",
                       }}
                     />
                   )

@@ -25,7 +25,7 @@ const NAV_MONOGRAM = siteConfig.couple.monogram
 const navLinks: { href: string; label: string; wideOnly?: boolean }[] = [
   { href: "#home", label: "Home" },
   { href: "#welcome", label: "Welcome", wideOnly: true },
-  { href: "#love-story", label: "Our Story" },
+  { href: "#love-story", label: "Our Message" },
   { href: "#countdown", label: "Countdown", wideOnly: true },
   { href: "#gallery", label: "Gallery" },
   { href: "#messages", label: "Messages" },

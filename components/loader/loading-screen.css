@@ -1001,12 +1001,8 @@
 }
 
 .home-hero--plain .home-hero-title-glow {
-  background: radial-gradient(
-    ellipse at center,
-    color-mix(in srgb, var(--color-motif-silver) 55%, transparent) 0%,
-    color-mix(in srgb, var(--color-motif-medium) 22%, transparent) 48%,
-    transparent 72%
-  );
+  /* plain background: no halo behind the title */
+  background: none;
 }
 
 .home-hero--photos .home-hero-title-main {
@@ -1025,18 +1021,13 @@
     0 0 28px color-mix(in srgb, var(--color-welcome-gold) 45%, transparent);
 }
 
-.home-hero--plain .home-hero-title-main {
-  color: var(--color-welcome-navy);
-  text-shadow:
-    0 1px 0 color-mix(in srgb, var(--color-motif-soft) 85%, transparent),
-    0 2px 14px color-mix(in srgb, var(--color-motif-medium) 35%, transparent);
-}
-
+/* Plain: text on the light peach circle pattern (colors: globals.css → --color-on-pattern*) */
+.home-hero--plain .home-hero-title-main,
 .home-hero--plain .home-hero-title-script {
-  color: var(--color-welcome-heading);
+  color: var(--color-on-pattern);
   text-shadow:
-    0 1px 0 color-mix(in srgb, var(--color-motif-soft) 70%, transparent),
-    0 3px 16px color-mix(in srgb, var(--color-motif-accent) 28%, transparent);
+    0 1px 0 var(--color-on-pattern-glow),
+    0 3px 16px var(--color-on-pattern-glow);
 }
 
 .home-hero--photos .home-hero-eyebrow,
@@ -1054,25 +1045,18 @@
 }
 
 .home-hero--plain .home-hero-eyebrow,
-.home-hero--plain .home-hero-meta {
-  color: var(--color-welcome-text);
-  text-shadow: 0 1px 8px color-mix(in srgb, var(--color-motif-silver) 65%, transparent);
-}
-
+.home-hero--plain .home-hero-meta,
 .home-hero--plain .home-hero-date {
-  color: var(--color-welcome-navy);
-  text-shadow: 0 2px 14px color-mix(in srgb, var(--color-motif-medium) 32%, transparent);
+  color: var(--color-on-pattern);
+  text-shadow:
+    0 1px 0 var(--color-on-pattern-glow),
+    0 2px 12px var(--color-on-pattern-glow);
 }
 
-.home-hero--plain .home-hero-countdown-value,
+.home-hero--plain .home-hero-eyebrow,
+.home-hero--plain .home-hero-meta,
 .home-hero--plain .home-hero-countdown-heading {
-  color: var(--color-welcome-navy);
-  text-shadow: 0 1px 10px color-mix(in srgb, var(--color-motif-silver) 55%, transparent);
-}
-
-.home-hero--plain .home-hero-countdown-label {
-  color: var(--color-welcome-text-soft);
-  text-shadow: none;
+  font-weight: 700;
 }
 
 .home-hero--photos .home-hero-countdown-bar {
@@ -1084,13 +1068,27 @@
   );
 }
 
+/* Countdown: a band that fades up from the bottom edge (colors: globals.css → --color-countdown-*) */
 .home-hero--plain .home-hero-countdown-bar {
+  padding-top: clamp(3.5rem, 12vh, 6rem);
   background: linear-gradient(
-    180deg,
-    transparent 0%,
-    color-mix(in srgb, var(--color-motif-silver) 45%, transparent) 22%,
-    color-mix(in srgb, var(--color-welcome-bg-soft) 88%, var(--color-motif-medium)) 100%
+    to top,
+    var(--color-countdown-fade) 0%,
+    color-mix(in srgb, var(--color-countdown-fade) 88%, transparent) 30%,
+    color-mix(in srgb, var(--color-countdown-fade) 45%, transparent) 65%,
+    transparent 100%
   );
+}
+
+.home-hero--plain .home-hero-countdown-value,
+.home-hero--plain .home-hero-countdown-heading {
+  color: var(--color-countdown-text);
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--color-countdown-fade) 60%, transparent);
+}
+
+.home-hero--plain .home-hero-countdown-label {
+  color: var(--color-countdown-label);
+  text-shadow: none;
 }
 
 /* Full-bleed section corners — couple-video, etc. (matches hero plain corners) */
@@ -2538,4 +2536,716 @@
   background-clip: text;
   color: transparent;
   filter: drop-shadow(0 1px 0 rgb(255 255 255 / 70%)) drop-shadow(0 6px 14px color-mix(in srgb, var(--color-welcome-navy) 18%, transparent));
+}
+
+
+/* ==========================================================================
+   Plain mode — colorful pass
+   Brings the full motif palette (teal, aqua, peach, coral, blush) into the
+   backdrop, card border, typography, date and progress bar.
+   ========================================================================== */
+
+@property --ls-hue-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.loading-screen--plain {
+  --ls-c-teal: var(--color-motif-accent);
+  --ls-c-aqua: var(--color-motif-medium);
+  --ls-c-sky: var(--color-motif-teal-light);
+  --ls-c-peach: var(--color-motif-yellow);
+  --ls-c-coral: var(--color-motif-blush);
+  --ls-c-deep: var(--color-welcome-navy);
+  --ls-spectrum: var(--ls-c-teal), var(--ls-c-aqua), var(--ls-c-peach), var(--ls-c-coral), var(--ls-c-teal);
+}
+
+/* Warmer, livelier backdrop: brighter orbs */
+.loading-screen--plain .invite-plain-atmosphere__base {
+  background:
+    radial-gradient(70% 50% at 12% 8%, color-mix(in srgb, var(--ls-c-peach) 38%, transparent) 0%, transparent 70%),
+    radial-gradient(70% 50% at 90% 92%, color-mix(in srgb, var(--ls-c-aqua) 40%, transparent) 0%, transparent 70%),
+    linear-gradient(160deg, var(--color-motif-soft) 0%, var(--color-welcome-bg-soft) 50%, var(--color-motif-cream) 100%);
+}
+
+.loading-screen--plain .invite-plain-atmosphere__blob {
+  opacity: 0.55;
+}
+
+/* Glow tinted warm at the top, cool at the bottom */
+.loading-screen--plain .ls-plain-glow {
+  background:
+    radial-gradient(55% 42% at 50% 46%, color-mix(in srgb, white 65%, transparent) 0%, transparent 70%),
+    radial-gradient(60% 40% at 50% -5%, color-mix(in srgb, var(--ls-c-peach) 40%, transparent) 0%, transparent 70%),
+    radial-gradient(80% 60% at 50% 110%, color-mix(in srgb, var(--ls-c-aqua) 45%, transparent) 0%, transparent 70%);
+}
+
+/* Multi-colored motes; every third one is a tumbling petal */
+.loading-screen--plain .ls-plain-mote {
+  background: radial-gradient(circle, color-mix(in srgb, white 70%, var(--c)) 0%, var(--c) 75%);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--c) 70%, transparent);
+  animation-name: ls-plain-mote-rise-spin;
+}
+
+.loading-screen--plain .ls-plain-mote--petal {
+  width: calc(var(--size) * 1.6);
+  height: calc(var(--size) * 2.2);
+  border-radius: 80% 0 80% 0;
+  background: linear-gradient(135deg, color-mix(in srgb, white 45%, var(--c)) 0%, var(--c) 100%);
+  box-shadow: none;
+}
+
+@keyframes ls-plain-mote-rise-spin {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+  12% { opacity: 0.9; }
+  80% { opacity: 0.65; }
+  100% { transform: translate3d(var(--drift), -105vh, 0) rotate(var(--spin)); opacity: 0; }
+}
+
+/* Card: rotating spectrum border around the arch */
+.loading-screen--plain .loading-screen__save-date {
+  border: 2px solid transparent;
+  background:
+    radial-gradient(90% 45% at 50% 0%, color-mix(in srgb, white 75%, transparent) 0%, transparent 70%) padding-box,
+    radial-gradient(70% 30% at 50% 100%, color-mix(in srgb, var(--ls-c-peach) 22%, transparent) 0%, transparent 75%) padding-box,
+    linear-gradient(180deg, var(--color-motif-soft) 0%, color-mix(in srgb, var(--ls-c-sky) 16%, var(--color-motif-soft)) 55%, color-mix(in srgb, var(--ls-c-coral) 14%, var(--color-motif-soft)) 100%) padding-box,
+    conic-gradient(from var(--ls-hue-angle), var(--ls-spectrum)) border-box;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 80%) inset,
+    0 30px 60px -30px color-mix(in srgb, var(--ls-c-coral) 55%, transparent),
+    0 10px 30px -14px color-mix(in srgb, var(--ls-c-teal) 45%, transparent);
+  animation:
+    ls-plain-card-in 1.3s cubic-bezier(0.22, 1, 0.36, 1) backwards,
+    ls-plain-hue-spin 12s linear infinite;
+}
+
+@keyframes ls-plain-hue-spin {
+  to { --ls-hue-angle: 360deg; }
+}
+
+.loading-screen--plain .loading-screen__save-date::before {
+  border-color: color-mix(in srgb, var(--ls-c-peach) 65%, transparent);
+}
+
+.loading-screen--plain .loading-screen__save-date::after {
+  border-color: color-mix(in srgb, var(--ls-c-aqua) 45%, transparent);
+}
+
+.loading-screen--plain .loading-screen__std-kicker {
+  color: var(--ls-c-coral);
+}
+
+.loading-screen--plain .loading-screen__std-eyebrow,
+.loading-screen--plain .loading-screen__std-venue-time {
+  color: var(--ls-c-coral);
+}
+
+/* Date: colored hairlines, teal month, coral year, spectrum day */
+.loading-screen--plain .ls-silk-date__weekday {
+  color: var(--ls-c-teal);
+}
+
+.loading-screen--plain .ls-silk-date__weekday::before {
+  background: linear-gradient(90deg, transparent, var(--ls-c-aqua), var(--ls-c-peach));
+}
+
+.loading-screen--plain .ls-silk-date__weekday::after {
+  background: linear-gradient(90deg, var(--ls-c-peach), var(--ls-c-coral), transparent);
+}
+
+.loading-screen--plain .ls-silk-date__side:first-child {
+  color: var(--ls-c-teal);
+  border-image: linear-gradient(90deg, transparent, var(--ls-c-aqua)) 1;
+}
+
+.loading-screen--plain .ls-silk-date__side:last-child {
+  color: var(--ls-c-coral);
+  border-image: linear-gradient(90deg, var(--ls-c-coral), transparent) 1;
+}
+
+.loading-screen--plain .ls-silk-date__day {
+  background: linear-gradient(
+    100deg,
+    var(--ls-c-deep) 0%,
+    var(--ls-c-teal) 20%,
+    var(--ls-c-aqua) 35%,
+    var(--ls-c-peach) 50%,
+    var(--ls-c-coral) 65%,
+    var(--ls-c-teal) 82%,
+    var(--ls-c-deep) 100%
+  );
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter:
+    drop-shadow(0 1px 0 rgb(255 255 255 / 75%))
+    drop-shadow(0 6px 14px color-mix(in srgb, var(--ls-c-coral) 28%, transparent));
+}
+
+/* Divider + status */
+.loading-screen--plain .loading-screen__std-rule {
+  background: linear-gradient(90deg, transparent, var(--ls-c-aqua), var(--ls-c-peach), var(--ls-c-coral), transparent);
+}
+
+.loading-screen--plain .loading-screen__std-status {
+  color: var(--ls-c-teal);
+}
+
+/* Progress: full spectrum fill with a coral leading glow */
+.loading-screen--plain .loading-screen__std-track {
+  height: 3px;
+  background: color-mix(in srgb, var(--ls-c-sky) 40%, transparent);
+}
+
+.loading-screen--plain .loading-screen__std-bar {
+  background: linear-gradient(90deg, var(--ls-c-teal), var(--ls-c-aqua) 35%, var(--ls-c-peach) 70%, var(--ls-c-coral));
+}
+
+.loading-screen--plain .ls-plain-progress-glow {
+  background: var(--ls-c-coral);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--color-motif-soft) 85%, transparent),
+    0 0 14px 3px color-mix(in srgb, var(--ls-c-coral) 60%, transparent),
+    0 0 24px 6px color-mix(in srgb, var(--ls-c-peach) 35%, transparent);
+}
+
+/* Reduced motion: colors stay, movement stops */
+.loading-screen--plain.is-reduced-motion .loading-screen__save-date {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen--plain .loading-screen__save-date {
+    animation: none;
+  }
+}
+
+
+/* ==========================================================================
+   Plain mode — "SAVE the DATE" lockup + date entrance
+   SAVE / DATE: Cinzel capitals that rise in letter by letter.
+   "the": coral script that writes itself in between them.
+   Date: day rises out of a soft blur with one light sweep → month & year glide out from the
+   day → weekday hairlines draw outward.
+   ========================================================================== */
+
+/* ---- Headline lockup ---- */
+.loading-screen--plain .ls-headline {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 0.18em;
+  margin: 0;
+  font-family: var(--font-cinzel, "Cinzel", serif);
+  font-size: clamp(1.85rem, 8.4vw, 2.9rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ls-c-deep);
+  /* gradient-filled glyphs: lift with drop-shadow, not text-shadow (it would paint over the fill) */
+  text-shadow: none;
+  perspective: 600px;
+}
+
+.ls-headline__word {
+  display: inline-flex;
+}
+
+.ls-headline__letter {
+  display: inline-block;
+  background: linear-gradient(180deg, var(--ls-c-teal) 0%, var(--ls-c-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 80%));
+  opacity: 0;
+  transform-origin: 50% 100%;
+  animation: ls-letter-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--ls-delay, 0ms) forwards;
+}
+
+@keyframes ls-letter-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0.55em) rotateX(-75deg) scale(0.9);
+    filter: blur(6px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: drop-shadow(0 1px 0 rgb(255 255 255 / 80%));
+  }
+}
+
+/* "the" — coral script, written in left to right */
+.ls-headline__script {
+  display: inline-block;
+  position: relative;
+  /* raised to sit between the capitals' midline and cap height */
+  top: -0.12em;
+  margin: -0.25em 0.02em;
+  padding: 0 0.14em 0.1em;
+  font-family: var(--font-brittany), cursive;
+  font-size: 1.5em;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  background: linear-gradient(100deg, var(--ls-c-coral) 0%, var(--ls-c-peach) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  clip-path: inset(-20% 100% -20% 0);
+  animation: ls-script-write 1.1s cubic-bezier(0.65, 0, 0.35, 1) var(--ls-delay, 0ms) forwards;
+}
+
+@keyframes ls-script-write {
+  to { clip-path: inset(-20% -10% -20% 0); }
+}
+
+/* ---- Countdown kicker: plain line under the lockup, spaced from the invitation wording ---- */
+.loading-screen--plain .loading-screen__std-kicker {
+  margin-top: 0.75rem;
+  margin-bottom: 1.1rem;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+/* ---- Date: reset the older fade so each part gets its own entrance ---- */
+.loading-screen--plain .ls-silk-date__weekday,
+.loading-screen--plain .ls-silk-date__side,
+.loading-screen--plain .ls-silk-date__day {
+  transform: none;
+  transition: none;
+}
+
+/* Day: digits rise slowly out of a soft blur, then one quiet light sweep */
+.loading-screen--plain .ls-silk-date__day {
+  position: relative;
+  display: inline-flex;
+  opacity: 1;
+  background: none;
+  color: inherit;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  animation: none;
+}
+
+.ls-silk-date__digit {
+  display: inline-block;
+}
+
+.ls-silk-date__digit-inner {
+  display: inline-block;
+  /* solid ink with a narrow highlight band parked off to the right */
+  background: linear-gradient(
+    105deg,
+    var(--ls-date-ink) 0%,
+    var(--ls-date-ink) 42%,
+    color-mix(in srgb, var(--ls-date-ink) 35%, white) 50%,
+    var(--ls-date-ink) 58%,
+    var(--ls-date-ink) 100%
+  );
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0;
+  transform: translateY(0.18em) scale(1.06);
+  filter: blur(10px);
+}
+
+.ls-silk-date__day.is-visible .ls-silk-date__digit-inner {
+  animation:
+    ls-digit-rise 1.8s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--ls-delay, 0ms) + var(--i) * 220ms) forwards,
+    ls-digit-sheen 1.6s cubic-bezier(0.45, 0, 0.25, 1) calc(var(--ls-delay, 0ms) + 1500ms + var(--i) * 120ms) forwards;
+}
+
+@keyframes ls-digit-rise {
+  0% { opacity: 0; transform: translateY(0.18em) scale(1.06); filter: blur(10px); }
+  55% { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes ls-digit-sheen {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
+
+/* Month & year: glide out from beside the day, hairlines draw outward */
+.loading-screen--plain .ls-silk-date__side {
+  position: relative;
+  border-block: 0;
+  border-image: none;
+  opacity: 0;
+}
+
+.loading-screen--plain .ls-silk-date__side::before,
+.loading-screen--plain .ls-silk-date__side::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  transform: scaleX(0);
+}
+
+.loading-screen--plain .ls-silk-date__side::before { top: 0; }
+.loading-screen--plain .ls-silk-date__side::after { bottom: 0; }
+
+.loading-screen--plain .ls-silk-date__side--month::before,
+.loading-screen--plain .ls-silk-date__side--month::after {
+  background: linear-gradient(90deg, transparent, var(--ls-date-line));
+  transform-origin: right center;
+}
+
+.loading-screen--plain .ls-silk-date__side--year::before,
+.loading-screen--plain .ls-silk-date__side--year::after {
+  background: linear-gradient(90deg, var(--ls-date-line), transparent);
+  transform-origin: left center;
+}
+
+.loading-screen--plain .ls-silk-date__side--month.is-visible {
+  animation: ls-side-from-right 1.5s cubic-bezier(0.16, 1, 0.3, 1) var(--ls-delay, 0ms) forwards;
+}
+
+.loading-screen--plain .ls-silk-date__side--year.is-visible {
+  animation: ls-side-from-left 1.5s cubic-bezier(0.16, 1, 0.3, 1) var(--ls-delay, 0ms) forwards;
+}
+
+.loading-screen--plain .ls-silk-date__side.is-visible::before,
+.loading-screen--plain .ls-silk-date__side.is-visible::after {
+  animation: ls-line-draw 1.4s cubic-bezier(0.65, 0, 0.35, 1) calc(var(--ls-delay, 0ms) + 250ms) forwards;
+}
+
+@keyframes ls-side-from-right {
+  from { opacity: 0; transform: translateX(18%); filter: blur(5px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes ls-side-from-left {
+  from { opacity: 0; transform: translateX(-18%); filter: blur(5px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes ls-line-draw {
+  to { transform: scaleX(1); }
+}
+
+/* Weekday: letters settle from wide spacing; hairlines grow out from the text */
+.loading-screen--plain .ls-silk-date__weekday {
+  opacity: 0;
+}
+
+.loading-screen--plain .ls-silk-date__weekday::before,
+.loading-screen--plain .ls-silk-date__weekday::after {
+  transform: scaleX(0);
+}
+
+.loading-screen--plain .ls-silk-date__weekday::before { transform-origin: right center; }
+.loading-screen--plain .ls-silk-date__weekday::after { transform-origin: left center; }
+
+.loading-screen--plain .ls-silk-date__weekday.is-visible {
+  animation: ls-weekday-in 1s cubic-bezier(0.22, 1, 0.36, 1) var(--ls-delay, 0ms) forwards;
+}
+
+.loading-screen--plain .ls-silk-date__weekday.is-visible::before,
+.loading-screen--plain .ls-silk-date__weekday.is-visible::after {
+  animation: ls-line-draw 0.8s cubic-bezier(0.65, 0, 0.35, 1) calc(var(--ls-delay, 0ms) + 300ms) forwards;
+}
+
+@keyframes ls-weekday-in {
+  from { opacity: 0; letter-spacing: 0.9em; filter: blur(3px); }
+  to { opacity: 1; letter-spacing: 0.42em; filter: none; }
+}
+
+/* ---- Reduced motion: everything shown in its final state ---- */
+.loading-screen--plain.is-reduced-motion .ls-headline__letter,
+.loading-screen--plain.is-reduced-motion .ls-headline__script,
+.loading-screen--plain.is-reduced-motion .ls-silk-date__digit-inner,
+.loading-screen--plain.is-reduced-motion .ls-silk-date__side,
+.loading-screen--plain.is-reduced-motion .ls-silk-date__side::before,
+.loading-screen--plain.is-reduced-motion .ls-silk-date__side::after,
+.loading-screen--plain.is-reduced-motion .ls-silk-date__weekday,
+.loading-screen--plain.is-reduced-motion .ls-silk-date__weekday::before,
+.loading-screen--plain.is-reduced-motion .ls-silk-date__weekday::after {
+  animation: none;
+  opacity: 1;
+  transform: none;
+  clip-path: none;
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-headline__letter,
+  .ls-headline__script,
+  .ls-silk-date__digit-inner,
+  .loading-screen--plain .ls-silk-date__side,
+  .loading-screen--plain .ls-silk-date__side::before,
+  .loading-screen--plain .ls-silk-date__side::after,
+  .loading-screen--plain .ls-silk-date__weekday,
+  .loading-screen--plain .ls-silk-date__weekday::before,
+  .loading-screen--plain .ls-silk-date__weekday::after {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+    filter: none;
+  }
+}
+
+
+/* ---- Plain mode: plain-colored date, lower headline, smoother entrance ---- */
+
+/* The whole date in one solid ink (edit these two to recolor it) */
+.loading-screen--plain {
+  --ls-date-ink: var(--color-welcome-navy);
+  --ls-date-line: color-mix(in srgb, var(--color-motif-accent) 55%, transparent);
+}
+
+.loading-screen--plain .ls-silk-date__weekday,
+.loading-screen--plain .ls-silk-date__side,
+.loading-screen--plain .ls-silk-date__side:first-child,
+.loading-screen--plain .ls-silk-date__side:last-child {
+  color: var(--ls-date-ink);
+}
+
+.loading-screen--plain .ls-silk-date__weekday::before {
+  background: linear-gradient(90deg, transparent, var(--ls-date-line));
+}
+
+.loading-screen--plain .ls-silk-date__weekday::after {
+  background: linear-gradient(90deg, var(--ls-date-line), transparent);
+}
+
+.loading-screen--plain .ls-silk-date__day {
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 80%));
+}
+
+/* Headline sits lower in the arch, with breathing room under the ornament */
+.loading-screen--plain .loading-screen__save-date header {
+  padding-top: clamp(3.6rem, 13vh, 5.75rem);
+}
+
+.loading-screen--plain .loading-screen__plain-ornament {
+  margin-bottom: 0.85rem;
+}
+
+/* Ornament unfurls from its centre (no filter in the keyframes, so the motif tint stays) */
+.ls-ornament-in {
+  opacity: 0;
+  transform: scaleX(0.2) translateY(6px);
+  animation: ls-ornament-unfurl 1.1s cubic-bezier(0.22, 1, 0.36, 1) var(--ls-delay, 0ms) forwards;
+}
+
+@keyframes ls-ornament-unfurl {
+  to { opacity: 1; transform: none; }
+}
+
+/* Couple names are written in left to right */
+.loading-screen--plain .loading-screen__std-names {
+  clip-path: inset(-10% 100% -10% 0);
+  animation: ls-names-write 1.6s cubic-bezier(0.65, 0, 0.35, 1) var(--ls-delay, 0ms) forwards;
+}
+
+@keyframes ls-names-write {
+  to { clip-path: inset(-10% -2% -10% 0); }
+}
+
+/* Reduced motion */
+.loading-screen--plain.is-reduced-motion .ls-ornament-in,
+.loading-screen--plain.is-reduced-motion .loading-screen__std-names {
+  animation: none;
+  opacity: 1;
+  transform: none;
+  clip-path: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-ornament-in,
+  .loading-screen--plain .loading-screen__std-names {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}
+
+
+/* ---- Plain mode: circle pattern background (components/loader/PlainBubbles) ---- */
+
+/* The pattern paints its own base; hide the blurred orbs and frosting beneath it */
+.loading-screen--plain .invite-plain-atmosphere__blobs,
+.loading-screen--plain .invite-plain-atmosphere__frost {
+  display: none;
+}
+
+/* Soften the light behind the card so the pattern reads cleanly */
+.loading-screen--plain .ls-plain-glow {
+  background: radial-gradient(50% 40% at 50% 48%, color-mix(in srgb, white 35%, transparent) 0%, transparent 70%);
+}
+
+
+/* ---- Plain mode: handoff to the envelope hero ----
+   The card tucks down and away (as if slipping into the envelope) while a soft
+   light blooms behind it; the hero then fades in over the identical pattern. */
+
+.loading-screen--plain.is-fading .loading-screen__save-date {
+  opacity: 1;
+  transition: none;
+  animation: ls-card-tuck 0.95s cubic-bezier(0.55, 0, 0.3, 1) forwards;
+}
+
+@keyframes ls-card-tuck {
+  0% { opacity: 1; transform: none; filter: none; }
+  30% { opacity: 1; transform: translateY(-1.5%) scale(1.015); }
+  100% { opacity: 0; transform: translateY(9%) scale(0.7); filter: blur(6px); }
+}
+
+.loading-screen--plain.is-fading .ls-plain-glow {
+  animation: ls-handoff-bloom 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes ls-handoff-bloom {
+  0% { opacity: 0.8; transform: scale(1); }
+  45% { opacity: 1; transform: scale(1.35); }
+  100% { opacity: 0.6; transform: scale(1.6); }
+}
+
+/* Petals and corner leaves settle out with the card */
+.loading-screen--plain.is-fading .ls-plain-motes,
+.loading-screen--plain.is-fading .loading-screen__plain-corners {
+  opacity: 0;
+  transition: opacity 0.9s ease 0.2s;
+}
+
+.loading-screen--plain.is-fading.is-reduced-motion .loading-screen__save-date {
+  animation: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-screen--plain.is-fading .loading-screen__save-date {
+    animation: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .loading-screen--plain.is-fading .ls-plain-glow {
+    animation: none;
+  }
+}
+
+
+/* ---- Plain mode: solid text colors inside the invitation card (no gradient fills) ----
+   Overrides the foil / glint gradients above; colors come from app/globals.css. */
+.loading-screen--plain .ls-silk-date__day,
+.loading-screen--plain .ls-silk-date__digit-inner,
+.loading-screen--plain .ls-headline__letter,
+.loading-screen--plain .ls-headline__script {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+}
+
+.loading-screen--plain .ls-silk-date__day,
+.loading-screen--plain .ls-silk-date__digit-inner,
+.loading-screen--plain .ls-headline__letter {
+  color: var(--color-welcome-navy);
+}
+
+.loading-screen--plain .ls-headline__script {
+  color: var(--color-welcome-script);
+}
+
+/* ==========================================================================
+   Love story / message — flat palette colors (no gradients) for readability.
+   Light chapters: solid light card, teal text. Dark chapters: solid teal card,
+   light text. One plain background behind everything. Kept last so it wins.
+   ========================================================================== */
+/* Transparent so the section's circle pattern (PlainBubbles) shows through */
+.love-story-plain-track,
+.love-story-plain-track--theme-light,
+.love-story-plain-track--theme-dark {
+  background: transparent;
+}
+
+.love-story-plain-track .story-plain-atmosphere {
+  display: none;
+}
+
+.love-story-plain-track::before {
+  background: color-mix(in srgb, #16828F 25%, transparent);
+}
+
+.love-story-plain-track--first::before,
+.love-story-plain-track--last::before {
+  background: color-mix(in srgb, #16828F 25%, transparent);
+}
+
+.story-plain-card {
+  border: 1px solid color-mix(in srgb, #16828F 20%, transparent);
+  background: var(--color-motif-soft);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 14px 32px -18px color-mix(in srgb, #16828F 45%, transparent);
+}
+
+.story-plain-card--dark {
+  border-color: #16828F;
+  background: #16828F;
+  box-shadow: 0 14px 32px -18px color-mix(in srgb, #16828F 70%, transparent);
+}
+
+.story-plain-card__frost {
+  display: none;
+}
+
+.story-plain-card .wedding-frame-inner {
+  border-color: color-mix(in srgb, #16828F 18%, transparent);
+}
+
+.story-plain-card--dark .wedding-frame-inner {
+  border-color: color-mix(in srgb, var(--color-motif-soft) 30%, transparent);
+}
+
+.story-plain-card__dot {
+  background: #D96F70;
+  box-shadow: 0 0 0 4px var(--color-motif-soft);
+}
+
+.love-story-plain-track--theme-dark .story-plain-card__dot {
+  box-shadow: 0 0 0 4px var(--color-motif-soft);
+}
+
+.story-plain-chapter-label {
+  color: #D96F70;
+}
+
+.story-plain-card--dark .story-plain-chapter-label {
+  color: var(--color-motif-blush);
+}
+
+.story-plain-chapter-line {
+  background: color-mix(in srgb, #16828F 22%, transparent);
+}
+
+.story-plain-chapter-line--dark {
+  background: color-mix(in srgb, var(--color-motif-soft) 35%, transparent);
+}
+
+.story-plain-chapter-connector__stem {
+  background: color-mix(in srgb, #16828F 30%, transparent);
 }

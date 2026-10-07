@@ -17,6 +17,10 @@ const lightBg = "var(--color-welcome-bg)"
 const darkBg = "var(--color-welcome-green)"
 const revealEase = [0.22, 1, 0.36, 1] as const
 
+// Plain cards: flat palette colors — teal text on light cards, light text on teal cards
+const TEAL = "#16828F"
+const ON_TEAL = "var(--color-motif-soft)"
+
 export type LoveStoryEucalyptusDecos = {
   topLeft: string
   bottomRight: string
@@ -35,6 +39,8 @@ interface StorySectionProps {
   plain?: boolean
   chapterIndex?: number
   eucalyptusDecos?: LoveStoryEucalyptusDecos
+  // Word before the number on plain cards, e.g. "Chapter" → "Chapter 01"
+  chapterLabelText?: string
 }
 
 function PlainEucalyptusDecos({ decos }: { decos: LoveStoryEucalyptusDecos }) {
@@ -63,32 +69,18 @@ function PlainEucalyptusDecos({ decos }: { decos: LoveStoryEucalyptusDecos }) {
 }
 
 function PlainChapterDivider({ dark }: { dark: boolean }) {
+  const line = dark
+    ? "color-mix(in srgb, var(--color-motif-soft) 45%, transparent)"
+    : "color-mix(in srgb, #16828F 35%, transparent)"
   return (
     <div className="mb-4 flex items-center justify-center gap-1.5 sm:mb-5">
-      <span
-        className="h-px w-8 sm:w-12"
-        style={{
-          background: dark
-            ? "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-motif-soft) 45%, transparent))"
-            : "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-motif-deep) 38%, transparent))",
-        }}
-      />
+      <span className="h-px w-8 sm:w-12" style={{ background: line }} />
       <span
         className="h-1 w-1 rotate-45"
-        style={{
-          background: dark ? "var(--color-motif-soft)" : "var(--color-motif-yellow)",
-          opacity: dark ? 0.65 : 1,
-        }}
+        style={{ background: dark ? "var(--color-motif-blush)" : "#D96F70" }}
         aria-hidden
       />
-      <span
-        className="h-px w-8 sm:w-12"
-        style={{
-          background: dark
-            ? "linear-gradient(to left, transparent, color-mix(in srgb, var(--color-motif-soft) 45%, transparent))"
-            : "linear-gradient(to left, transparent, color-mix(in srgb, var(--color-motif-deep) 38%, transparent))",
-        }}
-      />
+      <span className="h-px w-8 sm:w-12" style={{ background: line }} />
     </div>
   )
 }
@@ -104,6 +96,7 @@ export const StorySection: React.FC<StorySectionProps> = ({
   plain = false,
   chapterIndex = 0,
   eucalyptusDecos,
+  chapterLabelText = "Chapter",
 }) => {
   const isDark = theme === "dark"
   const showImage = !plain && Boolean(imageSrc)
@@ -157,7 +150,7 @@ export const StorySection: React.FC<StorySectionProps> = ({
 
   return (
     <div
-      className={`${theSeasons.variable} relative ${sectionSurfaceClass}`}
+      className={`${theSeasons.variable} relative z-[2] ${sectionSurfaceClass}`}
       style={plain ? undefined : { background: isDark ? darkBg : lightBg }}
     >
       {plain && (
@@ -184,7 +177,7 @@ export const StorySection: React.FC<StorySectionProps> = ({
       )}
 
       <div
-        className={`container relative z-10 mx-auto px-2 py-12 md:px-12 ${showImage ? "md:py-32" : "md:py-14"} ${isFirst ? (showImage ? "pt-16 md:pt-36" : "pt-10 md:pt-16") : ""} ${isLast ? (showImage ? "pb-16 md:pb-36" : "pb-10 md:pb-16") : ""}`}
+        className={`container relative z-10 mx-auto px-2 md:px-12 ${showImage ? "py-12 md:py-32" : "py-1.5 md:py-14"} ${isFirst ? (showImage ? "pt-16 md:pt-36" : "pt-14 md:pt-16") : ""} ${isLast ? (showImage ? "pb-16 md:pb-36" : "pb-6 md:pb-16") : ""}`}
       >
         <div
           className={
@@ -236,26 +229,18 @@ export const StorySection: React.FC<StorySectionProps> = ({
               <span className="story-plain-card__frost" aria-hidden />
               <span className="story-plain-card__dot" aria-hidden />
               <div className="wedding-frame-inner hidden min-[400px]:block" aria-hidden />
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-6 top-0 z-[1] h-px sm:inset-x-8"
-                style={{
-                  background:
-                    "linear-gradient(to right, transparent, var(--color-motif-yellow), transparent)",
-                }}
-              />
               <div className="relative z-[2]">
               <p
                 className={`${theSeasons.className} story-plain-chapter-label mb-2 text-[0.58rem] font-medium uppercase sm:text-[0.62rem]`}
               >
-                Chapter {chapterLabel}
+                {chapterLabelText} {chapterLabel}
               </p>
               {title ? (
                 <h2
                   className={`${theSeasons.className} mb-3 uppercase leading-tight tracking-[0.08em] sm:mb-4 sm:tracking-[0.1em] md:tracking-[0.11em]`}
                   style={{
                     fontSize: storyChapterTitleSize,
-                    color: isDark ? lightBg : "var(--color-welcome-navy)",
+                    color: isDark ? ON_TEAL : TEAL,
                   }}
                 >
                   {title}
@@ -263,7 +248,7 @@ export const StorySection: React.FC<StorySectionProps> = ({
               ) : null}
               <PlainChapterDivider dark={isDark} />
               <div
-                style={{ color: isDark ? lightBg : "var(--color-welcome-text)" }}
+                style={{ color: isDark ? ON_TEAL : TEAL }}
                 className={`font-goudy-italic space-y-3 sm:space-y-4 md:space-y-5 lg:leading-[1.7] ${sectionType.textRelaxed}`}
               >
                 {text}

@@ -10,6 +10,7 @@ import localFont from "next/font/local"
 import { Cinzel } from "next/font/google"
 import { Shirt, Copy, Check, Navigation, Heart, MapPin } from "lucide-react"
 import { motion, useReducedMotion, type Variants } from "motion/react"
+import { PlainBubbles } from "@/components/loader/PlainBubbles"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -41,17 +42,19 @@ const C = {
   light: "var(--color-motif-soft)",
 } as const
 
-const sectionBg = `
-  radial-gradient(820px 460px at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 75%, transparent) 0%, transparent 65%),
-  radial-gradient(560px 380px at 0% 55%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
-  radial-gradient(560px 380px at 100% 85%, color-mix(in srgb, var(--color-motif-blush) 30%, transparent) 0%, transparent 60%),
-  linear-gradient(180deg, var(--color-motif-cream) 0%, var(--color-welcome-bg-soft) 50%, var(--color-motif-cream) 100%)
-`.trim()
+// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+const sectionBg = "var(--color-bg-pattern-base)"
+
+// Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
+const onBg = {
+  color: "var(--color-on-pattern)",
+  textShadow: "0 1px 0 var(--color-on-pattern-glow), 0 2px 12px var(--color-on-pattern-glow)",
+} as const
 
 const hairline = "color-mix(in srgb, var(--color-motif-medium) 55%, transparent)"
 
 const cardStyle = {
-  background: `linear-gradient(180deg, ${C.paper} 0%, var(--color-motif-cream) 100%)`,
+  background: C.paper,
   borderColor: "color-mix(in srgb, var(--color-motif-medium) 70%, transparent)",
   borderWidth: "1px",
   borderStyle: "solid",
@@ -83,7 +86,7 @@ function SectionIconDivider({ icon }: { icon: ReactNode }) {
     <div className="flex items-center justify-center gap-2 pt-1 sm:pt-2">
       <span
         className="h-px w-10 sm:w-16 md:w-20"
-        style={{ background: "linear-gradient(to right, transparent, var(--color-motif-medium))" }}
+        style={{ background: "var(--color-on-pattern-line)" }}
       />
       <span
         className="flex h-7 w-7 items-center justify-center rounded-full sm:h-8 sm:w-8"
@@ -93,7 +96,7 @@ function SectionIconDivider({ icon }: { icon: ReactNode }) {
       </span>
       <span
         className="h-px w-10 sm:w-16 md:w-20"
-        style={{ background: "linear-gradient(to left, transparent, var(--color-motif-medium))" }}
+        style={{ background: "var(--color-on-pattern-line)" }}
       />
     </div>
   )
@@ -112,14 +115,14 @@ function DetailsTitle({ title, subtitle }: { title: string; subtitle: string }) 
     >
       <span
         className={`${theSeasons.className} block uppercase leading-[0.78] tracking-[0.08em] min-[400px]:tracking-[0.11em] sm:tracking-[0.15em] md:tracking-[0.18em] pb-1 sm:pb-1.5`}
-        style={{ fontSize: "var(--title-size)", color: C.heading }}
+        style={{ fontSize: "var(--title-size)", ...onBg }}
       >
         {title}
       </span>
       <span
         aria-hidden
         className={`${aboveTheBeyond.className} mx-auto block w-fit max-w-full px-1 leading-[0.88] sm:leading-[0.9] mt-2 sm:mt-2.5 md:mt-3`}
-        style={{ fontSize: "var(--script-size)", color: C.script }}
+        style={{ fontSize: "var(--script-size)", ...onBg }}
       >
         {subtitle}
       </span>
@@ -371,8 +374,7 @@ function AttireCard({
       <div
         className="absolute -inset-1 rounded-2xl opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100"
         style={{
-          background:
-            "linear-gradient(to bottom right, color-mix(in srgb, var(--color-motif-accent) 20%, transparent), transparent)",
+          background: "color-mix(in srgb, var(--color-motif-accent) 14%, transparent)",
         }}
       />
       <div
@@ -492,8 +494,7 @@ function EventVenueCard({
       <div
         className="absolute -inset-1 rounded-2xl opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100"
         style={{
-          background:
-            "linear-gradient(to bottom right, color-mix(in srgb, var(--color-motif-accent) 18%, transparent), transparent)",
+          background: "color-mix(in srgb, var(--color-motif-accent) 14%, transparent)",
         }}
       />
 
@@ -576,7 +577,7 @@ function EventVenueCard({
                   </p>
                   <div
                     className="h-10 sm:h-12 md:h-14 w-[2px] rounded-full"
-                    style={{ background: "linear-gradient(180deg, var(--color-motif-medium), var(--color-motif-deep))" }}
+                    style={{ background: "var(--color-motif-medium)" }}
                   />
                   <p className={`${cinzel.className} ${ct.year} font-semibold leading-none`} style={{ color: C.heading }}>
                     {eventDate.getFullYear()}
@@ -647,8 +648,7 @@ function EventVenueCard({
               onClick={() => onOpenMaps(mapsLink)}
               className={`${cinzel.className} flex-1 flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2.5 sm:py-3 md:py-3.5 rounded-full border font-semibold uppercase tracking-[0.12em] ${ct.btn} transition-all duration-300 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98]`}
               style={{
-                background:
-                  "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)",
+                background: C.accent,
                 borderColor: "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)",
                 color: C.light,
                 boxShadow: "0 12px 24px -10px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)",
@@ -758,9 +758,11 @@ export function Details() {
 
   return (
     <div
-      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full`}
+      className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
+      {/* Same circle pattern as the hero */}
+      <PlainBubbles />
       <Section
         id="details"
         className="relative z-10 pt-14 pb-12 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20 overflow-hidden"
@@ -787,7 +789,7 @@ export function Details() {
           />
           <p
             className={`${cinzel.className} mb-2 text-[0.6rem] font-semibold uppercase tracking-[0.34em] min-[400px]:tracking-[0.38em] sm:text-[0.65rem] sm:tracking-[0.44em]`}
-            style={{ color: C.accent }}
+            style={onBg}
           >
             {content.eyebrow}
           </p>
@@ -796,7 +798,7 @@ export function Details() {
           </div>
           <p
             className="font-goudy-italic mx-auto max-w-2xl px-2 text-[0.8rem] leading-[1.62] sm:text-[0.875rem] sm:leading-[1.65] md:text-[0.9375rem]"
-            style={{ color: C.body }}
+            style={{ ...onBg, fontWeight: 600 }}
           >
             {content.description}
           </p>
@@ -821,7 +823,9 @@ export function Details() {
               arrivalTime={venues.combined.showArrival ? ceremony.guestsTime : undefined}
               schedule={[
                 { label: venues.combined.ceremonyLabel, time: ceremony.time },
-                { label: venues.combined.receptionLabel, time: reception.time },
+                ...(venues.combined.showReceptionTime
+                  ? [{ label: venues.combined.receptionLabel, time: reception.time }]
+                  : []),
               ]}
               venueSectionLabel={venues.combined.sectionLabel}
               mapsLink={ceremony.map}
@@ -889,11 +893,11 @@ export function Details() {
             <SectionIconDivider icon={<Shirt className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: C.accent }} aria-hidden />} />
             <h3
               className={`${theSeasons.className} ${ct.sectionTitle} mt-3 uppercase font-semibold leading-tight tracking-[0.12em] sm:mt-4 md:tracking-[0.15em]`}
-              style={{ color: C.heading }}
+              style={onBg}
             >
               {attire.title}
             </h3>
-            <p className={`font-goudy-italic ${ct.bodyLg} mt-3 leading-relaxed sm:mt-4`} style={{ color: C.body }}>
+            <p className={`font-goudy-italic ${ct.bodyLg} mt-3 leading-relaxed sm:mt-4`} style={{ ...onBg, fontWeight: 600 }}>
               {attire.description}
             </p>
           </div>
@@ -951,16 +955,6 @@ export function Details() {
               className="relative overflow-hidden rounded-[1.5rem] sm:rounded-[2rem]"
               style={{ background: cardStyle.background, boxShadow: cardStyle.boxShadow }}
             >
-              {/* Soft sage glow at the top */}
-              <div
-                className="pointer-events-none absolute inset-x-0 top-0 h-40"
-                style={{
-                  background:
-                    "radial-gradient(60% 100% at 50% 0%, color-mix(in srgb, var(--color-motif-silver) 70%, transparent), transparent)",
-                }}
-                aria-hidden
-              />
-
               <motion.div
                 className="relative z-10 flex flex-col items-center px-5 py-7 text-center sm:px-10 sm:py-9 md:px-12"
                 variants={reminderListVariants}

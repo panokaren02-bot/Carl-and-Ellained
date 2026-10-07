@@ -66,39 +66,35 @@ export type AttireColor = string | { name: string; hex: string }
 
 // ── The couple ──────────────────────────────────────────────────────────────
 const COUPLE = {
-  bride: "Jemiree M. Atienza",
-  brideNickname: "Jemiree",
-  groom: "JV Jade Geronga",
-  groomNickname: "JV",
+  bride: "Ellaine Capili",
+  brideNickname: "Ellaine",
+  groom: "Carl Domingo",
+  groomNickname: "Carl",
 }
 
 // ── Date & times ────────────────────────────────────────────────────────────
-const WEDDING_DATE = "December 20, 2026" // e.g. "June 5, 2027"
-const WEDDING_DAY = "Sunday"
+const WEDDING_DATE = "January 1, 2027" // e.g. "June 5, 2027"
+const WEDDING_DAY = "Friday"
 const TIMES = {
-  entourageCall: "3:00 PM", // entourage arrival
-  guestArrival: "3:30 PM", // guests arrival (shown in Event Details + reminders)
-  ceremony: "4:30 PM",
-  reception: "7:00 PM",
+  entourageCall: "1:00 PM", // entourage arrival
+  guestArrival: "1:30 PM", // guests arrival (shown in Event Details + reminders)
+  ceremony: "2:00 PM",
+  reception: "5:00 PM",
 }
 
 // ── Venues ──────────────────────────────────────────────────────────────────
 
 const CEREMONY_VENUE = {
-  name: "Erica's Garden, Hagonoy Bulacan",
-  address: "Hagonoy, Bulacan, Philippines",
-  map: "https://maps.app.goo.gl/xpnYtFZ4Wr6p3XTr5",
-  photos: ["/Details/ceremony (1).jpg", "/Details/ceremony (2).jpg", "/Details/ceremony (3).jpg"],
+  name: "Chat's Resort Hotel & Events Place",
+  address: "Mc Arthur highway Cambio, San Miguel, 3011 Bulakan",
+  map: "https://maps.app.goo.gl/XBBqUeQBtBcSpnFn7",
+  photos: ["/Details/new-ceremony (1).jpg", "/Details/new-ceremony (2).jpg", "/Details/new-ceremony (3).jpg"],
 }
 const RECEPTION_VENUE = {
-  name: "Erica's Garden, Hagonoy Bulacan",
-  address: "Hagonoy, Bulacan, Philippines",
-  map: "https://maps.app.goo.gl/25rg2xVft55rQXvs7",
-  photos: [
-    "/Details/ceremony (1).jpg",
-    "/Details/ceremony (2).jpg",
-    "/Details/ceremony (3).jpg",
-  ],
+  name: "Chat's Resort Hotel & Events Place",
+  address: "Mc Arthur highway Cambio, San Miguel, 3011 Bulakan",
+  map: "https://maps.app.goo.gl/XBBqUeQBtBcSpnFn7",
+  photos: ["/Details/new-ceremony (1).jpg", "/Details/new-ceremony (2).jpg", "/Details/new-ceremony (3).jpg"],
 }
 
 // ── Venue cards (Event Details section) ─────────────────────────────────────
@@ -117,10 +113,12 @@ const VENUE_CARDS = {
     badge: "Ceremony & Reception",
     sectionLabel: "Venue",
     showDate: true,
-    showArrival: true,
+    showArrival: false,
     // Time rows on the card, e.g. "Ceremony 4:30 PM | Reception 7:00 PM"
     ceremonyLabel: "Ceremony",
     receptionLabel: "Reception",
+    // false = show only the ceremony time on the combined card
+    showReceptionTime: false,
   },
   // Used when layout is "separate"
   ceremony: {
@@ -145,7 +143,7 @@ const RSVP = {
   coordinator: "{groom} / {bride}", // {groom} / {bride} → couple nicknames
   phone: "to be announced",
 }
-const HASHTAGS = ["#TheJemireeJadeStory"] // ⚠ check — looks like it's from a previous couple
+const HASHTAGS = ["#EllaineCarlWedding"] // ⚠ check — looks like it's from a previous couple
 
 // ── Attire guide (Event Details → Attire Guidelines) ────────────────────────
 // SHOW = which cards to display AND their order, top to bottom. Examples:
@@ -164,17 +162,18 @@ const HASHTAGS = ["#TheJemireeJadeStory"] // ⚠ check — looks like it's from 
 //     details:   the dress code text ("" hides this half of the card)
 //     highlight: phrase inside details shown bold + underlined ("" for none)
 const DRESS_CODE_PALETTE: AttireColor[] = [
-  { name: "Soft Sage", hex: "#B7C5A5" },
-  { name: "Dusty Sage", hex: "#95A98A" },
-  { name: "Muted Olive", hex: "#748A69" },
-  { name: "Deep Sage", hex: "#586F50" },
-  { name: "Forest Green", hex: "#3E5940" },
-]
+  { name: "Warm Sand", hex: "#E1CDC6" },
+  { name: "Seafoam", hex: "#9DC6CA" },
+  { name: "Soft Peach", hex: "#FB9F8A" },
+  { name: "Ocean Teal", hex: "#6BB6BC" },
+  { name: "Coral Rose", hex: "#EA8684" },
+  { name: "Coastal Teal", hex: "#097A88" },
+];
 
 
 
 const ATTIRE = {
-  show: ["sponsors", "guests"] as AttireGroupId[],
+  show: ["guests"] as AttireGroupId[],
 
   sponsors: {
     title: "Principal Sponsors",
@@ -218,21 +217,21 @@ const ATTIRE = {
 
   guests: {
     title: "Guests",
-    image: "/Details/guest.png",
+    image: "/Details/guest-new.png",
     palette: DRESS_CODE_PALETTE,
 
     ladies: {
       label: "Ladies",
       details:
-        "Elegant formal dresses in the wedding's sage green palette. Guests may choose different dress styles while keeping the overall look sophisticated, soft, and coordinated.",
-      highlight: "Formal Dresses",
+        "Elegant semi-formal dresses in the wedding's peach, coral, teal, seafoam, and warm sand palette. Guests may choose different dress styles while keeping the overall look romantic, refined, and beautifully coordinated.",
+      highlight: "Semi-Formal Dresses",
     },
-
+    
     gentlemen: {
       label: "Gentlemen",
       details:
-        "Dress shirts paired with tailored slacks in complementary sage, olive, beige, or neutral tones for a polished and sophisticated formal ensemble.",
-      highlight: "Dress Shirt with Slacks",
+        "Semi-formal dress shirts, tailored trousers, or coordinated suit separates in complementary coastal teal, seafoam, peach, warm sand, beige, or neutral tones for a polished yet relaxed wedding look.",
+      highlight: "Dress Shirt with Tailored Slacks",
     },
   },
 }
@@ -253,10 +252,10 @@ const DISPLAY_MODE = "plain" as "photos" | "plain"
 
 // ── Shared images ───────────────────────────────────────────────────────────
 const BRAND = {
-  monogram: "/monogram/monogram.png",
-  coupleNameImage: "/Details/newCoupleName.png", // couple-name lettering (loader, envelope)
-  seal: "/deco/sealnew.png", // envelope wax seal
-  backgroundMusic: "/background_music/BTS - Magic Shop (Beautiful Wedding Piano Version).mp3",
+  monogram: "/monogram/monogram-newpo.png",
+  coupleNameImage: "/Details/coupleName.png", // couple-name lettering (loader, envelope)
+  seal: "/monogram/monogram_new.png", // envelope wax seal
+  backgroundMusic: "/background_music/The BIGGEST Christian Wedding Entrance Mash Up Part 11!!.mp3",
 }
 
 // Couple photos reused across the site (gallery, loader, reminders, snap & share, closing)
@@ -334,7 +333,7 @@ export const siteConfig = {
     time: TIMES.ceremony,
     venue: CEREMONY_VENUE.name,
     tagline: "are getting married!!!!!",
-    theme: "Whimsical Spring Minimalist",
+    theme: "Romantic Coastal Minimalist",
     motif: "#FFCA8B, #FFB383, #F6CEC8, #E99997, #C8C29E",
   },
   // Opening "Save the Date" loading screen (components/loader/LoadingScreen.tsx).
@@ -389,10 +388,12 @@ export const siteConfig = {
   },
   // Love story timeline (components/sections/love-story.tsx + StorySection)
   loveStory: {
-    title: "Our Love Story",
-    subtitle: "Our Journey to Forever",
-    closingQuote: "I have found the one whom my soul loves.",
-    closingCitation: "Song of Solomon 3: 4",
+    title: "A Message From Us",
+    subtitle: "with grateful hearts",
+    // Word before each card's number, e.g. "Note 01"
+    chapterLabel: "Note",
+    closingQuote: "This is the day the Lord has made; let us rejoice and be glad in it.",
+    closingCitation: "Psalm 118: 24",
     eucalyptusDecos: {
       topLeft: DECOR.sideLeft,
       bottomRight: DECOR.sideRight,
@@ -401,99 +402,58 @@ export const siteConfig = {
     },
     chapters: [
       {
-        title: "Two Strangers, One Journey",
+        title: "To Our Dearest Family and Friends",
         theme: "light" as const,
         layout: "image-left" as const,
         image: "/mobile-background/couples (1).webp",
         paragraphs: [
-          "In 2018, what started as two strangers meeting turned into a beautiful journey neither of them expected.",
+          "Thank you for taking the time to open this invitation. Each of you holds a special place in our hearts, and we are so glad to share this news with you.",
         ],
       },
       {
-        title: "Growing Friendship",
+        title: "With Grateful Hearts",
         theme: "dark" as const,
         layout: "image-right" as const,
         image: "/mobile-background/couples (2).webp",
         paragraphs: [
-          "From playful conversations and {groom}'s endless teasing of {bride}, a friendship slowly grew into something deeper.",
+          "We are thankful to God for His faithfulness, and to all of you for the love, prayers, guidance, and support that have shaped who we are today.",
         ],
       },
       {
-        title: "A Love That Grew Stronger",
+        title: "You Are Part of Our Story",
         theme: "light" as const,
         layout: "image-left" as const,
         image: "/mobile-background/couples (3).webp",
         paragraphs: [
-          "Behind the jokes and little arguments was a love that continued to grow stronger every day.",
+          "Whether you have walked with us for many years or only for a season, you have been part of our journey — and we would not be here without you.",
         ],
       },
       {
-        title: "The Season of Distance",
+        title: "An Invitation to Celebrate",
         theme: "dark" as const,
         layout: "image-right" as const,
         image: "/mobile-background/couples (4).webp",
         paragraphs: [
-          "Then in 2024, came the season of distance. As they began their long-distance relationship, they learned that love is not measured by the miles between them, but by the choice to keep choosing each other.",
+          "With joyful hearts, {groom} and {bride} warmly invite you to witness and celebrate the day we become husband and wife.",
         ],
       },
       {
-        title: "Calls, Prayers, and Patience",
+        title: "Your Presence Is Our Gift",
         theme: "light" as const,
         layout: "image-left" as const,
         image: "/mobile-background/couples (5).webp",
         paragraphs: [
-          "Through countless calls, prayers, patience, and waiting, they proved that love can overcome any distance.",
+          "Having you with us is the greatest blessing we could ask for. Come celebrate, share a meal, laugh, and make memories with us.",
         ],
       },
       {
-        title: "The Question in Taiwan",
+        title: "We Hope to See You There",
         theme: "dark" as const,
         layout: "image-right" as const,
         image: "/mobile-background/couples (6).webp",
         paragraphs: [
-          "In 2025, in Taiwan, {groom} asked {bride} the most important question of their lives.",
-        ],
-      },
-      {
-        title: "She Said Yes",
-        theme: "light" as const,
-        layout: "image-left" as const,
-        image: "/mobile-background/couples (7).webp",
-        paragraphs: ["And with a heart full of love, {bride} said yes."],
-      },
-      {
-        title: "Surrounded by Love",
-        theme: "dark" as const,
-        layout: "image-right" as const,
-        image: "/mobile-background/couples (8).webp",
-        paragraphs: [
-          "Now in 2026, surrounded by the people who mean the most to them, they begin their forever.",
-        ],
-      },
-      {
-        title: "Forever Partners",
-        theme: "light" as const,
-        layout: "image-left" as const,
-        image: "/mobile-background/couples (9).webp",
-        paragraphs: ["From strangers, to best friends, to forever partners."],
-      },
-      {
-        title: "Their Greatest Adventure",
-        theme: "dark" as const,
-        layout: "image-right" as const,
-        image: "/mobile-background/couples (10).webp",
-        paragraphs: [
-          "Their greatest adventure begins — a lifetime of love, chosen again and again, no matter the distance.",
-        ],
-      },
-      {
-        title: "Ready to Say I Do",
-        theme: "light" as const,
-        layout: "image-left" as const,
-        image: "/mobile-background/couples (11).webp",
-        paragraphs: [
-          "From two strangers meeting in 2018, through years of teasing, laughter, distance, and prayer, to a yes in Taiwan — {groom} and {bride} are ready to say \"I do.\"",
-          "Join us as we begin forever.",
+          "Please take a moment to look through the details and let us know you are coming. We cannot wait to celebrate with you.",
+          "With love and gratitude, {groom} & {bride}",
         ],
       },
     ],
@@ -543,7 +503,7 @@ export const siteConfig = {
       description: "Please dress according to the guidelines below.",
       // Shown above a card's palette
       paletteTitle: "Dress Code Palette",
-      paletteSubtitle: "Long Gown and Barong Tagalog",
+      paletteSubtitle: "Semi-Formal Attire",
       colorGuideTitle: "Color Guide",
       colorGuideNote: "Please refer to the exact colors below for dress code.",
       // Order and visibility come from ATTIRE.show (skips blanks, typos and repeats)
@@ -590,6 +550,24 @@ export const siteConfig = {
           showPalette: false,
           paragraphs: [
             "To ensure everything runs smoothly, please arrive at {guestsTime}. This will give you enough time to find your seat, settle in comfortably, and fully enjoy the beautiful ceremony before it begins at {ceremonyTime}. We truly appreciate your punctuality and look forward to celebrating this special moment with you.",
+          ],
+        },
+        {
+          title: "Reception Details",
+          variant: "accent" as "accent" | "soft",
+          showPalette: false,
+          paragraphs: [
+            "Please join us for early dinner, laughter, and dancing after the ceremony.",
+          ],
+        },
+        {
+          title: "Additional Note",
+          variant: "soft" as "accent" | "soft",
+          showPalette: false,
+          paragraphs: [
+            "Having you with us on our wedding day is already a precious blessing. If you wish to give, we humbly prefer a love gift rather than material presents. Your love, prayers, and generosity mean so much to us as we begin this new chapter together, trusting in God’s faithfulness.",
+            "With joyful hearts,",
+            "Ellaine and Carl",
           ],
         },
       ],
@@ -1009,17 +987,17 @@ export const siteConfig = {
     signOff: "With love,",
     // Colors — any CSS color or a palette token from app/globals.css (e.g. "var(--color-motif-accent)")
     colors: {
-      title: "var(--color-welcome-navy)",          // "Gift Guide", account names
-      script: "var(--color-welcome-script)",       // "with gratitude", couple signature
-      eyebrow: "var(--color-motif-accent)",        // small caps labels, icons
-      body: "var(--color-welcome-text)",           // paragraphs
-      soft: "var(--color-welcome-text-soft)",      // "With love," and secondary text
-      card: "var(--color-welcome-bg-soft)",        // letter card (top of gradient)
-      cardEdge: "var(--color-motif-cream)",        // letter card (bottom of gradient)
-      accountCard: "var(--color-motif-soft)",      // e-gift account cards
-      button: "var(--color-motif-deep)",           // gift icon, copied state
-      line: "var(--color-motif-medium)",           // dividers
-      glow: "var(--color-motif-silver)",           // soft glows / copy pill
+      title: "#16828F",                                              // "Gift Guide", account names
+      script: "#16828F",                                             // drop cap, couple signature
+      eyebrow: "#16828F",                                            // small caps labels, icons
+      body: "#16828F",                                               // paragraphs
+      soft: "color-mix(in srgb, #16828F 70%, transparent)",          // "With love," and secondary text
+      card: "var(--color-motif-soft)",                               // letter card (plain light)
+      cardEdge: "var(--color-motif-soft)",                           // letter card (plain light)
+      accountCard: "color-mix(in srgb, #16828F 6%, var(--color-motif-soft))", // e-gift account cards
+      button: "#D96F70",                                             // gift seal, selected tab
+      line: "color-mix(in srgb, #16828F 45%, transparent)",          // dividers
+      glow: "color-mix(in srgb, #16828F 12%, transparent)",          // tab track / letter badge
       background: "var(--color-motif-cream)",      // section background
     },
     // E-gift accounts — optional, as many as you like.
@@ -1031,9 +1009,9 @@ export const siteConfig = {
     showAccounts: true,
     accountsTitle: "For e-gifts",
     accounts: [
-      { show: true, label: "BDO", accountName: "Mair", accountNumber: "***63434", qr: "/QR/BDO.png" },
+      { show: false, label: "BDO", accountName: "Mair", accountNumber: "***63434", qr: "/QR/BDO.png" },
       { show: false, label: "MariBank", accountName: "", accountNumber: "", qr: "" },
-      { show: true, label: "GCash", accountName: "Mair", accountNumber: "***63434", qr: "/QR/BDO.png" },
+      { show: false, label: "GCash", accountName: "Mair", accountNumber: "***63434", qr: "/QR/BDO.png" },
     ] as { show: boolean; label: string; accountName: string; accountNumber: string; qr: string }[],
     // Leave any path "" to hide that decoration
     decos: { ...SECTION_DECOS },
@@ -1045,7 +1023,7 @@ export const siteConfig = {
     // {couple} → "Groom & Bride" nicknames. "" hides a line or image.
     qrCard: {
       coupleNameImage: BRAND.coupleNameImage, // couple-name lettering; "" shows the names as text
-      coupleImage: "/deco/coupleImage.png", // couple illustration beside the text
+      coupleImage: "/Details/coupleimage.png", // couple illustration beside the text
       eyebrow: "The wedding of",
       title: "Find Your Table",
       script: "please be seated",
@@ -1286,18 +1264,18 @@ export const siteConfig = {
     email: "to be announced",
   },
   giftRegistry: {
-    QR_1:{
-    id: "BPI",
-    src: "/QR/BPI.png",
-    label: "BPI",
-    accountNumber: "KAMS : ***********569",
-    },
-    QR_2:{
-    id: "MariBank",
-    src: "/QR/MariBank.png",
-    label: "MariBank",
-    accountNumber: "****7672",
-    }
+    // QR_1:{
+    // id: "BPI",
+    // src: "/QR/BPI.png",
+    // label: "BPI",
+    // accountNumber: "KAMS : ***********569",
+    // },
+    // QR_2:{
+    // id: "MariBank",
+    // src: "/QR/MariBank.png",
+    // label: "MariBank",
+    // accountNumber: "****7672",
+    // }
     // ,
     // QR_3:{
     // id: "Gcash",
@@ -1413,9 +1391,9 @@ Now, as they prepare to say yes before God and the people they love most, Cather
     // Leave any path "" to hide that decoration
     decos: { ...CORNER_DECOS, headerOrnament: DECOR.headerOrnament },
     embedUrl:
-    //https://open.spotify.com/embed/playlist/2AhKS56CXqBWMYYNrnWrsR?utm_source=generator&si=2beaa29421e94943
-      "https://open.spotify.com/embed/playlist/3w7n13w5TSNG0rFnEDIEmS?utm_source=generator&si=3321c2d9883746b5",
-    spotifyUrl: "https://open.spotify.com/playlist/3w7n13w5TSNG0rFnEDIEmS",
+    //https://open.spotify.com/embed/playlist/5sT43YjdM8pJ3xtEkrxyEY?utm_source=generator&si=e5e64aa63fd04356
+      "https://open.spotify.com/embed/playlist/5sT43YjdM8pJ3xtEkrxyEY?utm_source=generator&si=e5e64aa63fd04356",
+    spotifyUrl: "https://open.spotify.com/playlist/5sT43YjdM8pJ3xtEkrxyEY",
   },
   // Closing "See you there!" section (components/sections/see-you-there.tsx).
   //   photos mode (loadingScreen.display "photos") → full-screen couple photo

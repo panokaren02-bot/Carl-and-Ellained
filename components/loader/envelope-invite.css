@@ -2512,26 +2512,177 @@
   text-shadow: 0 1px 0 color-mix(in srgb, white 65%, transparent);
 }
 /* ==========================================================================
-   Darker motif envelope — deep botanical green paper with olive highlights.
+   Envelope paper — teal family, colors from app/globals.css → "ENVELOPE".
    Scoped to the envelope so the letter inside and the CTA button keep their
    light colors (they read --env-paper / their own tokens).
    ========================================================================== */
 .env-invite-envelope {
-  --env-highlight: color-mix(in srgb, var(--color-motif-accent) 85%, var(--color-motif-medium));
-  --env-base: var(--color-motif-deep);
-  --env-fold: color-mix(in srgb, var(--color-motif-deep) 62%, var(--color-welcome-navy));
-  --env-shadow: var(--color-welcome-navy);
-  --env-envelope: color-mix(in srgb, var(--color-motif-deep) 88%, var(--color-motif-accent));
+  --env-highlight: var(--color-envelope-highlight);
+  --env-base: var(--color-envelope-base);
+  --env-fold: var(--color-envelope-fold);
+  --env-shadow: var(--color-envelope-shadow);
+  --env-envelope: var(--color-envelope-paper);
 }
 
 /* Crease lines read better as a soft light hairline on dark paper */
 .env-invite-envelope .env-invite-creases line {
-  stroke: color-mix(in srgb, var(--color-motif-soft) 22%, transparent);
+  stroke: var(--color-envelope-crease);
 }
 
 /* Desktop full-bleed envelope: match the screen backing to the dark paper */
 @media (min-width: 768px) {
   .env-invite-screen:not(.env-invite-screen--plain) {
-    --env-envelope: color-mix(in srgb, var(--color-motif-deep) 88%, var(--color-motif-accent));
+    --env-envelope: var(--color-envelope-paper);
   }
+}
+
+
+/* ---- Plain mode: arriving from the loading screen ----
+   The background is identical to the loader's, so it simply fades; the
+   envelope drops gently into place, the corner leaves and hint follow.
+   `backwards` fill: nothing lingers on the elements once it has played. */
+
+.env-invite-screen--plain.is-arriving .env-invite-stage {
+  animation: env-arrive-envelope 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s backwards;
+}
+
+@keyframes env-arrive-envelope {
+  from { opacity: 0; transform: translateY(-6vh) scale(0.86); filter: blur(6px); }
+  60% { filter: blur(0); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+.env-invite-screen--plain.is-arriving .env-invite-plain-corners {
+  animation: env-arrive-fade 1.4s ease 0.35s backwards;
+}
+
+.env-invite-screen--plain.is-arriving .env-invite-ghost-date {
+  animation: env-arrive-fade 1.6s ease 0.7s backwards;
+}
+
+@keyframes env-arrive-fade {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .env-invite-screen--plain.is-arriving .env-invite-stage,
+  .env-invite-screen--plain.is-arriving .env-invite-plain-corners,
+  .env-invite-screen--plain.is-arriving .env-invite-ghost-date {
+    animation: none;
+  }
+}
+
+
+/* ---- Plain mode: bold guidance text over the circle pattern (globals.css → --color-on-pattern*) ---- */
+.env-invite-screen--plain .env-invite-hint,
+.env-invite-screen--plain .env-invite-days-to-go,
+.env-invite-screen--plain .env-invite-reveal-copy h2 {
+  color: var(--color-on-pattern);
+  font-weight: 700;
+  text-shadow:
+    0 1px 0 var(--color-on-pattern-glow),
+    0 2px 12px var(--color-on-pattern-glow);
+}
+
+/* ---- Plain mode: letter "SAVE the DATE" in the loading screen's lockup ----
+   Cinzel capitals in deep teal, joining word in coral Brittany script. */
+.env-invite-screen--plain .env-invite-letter-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.18em;
+  white-space: nowrap;
+  font-family: var(--font-cinzel, "Cinzel", serif);
+  font-size: 1.35em;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--color-welcome-navy);
+}
+
+.env-invite-letter-label__word {
+  background: linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-welcome-navy) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.env-invite-letter-label__script {
+  position: relative;
+  /* raised to sit between the capitals' midline and cap height */
+  top: -0.12em;
+  margin: -0.25em 0.02em;
+  padding: 0 0.14em 0.1em;
+  font-family: var(--font-brittany), cursive;
+  font-size: 1.5em;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  background: linear-gradient(100deg, var(--color-motif-blush) 0%, var(--color-motif-yellow) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (min-width: 768px) {
+  .env-invite-screen--plain .env-invite-letter-label {
+    font-size: 1.5em;
+  }
+}
+
+/* Eucalyptus sprig above "SAVE the DATE" (tinted by --deco-filter in globals.css) */
+.env-invite-letter-ornament {
+  display: block;
+  flex-shrink: 0;
+  width: min(36%, 7.5rem);
+  height: auto;
+  margin: 0.35em auto 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Tighten the gap so the sprig and lockup read as one unit */
+.env-invite-screen--plain .env-invite-letter-ornament + .env-invite-letter-label {
+  margin-top: 0.15em;
+}
+
+
+/* ---- Plain mode: solid letter-label colors (no gradient fills; colors from app/globals.css) ---- */
+.env-invite-screen--plain .env-invite-letter-label__word,
+.env-invite-screen--plain .env-invite-letter-label__script {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+}
+
+.env-invite-screen--plain .env-invite-letter-label__word {
+  color: var(--color-welcome-navy);
+}
+
+.env-invite-screen--plain .env-invite-letter-label__script {
+  color: var(--color-welcome-script);
+}
+
+/* ==========================================================================
+   "Open invitation" button — solid coral (#D96F70) with light text in every
+   mode (plain / photo, all breakpoints). Kept last so it wins over the rules above.
+   ========================================================================== */
+.env-invite-screen .env-invite-enter-btn {
+  color: var(--color-motif-soft);
+  background: #D96F70;
+  border-color: #D96F70;
+  text-shadow: none;
+  box-shadow: 0 10px 24px color-mix(in srgb, #D96F70 45%, transparent);
+}
+
+.env-invite-screen .env-invite-enter-btn:hover {
+  color: var(--color-motif-soft);
+  background: color-mix(in srgb, #D96F70 85%, black);
+  box-shadow: 0 12px 28px color-mix(in srgb, #D96F70 55%, transparent);
+}
+
+.env-invite-screen .env-invite-enter-btn:focus-visible {
+  outline-color: #D96F70;
 }

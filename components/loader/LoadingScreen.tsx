@@ -7,6 +7,7 @@ import { useSiteConfig } from '@/hooks/use-site-config';
 import { siteConfig as defaultSiteConfig } from '@/content/site';
 import { PhotoMarquee } from '@/components/loader/invite-photo-backdrop';
 import { PlainAtmosphere } from '@/components/loader/PlainAtmosphere';
+import { PlainBubbles } from '@/components/loader/PlainBubbles';
 import './loading-screen.css';
 
 interface LoadingScreenProps {
@@ -18,15 +19,54 @@ const STAGGER_DELAY_MS = 1100;
 const FIRST_BOX_DELAY_MS = 600;
 const BOX_TRANSITION_MS = 1100;
 const FADE_OUT_MS = 1400;
+// Plain mode handoff: the card tucks away first, then the envelope hero starts arriving
+const PLAIN_HANDOFF_LEAD_MS = 550;
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-// Soft pollen-like motes drifting up behind the invitation card (plain mode)
-const PLAIN_MOTES = Array.from({ length: 18 }, (_, i) => ({
+// Plain mode choreography — all CSS-delay driven so it plays in sync even before hydration:
+// ornament → headline letters → countdown → names → date (day, month/year, weekday) → details
+const PLAIN_LETTER_START_MS = 350;
+const PLAIN_LETTER_STAGGER_MS = 75;
+// Offsets below are measured from the moment the last headline letter has landed
+const PLAIN_DATE_OFFSET_MS = 1300;
+const PLAIN_DATE_STAGGER_MS = 800;
+
+// Short joining words in the headline ("Save the Date") are set in script
+const SCRIPT_WORDS = new Set(['the', 'of', 'and', '&', 'a']);
+
+// Splits the headline into display words with a running letter index for staggering
+function splitHeadline(headline: string) {
+  let letterIndex = 0;
+  return headline
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => {
+      const script = SCRIPT_WORDS.has(word.toLowerCase());
+      const start = letterIndex;
+      letterIndex += script ? 2 : word.length;
+      return { word, script, start };
+    });
+}
+
+// Motif colors cycled through the floating motes and petals (plain mode)
+const MOTE_COLORS = [
+  'var(--color-motif-blush)',
+  'var(--color-motif-yellow)',
+  'var(--color-motif-medium)',
+  'var(--color-motif-accent)',
+  'var(--color-motif-teal-light)',
+]
+
+// Colorful motes and petals drifting up behind the invitation card (plain mode)
+const PLAIN_MOTES = Array.from({ length: 24 }, (_, i) => ({
   x: (i * 37 + 11) % 100,
-  size: 3 + ((i * 7) % 5),
+  size: 4 + ((i * 7) % 6),
   dur: 14 + ((i * 5) % 10),
   delay: -((i * 3.1) % 18),
   drift: ((i % 2 === 0 ? 1 : -1) * (12 + ((i * 11) % 24))),
+  spin: (i % 2 === 0 ? 1 : -1) * (180 + ((i * 47) % 360)),
+  color: MOTE_COLORS[i % MOTE_COLORS.length],
+  petal: i % 3 === 0,
 }))
 
 function startOfDay(date: Date) {
@@ -92,6 +132,23 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
       }
     : null;
 
+  const headlineWords = useMemo(() => splitHeadline(content.headline), [content.headline]);
+  const headlineLetterCount = headlineWords.reduce(
+    (n, w) => n + (w.script ? 2 : w.word.length),
+    0,
+  );
+  // Plain mode: the rest of the card waits for the headline letters to land
+  const afterHeadlineMs = isPlain
+    ? PLAIN_LETTER_START_MS + headlineLetterCount * PLAIN_LETTER_STAGGER_MS + 250
+    : 0;
+  const revealDelay = (photoMs: number, plainOffsetMs: number) =>
+    ({ '--ls-delay': `${isPlain ? afterHeadlineMs + plainOffsetMs : photoMs}ms` }) as React.CSSProperties;
+  // Plain date steps: 0 = day, 1 = month & year, 2 = weekday
+  const dateDelay = (step: number) =>
+    ({
+      '--ls-delay': `${afterHeadlineMs + PLAIN_DATE_OFFSET_MS + step * PLAIN_DATE_STAGGER_MS}ms`,
+    }) as React.CSSProperties;
+
   const ceremonyLine = siteConfig.ceremony.time ?? '';
   const coupleNames = `${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname}`;
 
@@ -115,12 +172,14 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
       setVisibleBoxes(dateParts.length);
       return;
     }
+    // Plain mode sequences its date with CSS delays instead (see dateDelay)
+    if (isPlain) return;
     const timers = dateParts.map((_, i) =>
       setTimeout(() => setVisibleBoxes(i + 1), FIRST_BOX_DELAY_MS + i * STAGGER_DELAY_MS),
     );
     return () => timers.forEach(clearTimeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reduceMotion, dateParts.length]);
+  }, [reduceMotion, dateParts.length, isPlain]);
 
   useEffect(() => {
     if (statusMessages.length < 2) return;
@@ -134,16 +193,21 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
 
   useEffect(() => {
     let fadeTimer: ReturnType<typeof setTimeout> | undefined;
+    let handoffTimer: ReturnType<typeof setTimeout> | undefined;
+    const lead = isPlain && !reduceMotion ? PLAIN_HANDOFF_LEAD_MS : 0;
     const t = setTimeout(() => {
-      onFadeStart?.();
       setFadeOut(true);
-      fadeTimer = setTimeout(onComplete, reduceMotion ? 200 : FADE_OUT_MS);
+      handoffTimer = setTimeout(() => {
+        onFadeStart?.();
+        fadeTimer = setTimeout(onComplete, reduceMotion ? 200 : FADE_OUT_MS);
+      }, lead);
     }, totalDurationMs);
     return () => {
       clearTimeout(t);
+      clearTimeout(handoffTimer);
       clearTimeout(fadeTimer);
     };
-  }, [onComplete, onFadeStart, reduceMotion, totalDurationMs]);
+  }, [isPlain, onComplete, onFadeStart, reduceMotion, totalDurationMs]);
 
   return (
     <div
@@ -175,6 +239,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
       {isPlain && (
         <>
           <PlainAtmosphere baseColor={plainTheme.background} />
+          <PlainBubbles />
           <div className="loading-screen__plain-corners" aria-hidden="true">
             {(
               [
@@ -200,7 +265,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
               {PLAIN_MOTES.map((m, i) => (
                 <span
                   key={i}
-                  className="ls-plain-mote"
+                  className={`ls-plain-mote${m.petal ? ' ls-plain-mote--petal' : ''}`}
                   style={
                     {
                       '--x': `${m.x}%`,
@@ -208,6 +273,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
                       '--dur': `${m.dur}s`,
                       '--delay': `${m.delay}s`,
                       '--drift': `${m.drift}px`,
+                      '--spin': `${m.spin}deg`,
+                      '--c': m.color,
                     } as React.CSSProperties
                   }
                 />
@@ -225,27 +292,64 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
               src={plainInvite.ornament}
               alt=""
               aria-hidden="true"
-              className="loading-screen__plain-ornament ls-reveal"
-              style={{ '--ls-delay': '0ms' } as React.CSSProperties}
+              className="loading-screen__plain-ornament ls-ornament-in"
+              style={{ '--ls-delay': '100ms' } as React.CSSProperties}
             />
           )}
-          <h1 className="loading-screen__std-headline ls-reveal" style={{ '--ls-delay': '0ms' } as React.CSSProperties}>
-            {content.headline}
-          </h1>
+          {isPlain ? (
+            <h1 className="loading-screen__std-headline ls-headline" aria-label={content.headline}>
+              {headlineWords.map(({ word, script, start }, wi) =>
+                script ? (
+                  <span
+                    key={wi}
+                    className="ls-headline__script"
+                    aria-hidden="true"
+                    style={
+                      {
+                        '--ls-delay': `${PLAIN_LETTER_START_MS + start * PLAIN_LETTER_STAGGER_MS}ms`,
+                      } as React.CSSProperties
+                    }
+                  >
+                    {word}
+                  </span>
+                ) : (
+                  <span key={wi} className="ls-headline__word" aria-hidden="true">
+                    {Array.from(word).map((ch, ci) => (
+                      <span
+                        key={ci}
+                        className="ls-headline__letter"
+                        style={
+                          {
+                            '--ls-delay': `${PLAIN_LETTER_START_MS + (start + ci) * PLAIN_LETTER_STAGGER_MS}ms`,
+                          } as React.CSSProperties
+                        }
+                      >
+                        {ch}
+                      </span>
+                    ))}
+                  </span>
+                ),
+              )}
+            </h1>
+          ) : (
+            <h1 className="loading-screen__std-headline ls-reveal" style={{ '--ls-delay': '0ms' } as React.CSSProperties}>
+              {content.headline}
+            </h1>
+          )}
           {countdownText && (
-            <p className="loading-screen__std-kicker ls-reveal" style={{ '--ls-delay': '250ms' } as React.CSSProperties}>
+            <p className="loading-screen__std-kicker ls-reveal" style={revealDelay(250, 0)}>
               {countdownText}
             </p>
           )}
         </header>
 
         {isPlain && plainInvite.lineAbove && (
-          <p className="loading-screen__plain-line ls-reveal" style={{ '--ls-delay': '350ms' } as React.CSSProperties}>
+          <p className="loading-screen__plain-line ls-reveal" style={revealDelay(350, 200)}>
             {plainInvite.lineAbove}
           </p>
         )}
 
-        <div className="loading-screen__std-names-slot ls-reveal" style={{ '--ls-delay': '450ms' } as React.CSSProperties}>
+        <div className="loading-screen__std-names-slot ls-reveal" style={revealDelay(450, 400)}>
           <div
             className="loading-screen__std-names couple-name-lockup"
             role="img"
@@ -258,24 +362,29 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
         </div>
 
         {isPlain && plainInvite.lineBelow && (
-          <p className="loading-screen__plain-line ls-reveal" style={{ '--ls-delay': '550ms' } as React.CSSProperties}>
+          <p className="loading-screen__plain-line ls-reveal" style={revealDelay(550, 650)}>
             {plainInvite.lineBelow}
           </p>
         )}
 
         {isPlain && silkDate && (
           <div className="ls-silk-date px-4 pt-1 pb-3 sm:pb-4 flex-shrink-0" role="img" aria-label={silkDate.label}>
-            <p className={`ls-silk-date__weekday${visibleBoxes >= 1 ? ' is-visible' : ''}`}>
+            {/* Entry order: day rises in → month & year glide out from it → weekday draws in */}
+            <p className="ls-silk-date__weekday is-visible" style={dateDelay(2)}>
               {silkDate.weekday}
             </p>
             <div className="ls-silk-date__row">
-              <span className={`ls-silk-date__side${visibleBoxes >= 1 ? ' is-visible' : ''}`}>
+              <span className="ls-silk-date__side ls-silk-date__side--month is-visible" style={dateDelay(1)}>
                 {silkDate.month}
               </span>
-              <span className={`ls-silk-date__day${visibleBoxes >= 2 ? ' is-visible' : ''}`}>
-                {silkDate.day}
+              <span className="ls-silk-date__day is-visible" style={dateDelay(0)}>
+                {Array.from(silkDate.day).map((digit, i) => (
+                  <span key={i} className="ls-silk-date__digit" style={{ '--i': i } as React.CSSProperties}>
+                    <span className="ls-silk-date__digit-inner">{digit}</span>
+                  </span>
+                ))}
               </span>
-              <span className={`ls-silk-date__side${visibleBoxes >= 3 ? ' is-visible' : ''}`}>
+              <span className="ls-silk-date__side ls-silk-date__side--year is-visible" style={dateDelay(1)}>
                 {silkDate.year}
               </span>
             </div>
@@ -326,17 +435,17 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
 
         <footer className="loading-screen__std-footer flex flex-col items-center w-full pt-1 px-6 flex-shrink-0">
           {content.showCeremonyDetails && (ceremonyLine || siteConfig.ceremony.location) && (
-            <div className="loading-screen__std-venue ls-reveal" style={{ '--ls-delay': '900ms' } as React.CSSProperties}>
+            <div className="loading-screen__std-venue ls-reveal" style={revealDelay(900, 3200)}>
               {ceremonyLine && <span className="loading-screen__std-venue-time">{ceremonyLine}</span>}
               {siteConfig.ceremony.location && (
                 <span className="loading-screen__std-venue-name">{siteConfig.ceremony.location}</span>
               )}
             </div>
           )}
-          <p className="loading-screen__std-eyebrow ls-reveal" style={{ '--ls-delay': '1100ms' } as React.CSSProperties}>
+          <p className="loading-screen__std-eyebrow ls-reveal" style={revealDelay(1100, 3400)}>
             {content.eyebrow}
           </p>
-          <p className="loading-screen__std-copy ls-reveal" style={{ '--ls-delay': '1250ms' } as React.CSSProperties}>
+          <p className="loading-screen__std-copy ls-reveal" style={revealDelay(1250, 3550)}>
             {content.message}
           </p>
           <div className="loading-screen__std-rule" aria-hidden="true" />
