@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Lock,
@@ -16,7 +16,7 @@ import { ImprovedGuestList, Guest } from "@/components/improved-guest-list"
 import { GuestRequests } from "@/components/guest-requests"
 import { GuestMessages } from "@/components/guest-messages"
 import { type Message } from "@/app/api/messages/route"
-import { EntourageSponsors } from "@/components/entourage-sponsors"
+import { EntourageSponsors, type SponsorsList } from "@/components/entourage-sponsors"
 import { ProposalDashboard } from "@/components/proposal-dashboard"
 import { Cinzel, Playfair_Display } from "next/font/google"
 
@@ -67,6 +67,8 @@ export default function DashboardPage() {
   // PrincipalSponsor state
   const [principalSponsors, setPrincipalSponsors] = useState<PrincipalSponsor[]>([])
   const [filteredPrincipalSponsors, setFilteredPrincipalSponsors] = useState<PrincipalSponsor[]>([])
+  const [sponsorsList, setSponsorsList] = useState<SponsorsList>("one")
+  const sponsorsListRef = useRef<SponsorsList>("one")
 
   // Guest messages state (from Messages Google Sheet via /api/messages)
   const [messages, setMessages] = useState<Message[]>([])
@@ -191,18 +193,28 @@ export default function DashboardPage() {
     }
   }
 
-  const fetchPrincipalSponsors = async () => {
+  const fetchPrincipalSponsors = async (list: SponsorsList = sponsorsListRef.current) => {
     try {
-      const response = await fetch("/api/principal-sponsor")
+      const response = await fetch(`/api/principal-sponsor?list=${list}`, { cache: "no-store" })
       if (!response.ok) {
         throw new Error("Failed to fetch principal sponsors")
       }
       const data = await response.json()
+      if (list !== sponsorsListRef.current) return // switched sheets while loading
       setPrincipalSponsors(data)
       setFilteredPrincipalSponsors(data)
     } catch (error) {
       console.error("Error fetching principal sponsors:", error)
     }
+  }
+
+  const handleSponsorsListChange = (list: SponsorsList) => {
+    if (list === sponsorsListRef.current) return
+    sponsorsListRef.current = list
+    setSponsorsList(list)
+    setPrincipalSponsors([])
+    setFilteredPrincipalSponsors([])
+    void fetchPrincipalSponsors(list)
   }
 
   const handleLogin = (e: React.FormEvent) => {
@@ -613,8 +625,10 @@ export default function DashboardPage() {
             <EntourageSponsors
               entourage={filteredEntourage}
               principalSponsors={filteredPrincipalSponsors}
+              sponsorsList={sponsorsList}
+              onSponsorsListChange={handleSponsorsListChange}
               onRefreshEntourage={fetchEntourage}
-              onRefreshSponsors={fetchPrincipalSponsors}
+              onRefreshSponsors={() => fetchPrincipalSponsors()}
               isLoading={isLoading}
             />
           )}

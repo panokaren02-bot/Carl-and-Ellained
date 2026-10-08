@@ -79,7 +79,7 @@ const TIMES = {
   entourageCall: "1:00 PM", // entourage arrival
   guestArrival: "1:30 PM", // guests arrival (shown in Event Details + reminders)
   ceremony: "2:00 PM",
-  reception: "5:00 PM",
+  reception: "4:30 PM", // program proper
 }
 
 // ── Venues ──────────────────────────────────────────────────────────────────
@@ -328,7 +328,7 @@ export const siteConfig = {
     sponsors: SPONSORS_API,  //done 
     // Principal sponsors shown on /inviteone and /invitetwo (entourage section)
     sponsorsInviteOne: SPONSORS_API, // same sheet as sponsors above
-    sponsorsInviteTwo: "https://script.google.com/macros/s/AKfycbzODfaLzIby874R00CNgsODHfoBvzxQOw64nGxdGgFURPpt2Xo70v7KYsB5eY8epnBJ/exec",
+    sponsorsInviteTwo: "https://script.google.com/macros/s/AKfycbwJ6eQvghyTlCd_0fCr8kThFxCIE94UzxE9KjHcnGMkKeLQnT0PGCRQ3Xlt_H8RruWu/exec",
 ////google share 
     googleShare: "https://docs.google.com/spreadsheets/d/1tNrAdJJQDMQtVl9I6ncbw5wLpsiER5UA4ELCMDI4nfw/edit?usp=sharing",
     videoMessageForm:
@@ -634,7 +634,7 @@ export const siteConfig = {
       },
       {
         show: true,
-        time: "5:30 PM",
+        time: "3:30 PM",
         title: "Photo Session",
         description: "",
         location: "{ceremony}",
@@ -642,7 +642,7 @@ export const siteConfig = {
         icon: "rings" as TimelineIconName,
       },
       {
-        show: true,
+        show: false, // not in the current program
         time: "6:00 PM",
         title: "Cocktail Hour",
         description: "",
@@ -653,7 +653,7 @@ export const siteConfig = {
       {
         show: true,
         time: TIMES.reception,
-        title: "Reception Program",
+        title: "Program Proper",
         description: "",
         location: "{reception}",
         image: "/weddingtimeline/reception welcom.png",
@@ -661,8 +661,8 @@ export const siteConfig = {
       },
       {
         show: true,
-        time: "7:30 PM",
-        title: "Dinner Service",
+        time: "4:30 PM",
+        title: "Early Dinner",
         description: "",
         location: "{reception}",
         image: "/weddingtimeline/DinnerService.png",
@@ -670,7 +670,7 @@ export const siteConfig = {
       },
       {
         show: true,
-        time: "8:30 PM",
+        time: "5:00 PM",
         title: "Cake Cutting",
         description: "",
         location: "{reception}",
@@ -679,7 +679,7 @@ export const siteConfig = {
       },
       {
         show: true,
-        time: "9:00 PM",
+        time: "5:30 PM",
         title: "First Dance & Party",
         description: "",
         location: "{reception}",
@@ -688,7 +688,7 @@ export const siteConfig = {
       },
       {
         show: true,
-        time: "10:00 PM",
+        time: "6:30 PM",
         title: "Send-Off",
         description: "",
         location: "{reception}",

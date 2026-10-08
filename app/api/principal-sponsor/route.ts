@@ -24,12 +24,26 @@ const SPONSOR_LISTS: Record<string, string> = {
   two: siteConfig.googleAPI.sponsorsInviteTwo,
 }
 
-// GET: Fetch all principal sponsors
-export async function GET(request: NextRequest) {
+function sponsorSheet(request: NextRequest) {
   const list = request.nextUrl.searchParams.get("list") ?? ""
   const listUrl = SPONSOR_LISTS[list]
-  const scriptUrl = listUrl || PRINCIPAL_SPONSOR_SCRIPT_URL
-  const cacheKey = listUrl ? `${SHEETS_CACHE_KEYS.sponsors}:${list}` : SHEETS_CACHE_KEYS.sponsors
+  return {
+    scriptUrl: listUrl || PRINCIPAL_SPONSOR_SCRIPT_URL,
+    cacheKey: listUrl ? `${SHEETS_CACHE_KEYS.sponsors}:${list}` : SHEETS_CACHE_KEYS.sponsors,
+  }
+}
+
+// Lists can share a sheet (inviteone = main sponsors), so clear every sponsor cache after a change
+function invalidateSponsorCaches() {
+  invalidateSheetsCache(SHEETS_CACHE_KEYS.sponsors)
+  for (const list of Object.keys(SPONSOR_LISTS)) {
+    invalidateSheetsCache(`${SHEETS_CACHE_KEYS.sponsors}:${list}`)
+  }
+}
+
+// GET: Fetch all principal sponsors
+export async function GET(request: NextRequest) {
+  const { scriptUrl, cacheKey } = sponsorSheet(request)
   try {
     const data = await withSheetsCache(cacheKey, async () => {
       const payload = await fetchGoogleScriptJson(scriptUrl)
@@ -69,7 +83,7 @@ export async function POST(request: NextRequest) {
       FemalePrincipalSponsor: FemalePrincipalSponsor?.trim() || '',
     }
 
-    const response = await fetch(PRINCIPAL_SPONSOR_SCRIPT_URL, {
+    const response = await fetch(sponsorSheet(request).scriptUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -82,7 +96,7 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json()
-    invalidateSheetsCache(SHEETS_CACHE_KEYS.sponsors)
+    invalidateSponsorCaches()
     return NextResponse.json(data, { status: 201 })
   } catch (error) {
     console.error('Error adding principal sponsor:', error)
@@ -115,7 +129,7 @@ export async function PUT(request: NextRequest) {
       FemalePrincipalSponsor: FemalePrincipalSponsor?.trim() || '',
     }
 
-    const response = await fetch(PRINCIPAL_SPONSOR_SCRIPT_URL, {
+    const response = await fetch(sponsorSheet(request).scriptUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -128,7 +142,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await response.json()
-    invalidateSheetsCache(SHEETS_CACHE_KEYS.sponsors)
+    invalidateSponsorCaches()
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
     console.error('Error updating principal sponsor:', error)
@@ -158,7 +172,7 @@ export async function DELETE(request: NextRequest) {
       MalePrincipalSponsor: MalePrincipalSponsor.trim(),
     }
 
-    const response = await fetch(PRINCIPAL_SPONSOR_SCRIPT_URL, {
+    const response = await fetch(sponsorSheet(request).scriptUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -171,7 +185,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const data = await response.json()
-    invalidateSheetsCache(SHEETS_CACHE_KEYS.sponsors)
+    invalidateSponsorCaches()
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
     console.error('Error deleting principal sponsor:', error)

@@ -38,9 +38,14 @@ interface PrincipalSponsor {
   FemalePrincipalSponsor: string
 }
 
+export type SponsorsList = "one" | "two"
+
 interface EntourageSponsorsProps {
   entourage: Entourage[]
   principalSponsors: PrincipalSponsor[]
+  /** Which sponsor sheet is being edited (/inviteone or /invitetwo) */
+  sponsorsList: SponsorsList
+  onSponsorsListChange: (list: SponsorsList) => void
   onRefreshEntourage: () => void
   onRefreshSponsors: () => void
   isLoading: boolean
@@ -319,11 +324,14 @@ function FormSheet({
 export function EntourageSponsors({
   entourage,
   principalSponsors,
+  sponsorsList,
+  onSponsorsListChange,
   onRefreshEntourage,
   onRefreshSponsors,
   isLoading,
 }: EntourageSponsorsProps) {
   const [activeSubTab, setActiveSubTab] = useState<Tab>("entourage")
+  const sponsorsApi = `/api/principal-sponsor?list=${sponsorsList}`
   const [searchQuery, setSearchQuery] = useState("")
   const [roleFilter, setRoleFilter] = useState<string>("all")
 
@@ -489,12 +497,12 @@ export function EntourageSponsors({
     }
     const editing = editingSponsor
     const ok = editing
-      ? await run("Saving changes…", "/api/principal-sponsor", "PUT", {
+      ? await run("Saving changes…", sponsorsApi, "PUT", {
           originalMale: editing.MalePrincipalSponsor,
           originalFemale: editing.FemalePrincipalSponsor,
           ...sponsorFormData,
         })
-      : await run("Adding sponsors…", "/api/principal-sponsor", "POST", sponsorFormData)
+      : await run("Adding sponsors…", sponsorsApi, "POST", sponsorFormData)
     if (!ok) {
       showError(editing ? "We couldn't update these sponsors. Please try again." : "We couldn't add these sponsors. Please try again.")
       return
@@ -523,7 +531,7 @@ export function EntourageSponsors({
       onRefreshEntourage()
       window.dispatchEvent(new Event("entourageUpdated"))
     } else {
-      const ok = await run("Removing sponsors…", "/api/principal-sponsor", "DELETE", {
+      const ok = await run("Removing sponsors…", sponsorsApi, "DELETE", {
         MalePrincipalSponsor: target.sponsor.MalePrincipalSponsor,
         FemalePrincipalSponsor: target.sponsor.FemalePrincipalSponsor,
       })
@@ -651,6 +659,35 @@ export function EntourageSponsors({
           {activeSubTab === "entourage" ? "Add Member" : "Add Sponsors"}
         </Button>
       </div>
+
+      {/* Sponsor sheet switch: which invite page's sponsors are being edited */}
+      {activeSubTab === "sponsors" && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-gray-500">Editing sponsors for</span>
+          {(
+            [
+              { id: "one", label: "Invite One", path: "/inviteone" },
+              { id: "two", label: "Invite Two", path: "/invitetwo" },
+            ] as const
+          ).map((list) => {
+            const active = sponsorsList === list.id
+            return (
+              <button
+                key={list.id}
+                onClick={() => {
+                  onSponsorsListChange(list.id)
+                  setSearchQuery("")
+                }}
+                className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  active ? "border-[#718566] bg-[#718566] text-white" : "border-[#DDE5D4] bg-white text-gray-600 hover:text-[#304A34]"
+                }`}
+              >
+                {list.label} <span className={active ? "text-white/80" : "text-gray-400"}>{list.path}</span>
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* Role filter chips (entourage) */}
       {activeSubTab === "entourage" && roleCategories.length > 1 && (
