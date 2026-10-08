@@ -2,6 +2,7 @@
 
 import { Section } from "@/components/section"
 import { useState, type ReactNode } from "react"
+import { useQrColors } from "@/hooks/use-css-color"
 import { QRCodeSVG } from "qrcode.react"
 import Image from "next/image"
 import localFont from "next/font/local"
@@ -62,8 +63,6 @@ const softPanelStyle = {
   backgroundColor: "var(--color-welcome-bg-soft)",
 } as const
 
-const QR_FG = "var(--color-motif-deep)"
-const QR_BG = "#FAF7F2"
 
 const HOTEL = {
   name: "Microtel by Wyndham South Forbes near Nuvali",
@@ -136,6 +135,7 @@ function HotelTitle() {
 }
 
 export function RecommendedHotel() {
+  const { fg: qrFg, bg: qrBg } = useQrColors() // --color-qr-fg / --color-qr-bg in globals.css
   const [copied, setCopied] = useState(false)
   const fullVenue = `${HOTEL.name}, ${HOTEL.address}`
 
@@ -240,8 +240,8 @@ export function RecommendedHotel() {
                         size={80}
                         level="M"
                         includeMargin={false}
-                        fgColor={QR_FG}
-                        bgColor={QR_BG}
+                        fgColor={qrFg}
+                        bgColor={qrBg}
                       />
                     </div>
                     <p

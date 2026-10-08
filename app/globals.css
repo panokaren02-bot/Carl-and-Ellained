@@ -109,6 +109,11 @@
      saturate/brightness land it on navy while keeping the watercolor shading.
      Set to "none" to show the original artwork. */
   --deco-filter: grayscale(1) sepia(1) hue-rotate(185deg) saturate(2.8) brightness(0.5);
+
+  /* QR codes (every QR on the site + dashboard): darkest motif color on white.
+     Read at runtime by hooks/use-css-color, so any CSS color works here. */
+  --color-qr-fg: var(--color-coastal-deep);
+  --color-qr-bg: #FFFFFF;
 }
 
 .dark {
@@ -516,8 +521,55 @@
          #16264A 60%,
          white
      );
- 
- 
+
+
+ /* ==========================================
+  *  DASHBOARD
+  *  Every dashboard color comes from here and is
+  *  derived from the palette above — change the
+  *  palette and the whole dashboard follows.
+  *  Use as Tailwind classes: bg-dash-primary,
+  *  text-dash-ink, border-dash-border, ...
+  *  Plain colors only (gradients: page bg only).
+  * ========================================== */
+
+ /* Buttons, active states, icons */
+ --color-dash-primary: var(--color-primary);
+ --color-dash-primary-hover: var(--color-primary-hover);
+
+ /* Secondary accent (ampersands, check marks, links) */
+ --color-dash-accent: var(--color-section-accent);
+
+ /* Text */
+ --color-dash-ink: var(--color-text-dark);
+ --color-dash-ink-strong: color-mix(in srgb, var(--color-text-dark) 80%, black);
+ --color-dash-text: color-mix(in srgb, var(--color-text-dark) 80%, white);
+ --color-dash-muted: var(--color-text-muted);
+ --color-dash-faint: color-mix(in srgb, var(--color-text-dark) 45%, white);
+
+ /* Lines + borders */
+ --color-dash-line: var(--color-section-light);
+ --color-dash-focus: color-mix(in srgb, var(--color-section-accent) 55%, white);
+ --color-dash-border: color-mix(in srgb, var(--color-section-light) 50%, white);
+
+ /* Surfaces */
+ --color-dash-tint: color-mix(in srgb, var(--color-section-light) 26%, white);
+ --color-dash-surface: color-mix(in srgb, var(--color-section-light) 12%, white);
+ --color-dash-bg: color-mix(in srgb, var(--color-motif-cream) 60%, white);
+ --color-dash-bg-deep: var(--color-motif-cream);
+
+ /* Small badges */
+ --color-dash-badge-bg: color-mix(in srgb, var(--color-romantic-blush) 55%, white);
+ --color-dash-badge-text: color-mix(in srgb, var(--color-romantic-deep) 55%, black);
+
+ /* Delete / danger — romantic coral family, darkened for contrast */
+ --color-dash-danger: color-mix(in srgb, var(--color-romantic-deep) 45%, #7A2E2E);
+ --color-dash-danger-text: color-mix(in srgb, var(--color-romantic-deep) 35%, #6E2A2A);
+ --color-dash-danger-soft: color-mix(in srgb, var(--color-romantic-blush) 35%, white);
+ --color-dash-danger-softer: color-mix(in srgb, var(--color-romantic-blush) 18%, white);
+ --color-dash-danger-border: color-mix(in srgb, var(--color-romantic-blush) 60%, white);
+
+
  /* ==========================================
   *  COLOR USAGE GUIDE
   * ========================================== */

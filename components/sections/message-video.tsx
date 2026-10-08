@@ -1,5 +1,6 @@
 "use client"
 
+import { useQrColors } from "@/hooks/use-css-color"
 import { QRCodeSVG } from "qrcode.react"
 import { Cinzel } from "next/font/google"
 import localFont from "next/font/local"
@@ -34,8 +35,6 @@ const aboveTheBeyond = localFont({
 const FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSfeGlEl4CMXWefdvCw6AOPHFS1ROku_rs-Gbofa2LkVJ0sLGQ/viewform"
 
-const QR_FG = "var(--color-motif-deep)"
-const QR_BG = "#FAF7F2"
 
 const cardStyle = {
   background: "var(--color-welcome-bg)",
@@ -97,6 +96,7 @@ function MessageVideoTitle() {
 }
 
 export function MessageVideo() {
+  const { fg: qrFg, bg: qrBg } = useQrColors() // --color-qr-fg / --color-qr-bg in globals.css
   const siteConfig = useSiteConfig()
   const coupleName = `${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname}`
 
@@ -188,8 +188,8 @@ export function MessageVideo() {
                     size={148}
                     level="M"
                     includeMargin={false}
-                    fgColor={QR_FG}
-                    bgColor={QR_BG}
+                    fgColor={qrFg}
+                    bgColor={qrBg}
                   />
                 </div>
                 <p

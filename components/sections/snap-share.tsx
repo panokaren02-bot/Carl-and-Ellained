@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Cinzel } from "next/font/google"
 import localFont from "next/font/local"
 import { Instagram, Facebook, Twitter, Share2, Copy, Download, Check } from "lucide-react"
+import { useQrColors } from "@/hooks/use-css-color"
 import { QRCodeCanvas } from "qrcode.react"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { layeredSectionTitleSize, sectionType } from "@/lib/section-typography"
@@ -69,7 +70,6 @@ const cardStyle = {
   boxShadow: "0 24px 50px -28px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)",
 } as const
 
-const QR_FG = TEAL // canvas needs a literal color
 
 function OutsideDivider() {
   return (
@@ -169,6 +169,7 @@ const SOCIAL = {
 } as const
 
 export function SnapShare() {
+  const { fg: qrFg, bg: qrBg } = useQrColors() // --color-qr-fg / --color-qr-bg in globals.css
   const siteConfig = useSiteConfig()
   const content = siteConfig.snapShare
   const [copiedHashtagIndex, setCopiedHashtagIndex] = useState<number | null>(null)
@@ -249,8 +250,8 @@ export function SnapShare() {
           level={level}
           includeMargin
           className="h-auto max-w-full"
-          fgColor={QR_FG}
-          bgColor="#FFFFFF"
+          fgColor={qrFg}
+          bgColor={qrBg}
         />
       </div>
       {note ? (

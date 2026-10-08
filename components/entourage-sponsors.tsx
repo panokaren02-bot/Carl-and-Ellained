@@ -70,17 +70,17 @@ const DEFAULT_ROLE_CATEGORIES = [
 ]
 
 const FIELD =
-  "w-full rounded-xl border border-[#DDE5D4] bg-[#FCFDFB] px-3 py-2.5 outline-none transition-colors focus:border-[#9EAF91] focus:bg-white focus:ring-2 focus:ring-[#9EAF91]/40"
+  "w-full rounded-xl border border-dash-border bg-dash-bg px-3 py-2.5 outline-none transition-colors focus:border-dash-focus focus:bg-white focus:ring-2 focus:ring-dash-focus/40"
 
 const sponsorLabel = (s: PrincipalSponsor) =>
   [s.MalePrincipalSponsor, s.FemalePrincipalSponsor].filter((n) => n && n.trim()).join(" & ") || "Sponsor pair"
 
 function FieldLabel({ htmlFor, children, required = false }: { htmlFor?: string; children: ReactNode; required?: boolean }) {
   return (
-    <label htmlFor={htmlFor} className="flex items-center justify-between gap-2 text-[13px] font-medium text-[#304A34]">
+    <label htmlFor={htmlFor} className="flex items-center justify-between gap-2 text-[13px] font-medium text-dash-ink">
       <span>{children}</span>
       {required ? (
-        <span className="rounded-full bg-[#EEF2EA] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#4F674D]">Required</span>
+        <span className="rounded-full bg-dash-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-dash-primary">Required</span>
       ) : (
         <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Optional</span>
       )}
@@ -163,7 +163,7 @@ function RoleCombobox({
         tabIndex={-1}
         onClick={() => setOpen((o) => !o)}
         aria-label="Show roles"
-        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 hover:text-[#4F674D]"
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 hover:text-dash-primary"
       >
         <ChevronDown className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
@@ -172,7 +172,7 @@ function RoleCombobox({
         <ul
           id="ent-role-list"
           role="listbox"
-          className="absolute left-0 right-0 z-30 mt-1 max-h-52 overflow-y-auto rounded-xl border border-[#DDE5D4] bg-white py-1 shadow-lg"
+          className="absolute left-0 right-0 z-30 mt-1 max-h-52 overflow-y-auto rounded-xl border border-dash-border bg-white py-1 shadow-lg"
         >
           {matches.map((option, i) => (
             <li
@@ -183,11 +183,11 @@ function RoleCombobox({
               onClick={() => pick(option)}
               onMouseEnter={() => setHighlight(i)}
               className={`flex cursor-pointer items-center justify-between px-3 py-2 text-sm ${
-                i === highlight ? "bg-[#EEF2EA] text-[#304A34]" : "text-gray-700"
+                i === highlight ? "bg-dash-tint text-dash-ink" : "text-gray-700"
               }`}
             >
               {option}
-              {option.toLowerCase() === q && <Check className="h-3.5 w-3.5 text-[#4F674D]" />}
+              {option.toLowerCase() === q && <Check className="h-3.5 w-3.5 text-dash-primary" />}
             </li>
           ))}
           {q && !exact && (
@@ -196,9 +196,9 @@ function RoleCombobox({
               aria-selected={false}
               onPointerDown={(e) => e.preventDefault()}
               onClick={() => pick(value.trim())}
-              className="cursor-pointer border-t border-[#EEF2EA] px-3 py-2 text-xs text-gray-500 hover:bg-[#F7F9F4]"
+              className="cursor-pointer border-t border-dash-tint px-3 py-2 text-xs text-gray-500 hover:bg-dash-surface"
             >
-              Use &ldquo;<span className="font-medium text-[#304A34]">{value.trim()}</span>&rdquo; as a new role
+              Use &ldquo;<span className="font-medium text-dash-ink">{value.trim()}</span>&rdquo; as a new role
             </li>
           )}
         </ul>
@@ -240,7 +240,7 @@ function FormSheet({
         }}
         className="dash-sheet relative max-h-[94dvh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-2xl"
       >
-        <div className="sticky top-0 z-20 border-b border-[#DDE5D4] bg-[#FBFCF7]/95 px-4 pt-3 pb-4 backdrop-blur-sm sm:px-6 sm:py-5">
+        <div className="sticky top-0 z-20 border-b border-dash-border bg-dash-bg/95 px-4 pt-3 pb-4 backdrop-blur-sm sm:px-6 sm:py-5">
           <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-gray-300/70 sm:hidden" aria-hidden />
           {help ? (
             <button
@@ -250,7 +250,7 @@ function FormSheet({
               aria-expanded={showHelp}
               aria-controls="form-sheet-help"
               className={`absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-colors sm:left-auto sm:right-16 sm:top-5 ${
-                showHelp ? "border-[#718566] bg-[#718566] text-white" : "border-[#DDE5D4] bg-white text-[#4F674D] hover:bg-[#EEF2EA]"
+                showHelp ? "border-dash-accent bg-dash-accent text-white" : "border-dash-border bg-white text-dash-primary hover:bg-dash-tint"
               }`}
             >
               <Info className="h-4 w-4" />
@@ -260,25 +260,25 @@ function FormSheet({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-[#DDE5D4] bg-white text-gray-500 shadow-sm transition-colors hover:text-[#304A34] sm:right-5 sm:top-5"
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-dash-border bg-white text-gray-500 shadow-sm transition-colors hover:text-dash-ink sm:right-5 sm:top-5"
           >
             <X className="h-4 w-4" />
           </button>
           <div className={`px-10 text-center sm:px-0 sm:text-left ${help ? "sm:pr-24" : "sm:pr-12"}`}>
-            <p className={`${cinzel.className} text-[10px] font-semibold uppercase tracking-[0.28em] text-[#718566]`}>{eyebrow}</p>
-            <h2 className={`${playfair.className} mt-1 text-[1.45rem] font-semibold leading-tight text-[#304A34] sm:text-2xl`}>{title}</h2>
+            <p className={`${cinzel.className} text-[10px] font-semibold uppercase tracking-[0.28em] text-dash-accent`}>{eyebrow}</p>
+            <h2 className={`${playfair.className} mt-1 text-[1.45rem] font-semibold leading-tight text-dash-ink sm:text-2xl`}>{title}</h2>
             <p className="mx-auto mt-1.5 max-w-xs text-[11px] leading-relaxed text-gray-500 sm:mx-0 sm:max-w-none sm:text-xs">{subtitle}</p>
           </div>
         </div>
 
         <div className="space-y-4 px-4 pt-4 sm:p-6">
           {help && showHelp && (
-            <div id="form-sheet-help" className="rounded-xl border border-[#DDE5D4] bg-[#F7F9F4] px-3.5 py-3 text-[12px] leading-relaxed text-[#4B5B49] sm:text-[13px]">
-              <p className="font-semibold text-[#304A34]">{help.title}</p>
+            <div id="form-sheet-help" className="rounded-xl border border-dash-border bg-dash-surface px-3.5 py-3 text-[12px] leading-relaxed text-dash-text sm:text-[13px]">
+              <p className="font-semibold text-dash-ink">{help.title}</p>
               <ul className="mt-1.5 space-y-1">
                 {help.points.map((point, i) => (
                   <li key={i} className="flex gap-2">
-                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#718566]" />
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-dash-accent" />
                     <span>{point}</span>
                   </li>
                 ))}
@@ -287,20 +287,20 @@ function FormSheet({
           )}
           {children}
 
-          <div className="sticky bottom-0 z-10 -mx-4 flex flex-col-reverse gap-2 border-t border-[#DDE5D4] bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:justify-end sm:gap-3 sm:px-0 sm:pt-5 sm:pb-0">
+          <div className="sticky bottom-0 z-10 -mx-4 flex flex-col-reverse gap-2 border-t border-dash-border bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:justify-end sm:gap-3 sm:px-0 sm:pt-5 sm:pb-0">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={busy}
-              className="h-11 w-full rounded-full border-[#DDE5D4] px-7 text-sm font-medium text-gray-600 hover:bg-[#F7F9F4] hover:text-[#304A34] sm:w-auto"
+              className="h-11 w-full rounded-full border-dash-border px-7 text-sm font-medium text-gray-600 hover:bg-dash-surface hover:text-dash-ink sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={busy}
-              className="h-11 w-full rounded-full bg-gradient-to-r from-[#4F674D] to-[#304A34] px-8 text-sm font-semibold tracking-wide text-white shadow-[0_10px_22px_-10px_rgba(48,74,52,0.7)] transition-all hover:brightness-110 active:scale-[0.99] disabled:opacity-50 sm:w-auto"
+              className="h-11 w-full rounded-full bg-dash-primary px-8 text-sm font-semibold tracking-wide text-white shadow-[0_10px_22px_-10px_color-mix(in_srgb,var(--color-dash-ink)_70%,transparent)] transition-all hover:brightness-110 active:scale-[0.99] disabled:opacity-50 sm:w-auto"
             >
               {busy ? (
                 <span className="flex items-center gap-2">
@@ -561,9 +561,9 @@ export function EntourageSponsors({
 
   const mobileActionBtn = "flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border text-sm font-medium transition-colors"
   const emptyState = (title: string, text: string, icon: ReactNode) => (
-    <div className="rounded-xl border border-[#DDE5D4] bg-white px-6 py-12 text-center">
-      <span className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#F7F9F4] text-[#AAB9A0]">{icon}</span>
-      <h3 className={`${playfair.className} text-lg font-semibold text-[#304A34]`}>{title}</h3>
+    <div className="rounded-xl border border-dash-border bg-white px-6 py-12 text-center">
+      <span className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-dash-surface text-dash-line">{icon}</span>
+      <h3 className={`${playfair.className} text-lg font-semibold text-dash-ink`}>{title}</h3>
       <p className="mt-1 text-sm text-gray-500">{text}</p>
     </div>
   )
@@ -572,12 +572,12 @@ export function EntourageSponsors({
     <div className="space-y-4 sm:space-y-6">
       {/* Heading */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-bold text-[#111827] sm:text-2xl">Entourage & Principal Sponsors</h2>
+        <h2 className="text-xl font-bold text-dash-ink sm:text-2xl">Entourage & Principal Sponsors</h2>
         <button
           type="button"
           onClick={() => (activeSubTab === "entourage" ? onRefreshEntourage() : onRefreshSponsors())}
           disabled={isLoading}
-          className="inline-flex items-center gap-1.5 rounded-full border border-[#DDE5D4] bg-white px-3 py-1.5 text-xs font-medium text-[#4F674D] transition-colors hover:bg-[#F7F9F4] disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-full border border-dash-border bg-white px-3 py-1.5 text-xs font-medium text-dash-primary transition-colors hover:bg-dash-surface disabled:opacity-50"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
           Refresh
@@ -597,7 +597,7 @@ export function EntourageSponsors({
       {/* Stats */}
       <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
         {[
-          { label: "Entourage", value: entourage.length, tone: "border-[#DDE5D4] bg-white text-[#4F674D]" },
+          { label: "Entourage", value: entourage.length, tone: "border-dash-border bg-white text-dash-primary" },
           { label: "Role groups", value: roleCategories.length, tone: "border-amber-200 bg-amber-50 text-amber-700" },
           { label: "Sponsor pairs", value: principalSponsors.length, tone: "border-purple-200 bg-purple-50 text-purple-700" },
           { label: "Sponsors", value: sponsorPeople, tone: "border-blue-200 bg-blue-50 text-blue-700" },
@@ -610,7 +610,7 @@ export function EntourageSponsors({
       </div>
 
       {/* Segmented switch */}
-      <div className="grid grid-cols-2 gap-1 rounded-xl border border-[#DDE5D4] bg-[#F7F9F4] p-1" role="tablist">
+      <div className="grid grid-cols-2 gap-1 rounded-xl border border-dash-border bg-dash-surface p-1" role="tablist">
         {(
           [
             { id: "entourage", label: "Entourage", short: "Entourage", count: entourage.length, icon: <Crown className="h-4 w-4 shrink-0" /> },
@@ -628,13 +628,13 @@ export function EntourageSponsors({
                 setSearchQuery("")
               }}
               className={`flex items-center justify-center gap-1.5 rounded-lg px-2 py-2.5 text-xs font-semibold transition-all sm:gap-2 sm:text-sm ${
-                active ? "bg-white text-[#304A34] shadow-sm ring-1 ring-[#DDE5D4]" : "text-gray-500 hover:text-[#304A34]"
+                active ? "bg-white text-dash-ink shadow-sm ring-1 ring-dash-border" : "text-gray-500 hover:text-dash-ink"
               }`}
             >
               {tab.icon}
               <span className="sm:hidden">{tab.short}</span>
               <span className="hidden sm:inline">{tab.label}</span>
-              <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${active ? "bg-[#EEF2EA] text-[#4F674D]" : "bg-white/70 text-gray-500"}`}>
+              <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${active ? "bg-dash-tint text-dash-primary" : "bg-white/70 text-gray-500"}`}>
                 {tab.count}
               </span>
             </button>
@@ -651,10 +651,10 @@ export function EntourageSponsors({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={activeSubTab === "entourage" ? "Search by name, role or email..." : "Search sponsors..."}
-            className="w-full rounded-lg border border-[#DDE5D4] bg-white py-2.5 pl-10 pr-4 outline-none focus:ring-2 focus:ring-[#9EAF91]"
+            className="w-full rounded-lg border border-dash-border bg-white py-2.5 pl-10 pr-4 outline-none focus:ring-2 focus:ring-dash-focus"
           />
         </div>
-        <Button onClick={openAdd} className="h-11 rounded-full bg-gradient-to-r from-[#4F674D] to-[#304A34] px-6 text-white hover:brightness-110 sm:h-10">
+        <Button onClick={openAdd} className="h-11 rounded-full bg-dash-primary px-6 text-white hover:brightness-110 sm:h-10">
           <Plus className="mr-1.5 h-4 w-4" />
           {activeSubTab === "entourage" ? "Add Member" : "Add Sponsors"}
         </Button>
@@ -679,7 +679,7 @@ export function EntourageSponsors({
                   setSearchQuery("")
                 }}
                 className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                  active ? "border-[#718566] bg-[#718566] text-white" : "border-[#DDE5D4] bg-white text-gray-600 hover:text-[#304A34]"
+                  active ? "border-dash-accent bg-dash-accent text-white" : "border-dash-border bg-white text-gray-600 hover:text-dash-ink"
                 }`}
               >
                 {list.label} <span className={active ? "text-white/80" : "text-gray-400"}>{list.path}</span>
@@ -700,7 +700,7 @@ export function EntourageSponsors({
                 key={cat}
                 onClick={() => setRoleFilter(cat)}
                 className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                  active ? "border-[#718566] bg-[#718566] text-white" : "border-[#DDE5D4] bg-white text-gray-600 hover:text-[#304A34]"
+                  active ? "border-dash-accent bg-dash-accent text-white" : "border-dash-border bg-white text-gray-600 hover:text-dash-ink"
                 }`}
               >
                 {cat === "all" ? "All roles" : cat} <span className={active ? "text-white/80" : "text-gray-400"}>{count}</span>
@@ -726,19 +726,19 @@ export function EntourageSponsors({
           <>
             <div className="space-y-3 md:hidden">
               {filteredEntourage.map((member, index) => (
-                <div key={`${member.Name}-${index}`} className="rounded-xl border border-[#DDE5D4] bg-white p-4 shadow-sm">
+                <div key={`${member.Name}-${index}`} className="rounded-xl border border-dash-border bg-white p-4 shadow-sm">
                   <div className="flex items-start gap-3">
-                    <span className={`${cinzel.className} flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF2EA] text-xs font-semibold text-[#4F674D]`}>
+                    <span className={`${cinzel.className} flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-dash-tint text-xs font-semibold text-dash-primary`}>
                       {member.Name.trim().charAt(0).toUpperCase() || "?"}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-gray-900 [overflow-wrap:anywhere]">{member.Name}</p>
                       <div className="mt-1 flex flex-wrap gap-1.5">
                         {member.RoleCategory && (
-                          <span className="rounded-full bg-[#F4F5EA] px-2.5 py-0.5 text-[11px] font-medium text-[#304A34]">{member.RoleCategory}</span>
+                          <span className="rounded-full bg-dash-bg-deep px-2.5 py-0.5 text-[11px] font-medium text-dash-ink">{member.RoleCategory}</span>
                         )}
                         {member.RoleTitle && member.RoleTitle !== member.RoleCategory && (
-                          <span className="rounded-full border border-[#DDE5D4] px-2.5 py-0.5 text-[11px] text-gray-500">{member.RoleTitle}</span>
+                          <span className="rounded-full border border-dash-border px-2.5 py-0.5 text-[11px] text-gray-500">{member.RoleTitle}</span>
                         )}
                       </div>
                       {member.Email && member.Email !== "Pending" && (
@@ -746,8 +746,8 @@ export function EntourageSponsors({
                       )}
                     </div>
                   </div>
-                  <div className="mt-3 flex gap-2 border-t border-[#EEF2EA] pt-3">
-                    <button onClick={() => startEditEntourage(member)} className={`${mobileActionBtn} border-[#DDE5D4] text-[#304A34] active:bg-[#F7F9F4]`}>
+                  <div className="mt-3 flex gap-2 border-t border-dash-tint pt-3">
+                    <button onClick={() => startEditEntourage(member)} className={`${mobileActionBtn} border-dash-border text-dash-ink active:bg-dash-surface`}>
                       <Edit2 className="h-4 w-4" /> Edit
                     </button>
                     <button onClick={() => setConfirm({ kind: "entourage", member })} className={`${mobileActionBtn} border-red-100 text-red-600 active:bg-red-50`}>
@@ -758,9 +758,9 @@ export function EntourageSponsors({
               ))}
             </div>
 
-            <div className="hidden overflow-hidden rounded-xl border border-[#DDE5D4] bg-white shadow-sm md:block">
+            <div className="hidden overflow-hidden rounded-xl border border-dash-border bg-white shadow-sm md:block">
               <table className="w-full text-left">
-                <thead className="bg-[#DDE5D4] text-[#304A34]">
+                <thead className="bg-dash-border text-dash-ink">
                   <tr>
                     <th className="px-4 py-3 text-xs font-semibold uppercase lg:px-6">Name</th>
                     <th className="px-4 py-3 text-xs font-semibold uppercase lg:px-6">Role</th>
@@ -769,13 +769,13 @@ export function EntourageSponsors({
                     <th className="px-4 py-3 text-right text-xs font-semibold uppercase lg:px-6">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#DDE5D4]">
+                <tbody className="divide-y divide-dash-border">
                   {filteredEntourage.map((member, index) => (
                     <tr key={`${member.Name}-${index}`} className="transition-colors hover:bg-gray-50">
                       <td className="px-4 py-4 font-medium text-gray-800 lg:px-6">{member.Name}</td>
                       <td className="px-4 py-4 lg:px-6">
                         {member.RoleCategory ? (
-                          <span className="rounded-full bg-[#F4F5EA] px-2.5 py-1 text-xs font-medium text-[#304A34]">{member.RoleCategory}</span>
+                          <span className="rounded-full bg-dash-bg-deep px-2.5 py-1 text-xs font-medium text-dash-ink">{member.RoleCategory}</span>
                         ) : (
                           <span className="text-xs text-gray-400">—</span>
                         )}
@@ -824,28 +824,28 @@ export function EntourageSponsors({
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filteredSponsors.map((sponsor, index) => (
-              <div key={`${sponsorLabel(sponsor)}-${index}`} className="group rounded-2xl border border-[#DDE5D4] bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+              <div key={`${sponsorLabel(sponsor)}-${index}`} className="group rounded-2xl border border-dash-border bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
                 <div className="flex items-center justify-between">
-                  <p className={`${cinzel.className} text-[10px] font-semibold uppercase tracking-[0.24em] text-[#718566]`}>Pair {index + 1}</p>
-                  <HeartHandshake className="h-4 w-4 text-[#C3CFB8]" aria-hidden />
+                  <p className={`${cinzel.className} text-[10px] font-semibold uppercase tracking-[0.24em] text-dash-accent`}>Pair {index + 1}</p>
+                  <HeartHandshake className="h-4 w-4 text-dash-line" aria-hidden />
                 </div>
                 <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-                  <div className="min-w-0 rounded-xl bg-[#F7F9F4] px-3 py-2.5 text-center">
+                  <div className="min-w-0 rounded-xl bg-dash-surface px-3 py-2.5 text-center">
                     <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Ninong</p>
-                    <p className={`${playfair.className} mt-0.5 text-sm font-semibold text-[#304A34] [overflow-wrap:anywhere]`}>
+                    <p className={`${playfair.className} mt-0.5 text-sm font-semibold text-dash-ink [overflow-wrap:anywhere]`}>
                       {sponsor.MalePrincipalSponsor || "—"}
                     </p>
                   </div>
-                  <span className={`${playfair.className} text-lg italic text-[#AAB9A0]`} aria-hidden>&amp;</span>
-                  <div className="min-w-0 rounded-xl bg-[#F7F9F4] px-3 py-2.5 text-center">
+                  <span className={`${playfair.className} text-lg italic text-dash-line`} aria-hidden>&amp;</span>
+                  <div className="min-w-0 rounded-xl bg-dash-surface px-3 py-2.5 text-center">
                     <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500">Ninang</p>
-                    <p className={`${playfair.className} mt-0.5 text-sm font-semibold text-[#304A34] [overflow-wrap:anywhere]`}>
+                    <p className={`${playfair.className} mt-0.5 text-sm font-semibold text-dash-ink [overflow-wrap:anywhere]`}>
                       {sponsor.FemalePrincipalSponsor || "—"}
                     </p>
                   </div>
                 </div>
-                <div className="mt-3 flex gap-2 border-t border-[#EEF2EA] pt-3">
-                  <button onClick={() => startEditSponsor(sponsor)} className={`${mobileActionBtn} border-[#DDE5D4] text-[#304A34] hover:bg-[#F7F9F4]`}>
+                <div className="mt-3 flex gap-2 border-t border-dash-tint pt-3">
+                  <button onClick={() => startEditSponsor(sponsor)} className={`${mobileActionBtn} border-dash-border text-dash-ink hover:bg-dash-surface`}>
                     <Edit2 className="h-4 w-4" /> Edit
                   </button>
                   <button onClick={() => setConfirm({ kind: "sponsor", sponsor })} className={`${mobileActionBtn} border-red-100 text-red-600 hover:bg-red-50`}>
@@ -870,7 +870,7 @@ export function EntourageSponsors({
           help={{
             title: (
               <>
-                <span className="text-[#4F674D]">{entourageFormData.Name.trim() || "This member"}</span> will appear in the Entourage section of
+                <span className="text-dash-primary">{entourageFormData.Name.trim() || "This member"}</span> will appear in the Entourage section of
                 your invitation.
               </>
             ),
@@ -979,29 +979,29 @@ export function EntourageSponsors({
       {/* ── Delete confirmation ────────────────────────────────────────── */}
       {confirm && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-[#1F2A1E]/45 p-0 backdrop-blur-[2px] sm:items-center sm:p-4"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-dash-ink-strong/45 p-0 backdrop-blur-[2px] sm:items-center sm:p-4"
           role="alertdialog"
           aria-modal="true"
           aria-labelledby="ent-confirm-title"
           onClick={() => setConfirm(null)}
         >
           <div
-            className="dash-sheet w-full max-w-sm overflow-hidden rounded-t-3xl border border-[#E8DCDC] bg-[#FBFCF7] shadow-[0_30px_60px_-25px_rgba(31,42,30,0.55)] sm:rounded-3xl"
+            className="dash-sheet w-full max-w-sm overflow-hidden rounded-t-3xl border border-dash-danger-border bg-dash-bg shadow-[0_30px_60px_-25px_color-mix(in_srgb,var(--color-dash-ink-strong)_55%,transparent)] sm:rounded-3xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-6 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-center sm:pt-7 sm:pb-6">
               <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-gray-300/70 sm:hidden" aria-hidden />
-              <span className="dash-pop-badge mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F7ECEC] ring-8 ring-[#FBF4F4]">
-                <AlertTriangle className="h-6 w-6 text-[#A04A4A]" />
+              <span className="dash-pop-badge mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-dash-danger-soft ring-8 ring-dash-danger-softer">
+                <AlertTriangle className="h-6 w-6 text-dash-danger-text" />
               </span>
-              <p className={`${cinzel.className} mt-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-[#A04A4A]/80`}>
+              <p className={`${cinzel.className} mt-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-dash-danger-text/80`}>
                 {confirm.kind === "entourage" ? "Remove member" : "Remove sponsors"}
               </p>
-              <h3 id="ent-confirm-title" className={`${playfair.className} mt-1 text-[1.4rem] font-semibold leading-tight text-[#304A34]`}>
+              <h3 id="ent-confirm-title" className={`${playfair.className} mt-1 text-[1.4rem] font-semibold leading-tight text-dash-ink`}>
                 {confirm.kind === "entourage" ? "Remove from entourage?" : "Remove this sponsor pair?"}
               </h3>
-              <div className="mx-auto mt-4 max-w-[17rem] rounded-2xl border border-[#DDE5D4] bg-white px-4 py-3">
-                <p className={`${playfair.className} text-base font-semibold text-[#304A34] [overflow-wrap:anywhere]`}>
+              <div className="mx-auto mt-4 max-w-[17rem] rounded-2xl border border-dash-border bg-white px-4 py-3">
+                <p className={`${playfair.className} text-base font-semibold text-dash-ink [overflow-wrap:anywhere]`}>
                   {confirm.kind === "entourage" ? confirm.member.Name : sponsorLabel(confirm.sponsor)}
                 </p>
                 {confirm.kind === "entourage" && (confirm.member.RoleTitle || confirm.member.RoleCategory) && (
@@ -1019,14 +1019,14 @@ export function EntourageSponsors({
                   variant="outline"
                   autoFocus
                   onClick={() => setConfirm(null)}
-                  className="h-11 w-full rounded-full border-[#DDE5D4] bg-white text-sm font-medium text-[#304A34] hover:bg-[#F7F9F4] sm:flex-1"
+                  className="h-11 w-full rounded-full border-dash-border bg-white text-sm font-medium text-dash-ink hover:bg-dash-surface sm:flex-1"
                 >
                   Keep
                 </Button>
                 <Button
                   type="button"
                   onClick={() => void runDelete()}
-                  className="h-11 w-full rounded-full bg-gradient-to-r from-[#B05555] to-[#8E3B3B] text-sm font-semibold text-white shadow-[0_10px_22px_-10px_rgba(142,59,59,0.7)] transition-all hover:brightness-110 active:scale-[0.99] sm:flex-1"
+                  className="h-11 w-full rounded-full bg-dash-danger text-sm font-semibold text-white shadow-[0_10px_22px_-10px_color-mix(in_srgb,var(--color-dash-danger)_70%,transparent)] transition-all hover:brightness-110 active:scale-[0.99] sm:flex-1"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Yes, Remove
@@ -1039,10 +1039,10 @@ export function EntourageSponsors({
 
       {/* ── Working (delete; form saves show inside the button) ───────── */}
       {busy && !entourageFormOpen && !sponsorFormOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#1F2A1E]/45 p-4 backdrop-blur-[2px]" role="status" aria-live="polite">
-          <div className="dash-pop w-full max-w-xs rounded-3xl border border-[#DDE5D4] bg-[#FBFCF7] p-7 text-center shadow-2xl">
-            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[#DDE5D4] border-t-[#4F674D]" />
-            <h3 className={`${playfair.className} text-lg font-semibold text-[#304A34]`}>{busy}</h3>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-dash-ink-strong/45 p-4 backdrop-blur-[2px]" role="status" aria-live="polite">
+          <div className="dash-pop w-full max-w-xs rounded-3xl border border-dash-border bg-dash-bg p-7 text-center shadow-2xl">
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-dash-border border-t-dash-primary" />
+            <h3 className={`${playfair.className} text-lg font-semibold text-dash-ink`}>{busy}</h3>
             <p className="mt-1 text-xs text-gray-500">This only takes a moment.</p>
           </div>
         </div>
@@ -1051,13 +1051,13 @@ export function EntourageSponsors({
       {/* ── Success ────────────────────────────────────────────────────── */}
       {done && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#1F2A1E]/45 p-4 backdrop-blur-[2px]"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-dash-ink-strong/45 p-4 backdrop-blur-[2px]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="ent-done-title"
         >
-          <div className="dash-pop relative w-full max-w-sm overflow-hidden rounded-3xl border border-[#DDE5D4] bg-[#FBFCF7] shadow-[0_30px_60px_-25px_rgba(31,42,30,0.55)]">
-            <div className="relative overflow-hidden bg-gradient-to-br from-[#718566] via-[#4F674D] to-[#304A34] px-6 pt-7 pb-12 text-center">
+          <div className="dash-pop relative w-full max-w-sm overflow-hidden rounded-3xl border border-dash-border bg-dash-bg shadow-[0_30px_60px_-25px_color-mix(in_srgb,var(--color-dash-ink-strong)_55%,transparent)]">
+            <div className="relative overflow-hidden bg-dash-primary px-6 pt-7 pb-12 text-center">
               <span className="pointer-events-none absolute -left-10 -top-10 h-32 w-32 rounded-full bg-white/10" aria-hidden />
               <span className="pointer-events-none absolute -right-8 top-6 h-20 w-20 rounded-full bg-white/10" aria-hidden />
               <p className={`${cinzel.className} relative text-[10px] font-semibold uppercase tracking-[0.3em] text-white/75`}>{done.eyebrow}</p>
@@ -1066,10 +1066,10 @@ export function EntourageSponsors({
               </h3>
             </div>
             <div className="relative -mt-9 flex justify-center">
-              <span className="dash-pop-badge flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full border-4 border-[#FBFCF7] bg-white shadow-lg">
+              <span className="dash-pop-badge flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full border-4 border-dash-bg bg-white shadow-lg">
                 <span
                   className={`flex h-12 w-12 items-center justify-center rounded-full ${
-                    done.deleted ? "bg-[#F3EAEA] text-[#9B4C4C]" : "bg-[#EEF2EA] text-[#4F674D]"
+                    done.deleted ? "bg-dash-danger-soft text-dash-danger-text" : "bg-dash-tint text-dash-primary"
                   }`}
                 >
                   {done.deleted ? <Trash2 className="h-6 w-6" /> : <Check className="h-7 w-7" strokeWidth={2.5} />}
@@ -1077,16 +1077,16 @@ export function EntourageSponsors({
               </span>
             </div>
             <div className="px-6 pt-4 pb-6 text-center">
-              <p className={`${playfair.className} text-lg font-semibold text-[#304A34] [overflow-wrap:anywhere]`}>{done.name}</p>
+              <p className={`${playfair.className} text-lg font-semibold text-dash-ink [overflow-wrap:anywhere]`}>{done.name}</p>
               <div className="mx-auto mt-2 flex w-24 items-center gap-1.5" aria-hidden>
-                <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#AAB9A0]" />
-                <span className="h-1 w-1 rotate-45 bg-[#718566]" />
-                <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#AAB9A0]" />
+                <span className="h-px flex-1 bg-dash-line" />
+                <span className="h-1 w-1 rotate-45 bg-dash-accent" />
+                <span className="h-px flex-1 bg-dash-line" />
               </div>
               <p className="mx-auto mt-3 max-w-[17rem] text-sm leading-relaxed text-gray-600">{done.text}</p>
               <Button
                 onClick={() => setDone(null)}
-                className="mt-6 h-11 w-full rounded-full bg-gradient-to-r from-[#4F674D] to-[#304A34] text-sm font-semibold tracking-wide text-white shadow-[0_10px_22px_-10px_rgba(48,74,52,0.7)] transition-all hover:brightness-110 active:scale-[0.99]"
+                className="mt-6 h-11 w-full rounded-full bg-dash-primary text-sm font-semibold tracking-wide text-white shadow-[0_10px_22px_-10px_color-mix(in_srgb,var(--color-dash-ink)_70%,transparent)] transition-all hover:brightness-110 active:scale-[0.99]"
               >
                 Done
               </Button>

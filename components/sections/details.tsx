@@ -2,6 +2,7 @@
 
 import { Section } from "@/components/section"
 import { Fragment, useState, useEffect, type ReactNode } from "react"
+import { useQrColors } from "@/hooks/use-css-color"
 import { QRCodeSVG } from "qrcode.react"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import type { AttireColor } from "@/content/site"
@@ -67,8 +68,6 @@ const softPanelStyle = {
   backgroundColor: "color-mix(in srgb, var(--color-motif-silver) 35%, var(--color-welcome-bg-soft))",
 } as const
 
-const QR_FG = "#304A34" // --color-welcome-navy (QR needs a literal color)
-const QR_BG = "#FBFCF7" // --color-motif-soft
 
 const CORNER_DECO_CLASS =
   "block h-auto w-auto max-w-[130px] sm:max-w-[200px] md:max-w-[260px] lg:max-w-[320px] select-none opacity-90"
@@ -486,6 +485,7 @@ function EventVenueCard({
   showDateDetails = true,
   labels,
 }: EventVenueCardProps) {
+  const { fg: qrFg, bg: qrBg } = useQrColors() // --color-qr-fg / --color-qr-bg in globals.css
   const eventDate = showDateDetails ? new Date(dateString) : null
   const copied = copiedItems.has(copyId)
 
@@ -632,8 +632,8 @@ function EventVenueCard({
                 </p>
               </div>
               <div className="flex flex-col items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                <div className="p-1.5 sm:p-2 md:p-2.5 rounded-lg shadow-sm" style={{ backgroundColor: QR_BG }}>
-                  <QRCodeSVG value={mapsLink} size={80} level="M" includeMargin={false} fgColor={QR_FG} bgColor={QR_BG} />
+                <div className="p-1.5 sm:p-2 md:p-2.5 rounded-lg shadow-sm" style={{ backgroundColor: qrBg }}>
+                  <QRCodeSVG value={mapsLink} size={80} level="M" includeMargin={false} fgColor={qrFg} bgColor={qrBg} />
                 </div>
                 <p className={`font-goudy-italic ${ct.label} text-center max-w-[90px]`} style={{ color: C.label }}>
                   {labels.scanForDirections}

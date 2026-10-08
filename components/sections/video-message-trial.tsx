@@ -1,5 +1,6 @@
 "use client"
 
+import { useQrColors } from "@/hooks/use-css-color"
 import { QRCodeSVG } from "qrcode.react"
 import localFont from "next/font/local"
 import { Cinzel } from "next/font/google"
@@ -30,8 +31,6 @@ const FORM_URL =
 const forest = "#5d6f47"
 const heading = "#FFFFFF"
 const body = "#F8F5EC"
-const qrFg = "var(--color-motif-deep)"
-const qrBg = "#FAF7F2"
 
 function TrialTitle() {
   return (
@@ -69,6 +68,7 @@ function TrialTitle() {
 }
 
 export function VideoMessageTrial() {
+  const { fg: qrFg, bg: qrBg } = useQrColors() // --color-qr-fg / --color-qr-bg in globals.css
   return (
     <div
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full`}

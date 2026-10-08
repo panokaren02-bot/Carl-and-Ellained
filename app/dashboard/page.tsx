@@ -437,36 +437,36 @@ export default function DashboardPage() {
   // Login Screen
   if (!isAuthenticated) {
     return (
-      <div className="dashboard-root min-h-screen bg-gradient-to-br from-[#FBFCF7] to-[#F4F5EA] flex items-center justify-center p-4">
+      <div className="dashboard-root min-h-screen bg-gradient-to-br from-dash-bg to-dash-bg-deep flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-[#E5E7EB]">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-dash-border">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#4F674D] to-[#304A34] rounded-2xl mb-4 shadow-lg">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-dash-primary rounded-2xl mb-4 shadow-lg">
                 <Lock className="h-8 w-8 text-white" />
               </div>
               <div className="mb-2">
-                <span className="font-serif text-sm text-[#718566]">♥</span>
-                <span className="font-serif text-2xl font-bold text-[#304A34] mx-2">Wedding Invitation</span>
-                <span className="font-serif text-sm text-[#718566]">♥</span>
+                <span className="font-serif text-sm text-dash-accent">♥</span>
+                <span className="font-serif text-2xl font-bold text-dash-ink mx-2">Wedding Invitation</span>
+                <span className="font-serif text-sm text-dash-accent">♥</span>
               </div>
-              <h1 className="text-2xl font-bold text-[#111827] mb-2">
+              <h1 className="text-2xl font-bold text-dash-ink mb-2">
                 Admin Dashboard
               </h1>
-              <p className="text-[#6B7280] text-sm">
+              <p className="text-dash-muted text-sm">
                 Enter password to access the wedding management panel
               </p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#374151] mb-2">
+                <label className="block text-sm font-medium text-dash-text mb-2">
                   Password
                 </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#718566] focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 border border-dash-border rounded-lg focus:ring-2 focus:ring-dash-accent focus:border-transparent outline-none transition-all"
                   placeholder="Enter password"
                   autoFocus
                 />
@@ -481,7 +481,7 @@ export default function DashboardPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#4F674D] to-[#304A34] hover:from-[#304A34] hover:to-[#4F674D] text-white py-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
+                className="w-full bg-dash-primary hover:bg-dash-primary-hover text-white py-6 rounded-lg font-medium transition-all shadow-md hover:shadow-lg"
               >
                 Access Dashboard
               </Button>
@@ -494,7 +494,7 @@ export default function DashboardPage() {
 
   // Main Dashboard Layout
   return (
-    <div className="dashboard-root flex min-h-screen bg-[#F9FAFB]">
+    <div className="dashboard-root flex min-h-screen bg-dash-bg">
       {/* Sidebar */}
       <DashboardSidebar
         activeTab={activeTab}
@@ -508,22 +508,22 @@ export default function DashboardPage() {
       {/* Main Content */}
       <div className="min-w-0 flex-1 overflow-x-clip lg:overflow-auto">
         {/* Top Bar */}
-        <div className="sticky top-0 z-30 border-b border-[#E5E7EB] bg-white/90 pt-[env(safe-area-inset-top)] shadow-[0_1px_8px_rgba(17,24,39,0.04)] backdrop-blur-md supports-[backdrop-filter]:bg-white/80 lg:z-10 lg:bg-white lg:pt-0 lg:shadow-none lg:backdrop-blur-none">
+        <div className="sticky top-0 z-30 border-b border-dash-border bg-white/90 pt-[env(safe-area-inset-top)] shadow-[0_1px_8px_color-mix(in_srgb,var(--color-dash-ink)_4%,transparent)] backdrop-blur-md supports-[backdrop-filter]:bg-white/80 lg:z-10 lg:bg-white lg:pt-0 lg:shadow-none lg:backdrop-blur-none">
           <div className="px-4 py-3 sm:px-6 lg:px-8 lg:py-4 flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={() => setMobileNavOpen(true)}
-              className="-ml-1.5 rounded-lg p-2 text-[#304A34] hover:bg-[#F9FAFB] lg:hidden"
+              className="-ml-1.5 rounded-lg p-2 text-dash-ink hover:bg-dash-bg lg:hidden"
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
             </button>
             <div className="min-w-0 flex-1">
-              <p className={`${cinzel.className} text-[9.5px] font-semibold uppercase tracking-[0.24em] text-[#8A9A82] sm:text-[10.5px]`}>
+              <p className={`${cinzel.className} text-[9.5px] font-semibold uppercase tracking-[0.24em] text-dash-faint sm:text-[10.5px]`}>
                 Welcome back
               </p>
-              <h1 className={`${playfair.className} truncate text-[1.05rem] font-semibold leading-tight text-[#304A34] sm:text-xl`}>
-                {siteConfig.couple.groomNickname} <span className="italic text-[#718566]">&amp;</span> {siteConfig.couple.brideNickname}
+              <h1 className={`${playfair.className} truncate text-[1.05rem] font-semibold leading-tight text-dash-ink sm:text-xl`}>
+                {siteConfig.couple.groomNickname} <span className="italic text-dash-accent">&amp;</span> {siteConfig.couple.brideNickname}
               </h1>
             </div>
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -532,7 +532,7 @@ export default function DashboardPage() {
                 disabled={isLoading}
                 size="sm"
                 variant="outline"
-                className="border-[#E5E7EB] text-[#6B7280] hover:text-[#304A34] hover:border-[#718566]"
+                className="border-dash-border text-dash-muted hover:text-dash-ink hover:border-dash-accent"
               >
                 <RefreshCw className={`h-4 w-4 sm:mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 <span className="hidden sm:inline">Refresh Data</span>
@@ -541,7 +541,7 @@ export default function DashboardPage() {
                 onClick={handleLogout}
                 size="sm"
                 variant="outline"
-                className="border-[#E5E7EB] text-[#6B7280] hover:text-red-600 hover:border-red-300"
+                className="border-dash-border text-dash-muted hover:text-red-600 hover:border-red-300"
               >
                 <LogOut className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Logout</span>
@@ -596,8 +596,8 @@ export default function DashboardPage() {
 
           {activeTab === "guests" && (
             <div>
-              <h2 className="text-xl font-bold text-[#111827] mb-4 sm:text-2xl sm:mb-6">Guest Management</h2>
-              <div className="sm:bg-white sm:rounded-xl sm:shadow-sm sm:border sm:border-[#E5E7EB] sm:p-6">
+              <h2 className="text-xl font-bold text-dash-ink mb-4 sm:text-2xl sm:mb-6">Guest Management</h2>
+              <div className="sm:bg-white sm:rounded-xl sm:shadow-sm sm:border sm:border-dash-border sm:p-6">
                 <ImprovedGuestList
                   guests={filteredGuests}
                   onAddGuest={handleAddGuest}

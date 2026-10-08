@@ -7,6 +7,7 @@ import { QRCodeCanvas } from "qrcode.react"
 import { Cinzel, Playfair_Display } from "next/font/google"
 import localFont from "next/font/local"
 import { useSiteConfig } from "@/hooks/use-site-config"
+import { useQrColors } from "@/hooks/use-css-color"
 import { getTableFinderUrl, TABLE_FINDER_PATH } from "@/lib/table-finder"
 
 const cinzel = Cinzel({
@@ -36,15 +37,11 @@ const NAVY = "var(--color-welcome-navy)"
 const SCRIPT = "var(--color-welcome-green)"
 const BODY = "var(--color-welcome-text)"
 const SOFT = "var(--color-welcome-text-soft)"
-const NAV_GOLD = "linear-gradient(180deg, var(--color-motif-accent) 0%, var(--color-motif-deep) 55%, var(--color-welcome-navy) 100%)"
+const BUTTON = "var(--color-dash-primary)"
 const GOLD_BORDER = "color-mix(in srgb, var(--color-welcome-gold) 38%, transparent)"
 const GOLD_BORDER_SOFT = "color-mix(in srgb, var(--color-welcome-gold) 22%, transparent)"
-const HAIRLINE = "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-welcome-gold) 65%, transparent), transparent)"
+const HAIRLINE = "color-mix(in srgb, var(--color-welcome-gold) 65%, transparent)"
 
-// QR canvases can't read CSS variables — use real colors.
-// Dots use the motif green (read from --color-motif-deep at runtime), on pure white.
-const QR_FG_FALLBACK = "#4F674D" // --color-motif-deep
-const QR_BG = "#FFFFFF"
 const PRINT_QR_ID = "table-finder-qr-print"
 const DISPLAY_QR_ID = "table-finder-qr"
 
@@ -92,7 +89,8 @@ export function TableFinderQrCard() {
   const siteConfig = useSiteConfig()
   const card = siteConfig.tableFinder.qrCard
   const [tableUrl, setTableUrl] = useState("")
-  const [qrFg, setQrFg] = useState(QR_FG_FALLBACK)
+  // QR colors come from --color-qr-fg / --color-qr-bg in globals.css
+  const { fg: qrFg, bg: qrBg } = useQrColors()
 
   const groomName = siteConfig.couple.groomNickname || siteConfig.couple.groom
   const brideName = siteConfig.couple.brideNickname || siteConfig.couple.bride
@@ -105,9 +103,6 @@ export function TableFinderQrCard() {
 
   useEffect(() => {
     setTableUrl(getTableFinderUrl())
-    // Follow the motif if globals.css changes; keep the fallback if it's not a plain color
-    const motif = getComputedStyle(document.documentElement).getPropertyValue("--color-motif-deep").trim()
-    if (/^#[0-9a-f]{3,8}$/i.test(motif) || /^rgb/i.test(motif)) setQrFg(motif)
   }, [])
 
   const downloadQr = () => {
@@ -169,7 +164,7 @@ export function TableFinderQrCard() {
             <div
               className="relative rounded-2xl border p-6"
               style={{
-                backgroundColor: QR_BG,
+                backgroundColor: qrBg,
                 borderColor: GOLD_BORDER,
                 boxShadow: "0 12px 28px -14px color-mix(in srgb, var(--color-welcome-navy) 35%, transparent)",
               }}
@@ -183,7 +178,7 @@ export function TableFinderQrCard() {
                   level="H"
                   includeMargin={false}
                   fgColor={qrFg}
-                  bgColor={QR_BG}
+                  bgColor={qrBg}
                   className="h-auto w-full max-w-[188px]"
                 />
               ) : (
@@ -249,7 +244,7 @@ export function TableFinderQrCard() {
                 disabled={!tableUrl}
                 className={`${cinzel.className} inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-7 py-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.18em] transition-all duration-300 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98] disabled:opacity-50`}
                 style={{
-                  background: NAV_GOLD,
+                  background: BUTTON,
                   borderColor: GOLD_BORDER,
                   color: IVORY,
                   boxShadow: "0 10px 22px -10px color-mix(in srgb, var(--color-welcome-navy) 60%, transparent)",
@@ -286,7 +281,7 @@ export function TableFinderQrCard() {
                 src={card.coupleImage}
                 alt=""
                 aria-hidden
-                className="h-auto w-[9.5rem] select-none drop-shadow-[0_14px_28px_rgba(48,74,52,0.18)] xl:w-[11rem]"
+                className="h-auto w-[9.5rem] select-none drop-shadow-[0_14px_28px_color-mix(in_srgb,var(--color-dash-ink)_18%,transparent)] xl:w-[11rem]"
               />
             </div>
           ) : null}
@@ -302,7 +297,7 @@ export function TableFinderQrCard() {
             level="H"
             includeMargin
             fgColor={qrFg}
-            bgColor={QR_BG}
+            bgColor={qrBg}
           />
         </div>
       ) : null}

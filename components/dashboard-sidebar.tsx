@@ -130,39 +130,39 @@ export function DashboardSidebar({
   const panel = (
     <>
       {/* Brand: couple, date and countdown */}
-      <div className="relative overflow-hidden border-b border-[#E9EEE4] bg-gradient-to-b from-[#F4F7F1] via-[#FAFBF8] to-white px-5 pt-5 pb-4 text-center">
-        <span className="pointer-events-none absolute -left-12 -top-12 h-32 w-32 rounded-full bg-[#DDE5D4]/40" aria-hidden />
-        <span className="pointer-events-none absolute -right-10 top-10 h-20 w-20 rounded-full bg-[#DDE5D4]/30" aria-hidden />
+      <div className="relative overflow-hidden border-b border-dash-border bg-dash-surface px-5 pt-5 pb-4 text-center">
+        <span className="pointer-events-none absolute -left-12 -top-12 h-32 w-32 rounded-full bg-dash-border/40" aria-hidden />
+        <span className="pointer-events-none absolute -right-10 top-10 h-20 w-20 rounded-full bg-dash-border/30" aria-hidden />
         {onMobileClose ? (
           <button
             type="button"
             onClick={onMobileClose}
-            className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[#DDE5D4] bg-white text-gray-500 shadow-sm transition-colors hover:text-[#304A34] lg:hidden"
+            className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-dash-border bg-white text-gray-500 shadow-sm transition-colors hover:text-dash-ink lg:hidden"
             aria-label="Close menu"
           >
             <X className="h-4 w-4" />
           </button>
         ) : null}
 
-        <p className={`${cinzel.className} relative text-[9.5px] font-semibold uppercase tracking-[0.3em] text-[#8A9A82]`}>
+        <p className={`${cinzel.className} relative text-[9.5px] font-semibold uppercase tracking-[0.3em] text-dash-faint`}>
           Wedding Dashboard
         </p>
 
         {/* Names */}
-        <h2 className={`${playfair.className} relative mt-1.5 truncate px-6 text-[1.3rem] font-semibold leading-tight text-[#304A34] lg:px-0`}>
-          {groom} <span className="font-medium italic text-[#718566]">&amp;</span> {bride}
+        <h2 className={`${playfair.className} relative mt-1.5 truncate px-6 text-[1.3rem] font-semibold leading-tight text-dash-ink lg:px-0`}>
+          {groom} <span className="font-medium italic text-dash-accent">&amp;</span> {bride}
         </h2>
 
         {/* Divider */}
         <div className="relative mx-auto mt-2 flex w-24 items-center gap-1.5" aria-hidden>
-          <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#AAB9A0]" />
-          <span className="h-1 w-1 rotate-45 bg-[#718566]" />
-          <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#AAB9A0]" />
+          <span className="h-px flex-1 bg-dash-line" />
+          <span className="h-1 w-1 rotate-45 bg-dash-accent" />
+          <span className="h-px flex-1 bg-dash-line" />
         </div>
 
         {/* Date */}
         {weddingDate ? (
-          <p className={`${cinzel.className} relative mt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#4F674D]`}>
+          <p className={`${cinzel.className} relative mt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-dash-primary`}>
             {weddingDay ? `${weddingDay.slice(0, 3)} · ` : ""}
             {weddingDate}
             {weddingTime ? ` · ${weddingTime}` : ""}
@@ -171,7 +171,7 @@ export function DashboardSidebar({
 
         {/* Countdown (compact) */}
         {daysLeft !== null ? (
-          <div className="relative mt-3 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#4F674D] to-[#304A34] py-1.5 pl-1.5 pr-3.5 text-white shadow-[0_8px_18px_-12px_rgba(48,74,52,0.8)]">
+          <div className="relative mt-3 inline-flex items-center gap-2 rounded-full bg-dash-primary py-1.5 pl-1.5 pr-3.5 text-white shadow-[0_8px_18px_-12px_color-mix(in_srgb,var(--color-dash-ink)_80%,transparent)]">
             {daysLeft > 0 ? (
               <>
                 <span className={`${playfair.className} flex h-7 min-w-7 items-center justify-center rounded-full bg-white/15 px-1.5 text-sm font-semibold tabular-nums`}>
@@ -196,7 +196,7 @@ export function DashboardSidebar({
       <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Dashboard">
         {groups.map((group) => (
           <div key={group} className="mb-4 last:mb-0">
-            <p className={`${cinzel.className} mb-1.5 px-3 text-[9.5px] font-semibold uppercase tracking-[0.22em] text-[#A3AE9C]`}>{group}</p>
+            <p className={`${cinzel.className} mb-1.5 px-3 text-[9.5px] font-semibold uppercase tracking-[0.22em] text-dash-faint`}>{group}</p>
             <div className="space-y-0.5">
               {navItems
                 .filter((item) => item.group === group)
@@ -213,16 +213,16 @@ export function DashboardSidebar({
                       aria-current={isActive ? "page" : undefined}
                       className={cn(
                         "group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-all duration-200",
-                        isActive ? "bg-[#EEF2EA] text-[#304A34]" : "text-[#5B6478] hover:bg-[#F7F9F4] hover:text-[#304A34]"
+                        isActive ? "bg-dash-tint text-dash-ink" : "text-dash-muted hover:bg-dash-surface hover:text-dash-ink"
                       )}
                     >
-                      {isActive && <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-[#4F674D]" aria-hidden />}
+                      {isActive && <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-dash-primary" aria-hidden />}
                       <span
                         className={cn(
                           "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
                           isActive
-                            ? "bg-white text-[#4F674D] shadow-sm ring-1 ring-[#DDE5D4]"
-                            : "bg-[#F5F7F3] text-[#9AA593] group-hover:bg-white group-hover:text-[#718566]"
+                            ? "bg-white text-dash-primary shadow-sm ring-1 ring-dash-border"
+                            : "bg-dash-surface text-dash-faint group-hover:bg-white group-hover:text-dash-accent"
                         )}
                       >
                         <Icon className="h-4 w-4" />
@@ -232,7 +232,7 @@ export function DashboardSidebar({
                         <span
                           className={cn(
                             "min-w-[22px] rounded-full px-1.5 py-0.5 text-center text-[11px] font-semibold",
-                            item.id === "requests" ? "bg-[#718566] text-white" : "bg-[#F4F1E6] text-[#8A6A2E]"
+                            item.id === "requests" ? "bg-dash-accent text-white" : "bg-dash-badge-bg text-dash-badge-text"
                           )}
                         >
                           {item.badge > 99 ? "99+" : item.badge}
@@ -247,14 +247,14 @@ export function DashboardSidebar({
       </nav>
 
       {/* Footer links */}
-      <div className="space-y-2 border-t border-[#E9EEE4] p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="space-y-2 border-t border-dash-border p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <a
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-[#5B6478] transition-colors hover:bg-[#F7F9F4] hover:text-[#304A34]"
+          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-dash-muted transition-colors hover:bg-dash-surface hover:text-dash-ink"
         >
-          <Globe className="h-4 w-4 text-[#9AA593]" />
+          <Globe className="h-4 w-4 text-dash-faint" />
           <span>View Invitation</span>
           <ExternalLink className="ml-auto h-3 w-3 text-gray-400" />
         </a>
@@ -262,11 +262,11 @@ export function DashboardSidebar({
           href={siteConfig.googleAPI.googleShare}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex w-full items-center gap-2.5 rounded-xl border border-[#DDE5D4] bg-[#F7F9F4] px-3 py-2.5 text-[13px] font-semibold text-[#304A34] transition-colors hover:bg-[#EEF2EA]"
+          className="flex w-full items-center gap-2.5 rounded-xl border border-dash-border bg-dash-surface px-3 py-2.5 text-[13px] font-semibold text-dash-ink transition-colors hover:bg-dash-tint"
         >
-          <Sheet className="h-4 w-4 text-[#4F674D]" />
+          <Sheet className="h-4 w-4 text-dash-primary" />
           <span>Open Spreadsheet</span>
-          <ExternalLink className="ml-auto h-3 w-3 text-[#718566]" />
+          <ExternalLink className="ml-auto h-3 w-3 text-dash-accent" />
         </a>
       </div>
     </>
@@ -275,7 +275,7 @@ export function DashboardSidebar({
   return (
     <>
       {/* Desktop */}
-      <div className="hidden w-64 shrink-0 bg-white border-r border-[#E9EEE4] h-screen sticky top-0 flex-col lg:flex">
+      <div className="hidden w-64 shrink-0 bg-white border-r border-dash-border h-screen sticky top-0 flex-col lg:flex">
         {panel}
       </div>
 
