@@ -1205,9 +1205,11 @@
   background: var(--color-welcome-bg);
 }
 
+/* No overflow clipping here: iOS Safari clips both axes when overflow-x is
+   clip, which sliced the eucalyptus sprigs at each chapter's top edge.
+   .love-story-root (overflow-x-hidden) already stops horizontal scroll. */
 .love-story-plain-track {
-  overflow-x: clip;
-  overflow-y: visible;
+  overflow: visible;
 }
 
 /* Blur orbs behind plain chapters */
@@ -1393,22 +1395,22 @@
   transform: translate(-50%, -58%);
 }
 
-/* Side sprigs sit mostly outside the card so they frame the corners
-   instead of covering the chapter title / last lines of text */
+/* Side sprigs frame the card corners. On phones the card nearly fills the
+   screen, so they only poke ~14px past its edge to stay inside the viewport. */
 .story-plain-card__euc--left {
   left: 0;
   top: 0;
-  width: min(22vw, 84px);
+  width: min(20vw, 76px);
   max-width: 96px;
-  transform: translate(-46%, -40%);
+  transform: translate(-14px, -40%);
 }
 
 .story-plain-card__euc--right {
   right: 0;
   bottom: 0;
-  width: min(18vw, 70px);
+  width: min(17vw, 66px);
   max-width: 82px;
-  transform: translate(44%, 30%);
+  transform: translate(14px, 30%);
 }
 
 @media (min-width: 640px) {
