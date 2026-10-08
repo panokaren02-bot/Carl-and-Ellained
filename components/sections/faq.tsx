@@ -27,9 +27,9 @@ const aboveTheBeyond = localFont({
 })
 
 // Palette lives in globals.css → motif / welcome tokens.
-// Card is plain light with teal text; active badge and links are coral (#D96F70).
-const TEAL = "#16828F"
-const BUTTON = "#D96F70"
+// Card is plain light with teal text; active badge and links are coral (#D0899A).
+const TEAL = "#1F3460"
+const BUTTON = "#D0899A"
 const IVORY = "var(--color-motif-soft)"
 const PAPER = "var(--color-motif-soft)"
 const NAVY = TEAL
@@ -52,7 +52,7 @@ const cardStyle = {
 } as const
 
 const dividerLineStyle = {
-  background: "linear-gradient(to right, transparent, color-mix(in srgb, #16828F 45%, transparent), transparent)",
+  background: "linear-gradient(to right, transparent, color-mix(in srgb, #1F3460 45%, transparent), transparent)",
 } as const
 
 const CORNER_DECO_CLASS =
@@ -297,8 +297,8 @@ export function FAQ() {
                     className="relative overflow-hidden rounded-2xl transition-all duration-300"
                     style={{
                       background: isOpen
-                        ? "color-mix(in srgb, #16828F 7%, var(--color-motif-soft))"
-                        : "color-mix(in srgb, #16828F 3%, var(--color-motif-soft))",
+                        ? "color-mix(in srgb, #1F3460 7%, var(--color-motif-soft))"
+                        : "color-mix(in srgb, #1F3460 3%, var(--color-motif-soft))",
                       boxShadow: isOpen
                         ? "0 12px 24px -16px color-mix(in srgb, var(--color-welcome-navy) 45%, transparent)"
                         : "none",
@@ -307,7 +307,7 @@ export function FAQ() {
                     <button
                       type="button"
                       onClick={() => setOpenIndex(isOpen ? null : index)}
-                      className="group flex w-full items-center gap-3 px-3.5 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#16828F] sm:px-5 sm:py-3.5"
+                      className="group flex w-full items-center gap-3 px-3.5 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#1F3460] sm:px-5 sm:py-3.5"
                       aria-expanded={isOpen}
                       aria-controls={contentId}
                     >
@@ -319,7 +319,7 @@ export function FAQ() {
                                 background: BUTTON,
                                 color: IVORY,
                               }
-                            : { background: "color-mix(in srgb, #16828F 12%, transparent)", color: TEAL }
+                            : { background: "color-mix(in srgb, #1F3460 12%, transparent)", color: TEAL }
                         }
                         aria-hidden
                       >
@@ -333,7 +333,7 @@ export function FAQ() {
                       </span>
                       <span
                         className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${isOpen ? "rotate-180" : "group-hover:translate-y-0.5"}`}
-                        style={{ background: isOpen ? IVORY : "color-mix(in srgb, #16828F 10%, transparent)" }}
+                        style={{ background: isOpen ? IVORY : "color-mix(in srgb, #1F3460 10%, transparent)" }}
                         aria-hidden
                       >
                         <ChevronDown className="h-4 w-4" style={{ color: ACCENT }} />

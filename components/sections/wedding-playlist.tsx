@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { useAudio } from "@/contexts/audio-context"
 import { Cinzel } from "next/font/google"
@@ -100,15 +100,15 @@ const aboveTheBeyond = localFont({
 })
 
 // Palette lives in globals.css → motif / welcome tokens.
-// Card is plain light with teal text; buttons are coral (#D96F70).
-const TEAL = "#16828F"
-const BUTTON = "#D96F70"
+// Card is plain light with teal text; buttons are coral (#D0899A).
+const TEAL = "#1F3460"
+const BUTTON = "#D0899A"
 const IVORY = "var(--color-motif-soft)"
 const PAPER = "var(--color-motif-soft)"
 const NAVY = TEAL
 const BODY = TEAL
 const ACCENT = TEAL
-const HAIRLINE = "color-mix(in srgb, #16828F 22%, transparent)"
+const HAIRLINE = "color-mix(in srgb, #1F3460 22%, transparent)"
 
 // Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
 const sectionBg = "var(--color-bg-pattern-base)"
@@ -224,6 +224,7 @@ export function WeddingPlaylist() {
   const embedContainerRef = useRef<HTMLDivElement>(null)
   const controllerRef = useRef<SpotifyEmbedController | null>(null)
   const playbackStateRef = useRef<"playing" | "paused">("paused")
+  const [playerReady, setPlayerReady] = useState(false)
   const { pauseMusic, resumeMusic } = useAudio()
 
   useEffect(() => {
@@ -250,13 +251,17 @@ export function WeddingPlaylist() {
         {
           uri: spotifyUri,
           width: "100%",
-          // Compact player on phones, full list on larger screens
-          height: window.matchMedia("(max-width: 639px)").matches ? "232" : "352",
+          // 352 is Spotify's full layout (artwork + track list); in-between heights render cropped
+          height: "352",
         },
         (EmbedController) => {
           if (!mounted) return
 
           controllerRef.current = EmbedController
+
+          const handleReady = () => {
+            if (mounted) setPlayerReady(true)
+          }
 
           const handlePlaybackUpdate = (event: { data: SpotifyPlaybackUpdate }) => {
             handlePlaybackStateChange(!event.data.isPaused)
@@ -266,6 +271,7 @@ export function WeddingPlaylist() {
             handlePlaybackStateChange(true)
           }
 
+          EmbedController.addListener("ready", handleReady)
           EmbedController.addListener("playback_update", handlePlaybackUpdate)
           EmbedController.addListener("playback_started", handlePlaybackStarted)
         }
@@ -282,6 +288,7 @@ export function WeddingPlaylist() {
       playbackStateRef.current = "paused"
       controllerRef.current?.destroy()
       controllerRef.current = null
+      setPlayerReady(false)
     }
   }, [pauseMusic, resumeMusic, spotifyUri])
 
@@ -354,7 +361,7 @@ export function WeddingPlaylist() {
           >
             <div className="relative z-20 grid grid-cols-1 items-center gap-4 px-3 py-4 sm:gap-6 sm:px-7 sm:py-9 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-10 md:px-10 md:py-10">
               {/* Info */}
-              <div className="flex flex-row items-center gap-3 px-1 text-left sm:flex-col sm:gap-0 sm:px-0 sm:text-center md:items-start md:text-left">
+              <div className="flex flex-row flex-wrap items-center gap-x-3 gap-y-2 px-1 text-left sm:flex-col sm:flex-nowrap sm:gap-0 sm:px-0 sm:text-center md:items-start md:text-left">
                 <span
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full sm:h-16 sm:w-16"
                   style={{
@@ -384,25 +391,28 @@ export function WeddingPlaylist() {
                   </h3>
                 </div>
                 {content.cardNote ? (
-                  <p className={`font-goudy-italic ${ct.body} mt-3 hidden max-w-sm leading-relaxed sm:block`} style={{ color: BODY }}>
+                  <p
+                    className={`font-goudy-italic w-full text-[0.82rem] leading-snug sm:mt-3 sm:w-auto sm:max-w-sm sm:text-[0.95rem] sm:leading-relaxed md:text-base`}
+                    style={{ color: BODY }}
+                  >
                     {content.cardNote}
                   </p>
                 ) : null}
                 <span
                   aria-hidden
                   className="my-5 hidden h-px w-24 md:block"
-                  style={{ background: "linear-gradient(to right, color-mix(in srgb, #16828F 45%, transparent), transparent)" }}
+                  style={{ background: "linear-gradient(to right, color-mix(in srgb, #1F3460 45%, transparent), transparent)" }}
                 />
                 <a
                   href={spotifyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`${cinzel.className} mt-5 hidden items-center sm:inline-flex justify-center gap-2 rounded-full border px-7 py-2.5 font-semibold uppercase tracking-[0.2em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16828F] sm:py-3 md:mt-0 ${ct.btn}`}
+                  className={`${cinzel.className} mt-5 hidden items-center sm:inline-flex justify-center gap-2 rounded-full border px-7 py-2.5 font-semibold uppercase tracking-[0.2em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F3460] sm:py-3 md:mt-0 ${ct.btn}`}
                   style={{
                     background: BUTTON,
                     borderColor: BUTTON,
                     color: IVORY,
-                    boxShadow: "0 12px 24px -12px color-mix(in srgb, #D96F70 60%, transparent)",
+                    boxShadow: "0 12px 24px -12px color-mix(in srgb, #D0899A 60%, transparent)",
                   }}
                 >
                   <Music2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -412,16 +422,35 @@ export function WeddingPlaylist() {
 
               {/* Spotify player */}
               <div
-                className="w-full overflow-hidden rounded-2xl p-1.5 sm:p-2"
+                className="relative w-full overflow-hidden rounded-[14px] p-1 sm:rounded-2xl sm:p-2"
                 style={{ background: IVORY, boxShadow: `0 0 0 1px ${HAIRLINE}, 0 18px 36px -24px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)` }}
               >
                 <div
                   ref={embedContainerRef}
                   title={`${playlistName} — Spotify playlist`}
                   aria-label={`${playlistName} — Spotify playlist`}
-                  className="h-[232px] w-full overflow-hidden rounded-xl sm:h-[352px] [&_iframe]:block [&_iframe]:border-0"
-                  style={{ background: "color-mix(in srgb, #16828F 8%, transparent)" }}
+                  className="h-[352px] w-full overflow-hidden rounded-[12px] [&_iframe]:block [&_iframe]:border-0"
+                  style={{ background: "color-mix(in srgb, #1F3460 8%, transparent)" }}
                 />
+                {/* Placeholder while the Spotify embed loads */}
+                {!playerReady && (
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-1 flex flex-col items-center justify-center gap-3 rounded-[12px] sm:inset-2"
+                    style={{ background: "color-mix(in srgb, #1F3460 8%, var(--color-motif-soft))" }}
+                  >
+                    <Disc3
+                      className={`h-9 w-9 opacity-60 ${reduceMotion ? "" : "animate-[spin_3s_linear_infinite]"}`}
+                      style={{ color: TEAL }}
+                    />
+                    <span
+                      className={`${cinzel.className} text-[0.6rem] font-semibold uppercase tracking-[0.22em] opacity-70`}
+                      style={{ color: TEAL }}
+                    >
+                      Loading playlist
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Phone: compact full-width button under the player */}
@@ -429,11 +458,11 @@ export function WeddingPlaylist() {
                 href={spotifyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${cinzel.className} inline-flex w-full items-center justify-center gap-2 rounded-full py-2.5 font-semibold uppercase tracking-[0.18em] transition-all active:scale-[0.98] sm:hidden ${ct.btn}`}
+                className={`${cinzel.className} inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full py-3 font-semibold uppercase tracking-[0.18em] transition-all active:scale-[0.98] sm:hidden ${ct.btn}`}
                 style={{
                   background: BUTTON,
                   color: IVORY,
-                  boxShadow: "0 10px 20px -12px color-mix(in srgb, #D96F70 60%, transparent)",
+                  boxShadow: "0 10px 20px -12px color-mix(in srgb, #D0899A 60%, transparent)",
                 }}
               >
                 <Music2 className="h-3.5 w-3.5" />

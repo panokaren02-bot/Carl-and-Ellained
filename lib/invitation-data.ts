@@ -6,14 +6,18 @@ const STORAGE_PREFIX = "invitation-data:"
 const jsonCache = new Map<string, { data: unknown[]; at: number }>()
 const inflight = new Map<string, Promise<unknown[]>>()
 
-export const INVITATION_DATA_URLS = [
-  "/api/guests",
-  "/api/entourage",
-  "/api/principal-sponsor",
-] as const
-
-export function prefetchInvitationData() {
-  for (const url of INVITATION_DATA_URLS) {
+export function prefetchInvitationData({
+  sponsorsList,
+  entourage = true,
+}: { sponsorsList?: "one" | "two"; entourage?: boolean } = {}) {
+  const urls: string[] = entourage
+    ? [
+        "/api/guests",
+        "/api/entourage",
+        sponsorsList ? `/api/principal-sponsor?list=${sponsorsList}` : "/api/principal-sponsor",
+      ]
+    : ["/api/guests"]
+  for (const url of urls) {
     void fetchInvitationList(url).catch(() => undefined)
   }
   void import("@/components/sections/guest-list")

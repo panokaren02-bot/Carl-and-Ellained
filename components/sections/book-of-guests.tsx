@@ -28,16 +28,16 @@ const aboveTheBeyond = localFont({
 })
 
 // Palette lives in globals.css → motif / welcome tokens.
-// Cards are plain light with teal text; buttons/badges are coral (#D96F70); guest names are coral.
-const TEAL = "#16828F"
-const BUTTON = "#D96F70"
+// Cards are plain light with teal text; buttons/badges are coral (#D0899A); guest names are coral.
+const TEAL = "#1F3460"
+const BUTTON = "#D0899A"
 const IVORY = "var(--color-motif-soft)"
 const PAPER = "var(--color-motif-soft)"
 const NAVY = TEAL
 const BODY = TEAL
 const ACCENT = TEAL
-const HAIRLINE = "color-mix(in srgb, #16828F 22%, transparent)"
-const TEAL_SOFT = "color-mix(in srgb, #16828F 65%, transparent)"
+const HAIRLINE = "color-mix(in srgb, #1F3460 22%, transparent)"
+const TEAL_SOFT = "color-mix(in srgb, #1F3460 65%, transparent)"
 const DEEP_GRADIENT = BUTTON
 const SAGE_GRADIENT = TEAL
 
@@ -69,13 +69,13 @@ const CORNER_DECO_CLASS =
 const refreshButtonStyle = {
   borderColor: BUTTON,
   backgroundColor: BUTTON,
-  boxShadow: "0 4px 14px -4px color-mix(in srgb, #D96F70 45%, transparent)",
+  boxShadow: "0 4px 14px -4px color-mix(in srgb, #D0899A 45%, transparent)",
 } as const
 
 const chipPrimaryStyle = {
   color: NAVY,
-  borderColor: "color-mix(in srgb, #16828F 40%, transparent)",
-  backgroundColor: "color-mix(in srgb, #16828F 10%, var(--color-motif-soft))",
+  borderColor: "color-mix(in srgb, #1F3460 40%, transparent)",
+  backgroundColor: "color-mix(in srgb, #1F3460 10%, var(--color-motif-soft))",
 } as const
 
 const chipSecondaryStyle = {
@@ -113,7 +113,7 @@ function DecoImg({ src, className }: { src: string; className: string }) {
 
 // onBg = sits directly on the circle pattern (plain line in --color-on-pattern-line)
 function DiamondDivider({ onBg: onPattern = false }: { onBg?: boolean }) {
-  const line = onPattern ? "var(--color-on-pattern-line)" : "color-mix(in srgb, #16828F 55%, transparent)"
+  const line = onPattern ? "var(--color-on-pattern-line)" : "color-mix(in srgb, #1F3460 55%, transparent)"
   return (
     <div className="flex items-center justify-center gap-2" aria-hidden>
       <span className="h-px w-10 sm:w-16" style={{ background: onPattern ? line : `linear-gradient(to right, transparent, ${line})` }} />
@@ -544,7 +544,7 @@ export function BookOfGuests() {
                           className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-transform duration-500 group-hover:scale-105 sm:h-12 sm:w-12"
                           style={{
                             background: SAGE_GRADIENT,
-                            boxShadow: `0 0 0 2px ${IVORY}, 0 0 0 3px ${HAIRLINE}, 0 6px 14px -6px color-mix(in srgb, #16828F 55%, transparent)`,
+                            boxShadow: `0 0 0 2px ${IVORY}, 0 0 0 3px ${HAIRLINE}, 0 6px 14px -6px color-mix(in srgb, #1F3460 55%, transparent)`,
                           }}
                         >
                           <span className={`${theSeasons.className} text-[1rem] tracking-[0.06em] sm:text-[1.08rem]`} style={{ color: IVORY }}>
@@ -608,7 +608,7 @@ export function BookOfGuests() {
                         return (
                           <div
                             className="relative z-[1] mt-2.5 rounded-xl px-2.5 pb-2 pt-1.5"
-                            style={{ background: "color-mix(in srgb, #16828F 7%, transparent)" }}
+                            style={{ background: "color-mix(in srgb, #1F3460 7%, transparent)" }}
                           >
                             {/* Label row */}
                             <div className="mb-1.5 flex items-center gap-1.5">
@@ -618,7 +618,7 @@ export function BookOfGuests() {
                               >
                                 {copy.companionsLabel}
                               </span>
-                              <span className="h-px flex-1" style={{ background: "linear-gradient(to right, color-mix(in srgb, #16828F 50%, transparent), transparent)" }} aria-hidden />
+                              <span className="h-px flex-1" style={{ background: "linear-gradient(to right, color-mix(in srgb, #1F3460 50%, transparent), transparent)" }} aria-hidden />
                               <span
                                 className={`${cinzel.className} rounded-full px-1.5 py-[1px] text-[0.46rem] font-semibold leading-none tracking-[0.06em]`}
                                 style={{ background: IVORY, color: palette.label, boxShadow: `inset 0 0 0 1px ${HAIRLINE}` }}

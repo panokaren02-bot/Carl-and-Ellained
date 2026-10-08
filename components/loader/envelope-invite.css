@@ -1253,7 +1253,7 @@
 }
 
 .env-invite-seal-letter {
-  fill: #2a3228;
+  fill: #16264A;
   font-family: "Cormorant Garamond", "Crimson Text", "Times New Roman", serif;
   font-weight: 500;
   font-style: normal;
@@ -1746,9 +1746,11 @@
   }
 
   .env-invite-stage {
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: center;
+    /* equal top/bottom space keeps it centered while leaving room for the CTA bar */
     padding-top: 5.5rem;
-    padding-bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .env-invite-screen[data-phase="flap-open"] .env-invite-pocket,
@@ -2666,23 +2668,23 @@
 }
 
 /* ==========================================================================
-   "Open invitation" button — solid coral (#D96F70) with light text in every
+   "Open invitation" button — solid coral (#D0899A) with light text in every
    mode (plain / photo, all breakpoints). Kept last so it wins over the rules above.
    ========================================================================== */
 .env-invite-screen .env-invite-enter-btn {
   color: var(--color-motif-soft);
-  background: #D96F70;
-  border-color: #D96F70;
+  background: #D0899A;
+  border-color: #D0899A;
   text-shadow: none;
-  box-shadow: 0 10px 24px color-mix(in srgb, #D96F70 45%, transparent);
+  box-shadow: 0 10px 24px color-mix(in srgb, #D0899A 45%, transparent);
 }
 
 .env-invite-screen .env-invite-enter-btn:hover {
   color: var(--color-motif-soft);
-  background: color-mix(in srgb, #D96F70 85%, black);
-  box-shadow: 0 12px 28px color-mix(in srgb, #D96F70 55%, transparent);
+  background: color-mix(in srgb, #D0899A 85%, black);
+  box-shadow: 0 12px 28px color-mix(in srgb, #D0899A 55%, transparent);
 }
 
 .env-invite-screen .env-invite-enter-btn:focus-visible {
-  outline-color: #D96F70;
+  outline-color: #D0899A;
 }

@@ -46,14 +46,14 @@ function OrnamentalDivider() {
       <span
         className="h-px w-6 sm:w-10"
         style={{
-          background: "color-mix(in srgb, #16828F 35%, transparent)",
+          background: "color-mix(in srgb, #1F3460 35%, transparent)",
         }}
       />
       <span className="h-0.5 w-0.5 rounded-full bg-motif-deep sm:h-1 sm:w-1" aria-hidden />
       <span
         className="h-px w-6 sm:w-10"
         style={{
-          background: "color-mix(in srgb, #16828F 35%, transparent)",
+          background: "color-mix(in srgb, #1F3460 35%, transparent)",
         }}
       />
     </div>
@@ -81,7 +81,7 @@ function LoveStoryTitle({
         className={`${theSeasons.className} block pb-1 uppercase leading-[0.78] tracking-[0.08em] min-[400px]:tracking-[0.11em] sm:tracking-[0.13em] md:tracking-[0.14em]`}
         style={{
           fontSize: "var(--title-size)",
-          color: "#16828F",
+          color: "#1F3460",
           textShadow: onBgGlow,
         }}
       >
@@ -92,7 +92,7 @@ function LoveStoryTitle({
         className={`${aboveTheBeyond.className} mx-auto mt-2 block w-fit max-w-full px-1 leading-[0.88] sm:mt-2.5 sm:leading-[0.9] md:mt-3`}
         style={{
           fontSize: "var(--script-size)",
-          color: "#D96F70",
+          color: "#D0899A",
           textShadow: onBgGlow,
         }}
       >
@@ -243,13 +243,13 @@ export function LoveStory() {
           <blockquote className="mt-5 sm:mt-6">
             <p
               className={`font-goudy-italic ${sectionType.textRelaxed} italic leading-relaxed`}
-              style={{ color: "#16828F", textShadow: onBgGlow }}
+              style={{ color: "#1F3460", textShadow: onBgGlow }}
             >
               &ldquo;{loveStory.closingQuote}&rdquo;
             </p>
             <footer
               className={`font-goudy-italic mt-2 sm:mt-3 ${sectionType.label} not-italic tracking-wide`}
-              style={{ color: "#D96F70", textShadow: onBgGlow }}
+              style={{ color: "#D0899A", textShadow: onBgGlow }}
             >
               — {loveStory.closingCitation}
             </footer>

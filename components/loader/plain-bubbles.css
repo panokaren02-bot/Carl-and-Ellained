@@ -11,6 +11,8 @@
   --plain-bubble-accent-1: var(--color-bg-circle-accent-1);
   --plain-bubble-accent-2: var(--color-bg-circle-accent-2);
   --plain-bubble-accent-3: var(--color-bg-circle-accent-3);
+  --plain-bubble-rose: var(--color-bg-circle-rose);
+  --plain-bubble-peach: var(--color-bg-circle-peach);
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -54,6 +56,8 @@
 .plain-bubble--c { background: var(--plain-bubble-accent-1); }
 .plain-bubble--p { background: var(--plain-bubble-accent-2); }
 .plain-bubble--b { background: var(--plain-bubble-accent-3); }
+.plain-bubble--r { background: var(--plain-bubble-rose); }
+.plain-bubble--k { background: var(--plain-bubble-peach); }
 
 @keyframes plain-bubble-in {
   from { scale: 0; }

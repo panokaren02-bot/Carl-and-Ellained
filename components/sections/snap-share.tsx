@@ -32,14 +32,14 @@ const OUTSIDE_TEXT_MUTED = "rgba(255, 255, 255, 0.88)"
 const OUTSIDE_TITLE_SHADOW = "0 2px 6px rgba(0, 0, 0, 0.28), 0 0 18px rgba(0, 0, 0, 0.12)"
 const READABLE_SHADOW = "0 1px 3px rgba(0,0,0,0.55), 0 2px 10px rgba(0,0,0,0.35)"
 
-// Card palette — cards are plain light with teal text; buttons are coral (#D96F70).
-const TEAL = "#16828F"
-const BUTTON = "#D96F70"
+// Card palette — cards are plain light with teal text; buttons are coral (#D0899A).
+const TEAL = "#1F3460"
+const BUTTON = "#D0899A"
 const IVORY = "var(--color-motif-soft)"
 const PAPER = "var(--color-motif-soft)"
-const HAIRLINE = "color-mix(in srgb, #16828F 22%, transparent)"
-const PALE = "color-mix(in srgb, #16828F 10%, var(--color-motif-soft))"
-const TEAL_SOFT = "color-mix(in srgb, #16828F 70%, transparent)"
+const HAIRLINE = "color-mix(in srgb, #1F3460 22%, transparent)"
+const PALE = "color-mix(in srgb, #1F3460 10%, var(--color-motif-soft))"
+const TEAL_SOFT = "color-mix(in srgb, #1F3460 70%, transparent)"
 
 const palette = {
   body: TEAL,
@@ -53,7 +53,7 @@ const outsideDividerLineStyle = {
 } as const
 
 const insideDividerLineStyle = {
-  background: "linear-gradient(to right, transparent, color-mix(in srgb, #16828F 45%, transparent), transparent)",
+  background: "linear-gradient(to right, transparent, color-mix(in srgb, #1F3460 45%, transparent), transparent)",
 } as const
 
 const ct = {
@@ -148,12 +148,12 @@ function PrimaryButton({
     <button
       type="button"
       onClick={onClick}
-      className={`${cinzel.className} inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-2.5 font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16828F] sm:px-6 ${ct.btn}`}
+      className={`${cinzel.className} inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-2.5 font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F3460] sm:px-6 ${ct.btn}`}
       style={{
         background: active ? TEAL : BUTTON,
         borderColor: active ? TEAL : BUTTON,
         color: IVORY,
-        boxShadow: "0 12px 24px -12px color-mix(in srgb, #D96F70 60%, transparent)",
+        boxShadow: "0 12px 24px -12px color-mix(in srgb, #D0899A 60%, transparent)",
       }}
     >
       {children}
@@ -306,7 +306,7 @@ export function SnapShare() {
               className="flex w-full min-w-0 items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 transition-all duration-200 active:scale-[0.98]"
               style={{
                 background: isCopied ? PALE : IVORY,
-                boxShadow: `inset 0 0 0 1px ${isCopied ? "color-mix(in srgb, #16828F 50%, transparent)" : HAIRLINE}`,
+                boxShadow: `inset 0 0 0 1px ${isCopied ? "color-mix(in srgb, #1F3460 50%, transparent)" : HAIRLINE}`,
               }}
             >
               <span
@@ -362,7 +362,7 @@ export function SnapShare() {
               type="button"
               onClick={() => shareOnSocial(platform)}
               className="group flex w-full min-w-0 items-center justify-center gap-2 rounded-xl px-3 py-3 transition-all duration-200 hover:-translate-y-0.5"
-              style={{ background: BUTTON, boxShadow: "0 10px 20px -12px color-mix(in srgb, #D96F70 60%, transparent)" }}
+              style={{ background: BUTTON, boxShadow: "0 10px 20px -12px color-mix(in srgb, #D0899A 60%, transparent)" }}
             >
               <Icon className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5" style={{ color: IVORY }} />
               <span className={`${cinzel.className} ${ct.btn} truncate font-semibold uppercase tracking-[0.08em]`} style={{ color: IVORY }}>
@@ -410,7 +410,7 @@ export function SnapShare() {
           target="_blank"
           rel="noopener noreferrer"
           className={`${cinzel.className} inline-flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 font-semibold uppercase tracking-[0.16em] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 sm:px-6 ${ct.btn}`}
-          style={{ background: BUTTON, color: IVORY, boxShadow: "0 12px 24px -12px color-mix(in srgb, #D96F70 60%, transparent)" }}
+          style={{ background: BUTTON, color: IVORY, boxShadow: "0 12px 24px -12px color-mix(in srgb, #D0899A 60%, transparent)" }}
         >
           <Share2 className="h-3.5 w-3.5 flex-shrink-0 sm:h-4 sm:w-4" />
           {content.upload.uploadButton}

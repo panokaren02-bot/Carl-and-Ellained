@@ -40,17 +40,17 @@ const aboveTheBeyond = localFont({
 })
 
 // Palette lives in globals.css → motif / welcome tokens.
-// Cards are plain light with teal text; buttons are coral (#D96F70).
-const TEAL = "#16828F"
-const BUTTON = "#D96F70"
-const BUTTON_HOVER = "color-mix(in srgb, #D96F70 85%, black)"
+// Cards are plain light with teal text; buttons are coral (#D0899A).
+const TEAL = "#1F3460"
+const BUTTON = "#D0899A"
+const BUTTON_HOVER = "color-mix(in srgb, #D0899A 85%, black)"
 const IVORY = "var(--color-motif-soft)"
 const PAPER = "var(--color-motif-soft)"
-const HAIRLINE = "color-mix(in srgb, #16828F 22%, transparent)"
+const HAIRLINE = "color-mix(in srgb, #1F3460 22%, transparent)"
 
 const palette = {
   body: TEAL,
-  soft: "color-mix(in srgb, #16828F 70%, transparent)",
+  soft: "color-mix(in srgb, #1F3460 70%, transparent)",
   heading: TEAL,
   label: TEAL,
   accent: TEAL,
@@ -73,7 +73,7 @@ const onBgLineStyle = {
 } as const
 
 const dividerLineStyle = {
-  background: "linear-gradient(to right, transparent, color-mix(in srgb, #16828F 40%, transparent), transparent)",
+  background: "linear-gradient(to right, transparent, color-mix(in srgb, #1F3460 40%, transparent), transparent)",
 } as const
 
 const CORNER_DECO_CLASS =
@@ -424,7 +424,7 @@ export function Footer() {
                         className="h-1.5 rounded-full transition-all duration-500"
                         style={{
                           width: i === currentQuoteIndex ? "1.25rem" : "0.375rem",
-                          background: i === currentQuoteIndex ? palette.label : "color-mix(in srgb, #16828F 25%, transparent)",
+                          background: i === currentQuoteIndex ? palette.label : "color-mix(in srgb, #1F3460 25%, transparent)",
                         }}
                       />
                     ))}
@@ -459,7 +459,7 @@ export function Footer() {
                       <div
                         key={key}
                         className="flex items-start gap-3 rounded-2xl px-3 py-2.5"
-                        style={{ background: "color-mix(in srgb, #16828F 7%, transparent)" }}
+                        style={{ background: "color-mix(in srgb, #1F3460 7%, transparent)" }}
                       >
                         <span
                           className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
@@ -522,7 +522,7 @@ export function Footer() {
                         background: BUTTON,
                         borderColor: BUTTON,
                         color: IVORY,
-                        boxShadow: "0 12px 24px -12px color-mix(in srgb, #D96F70 60%, transparent)",
+                        boxShadow: "0 12px 24px -12px color-mix(in srgb, #D0899A 60%, transparent)",
                       }}
                     >
                       {content.rsvp.button}
@@ -558,7 +558,7 @@ export function Footer() {
                             title={label}
                             aria-label={label}
                             className="group inline-flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-0.5"
-                            style={{ background: BUTTON, color: IVORY, boxShadow: "0 6px 14px -8px color-mix(in srgb, #D96F70 70%, transparent)" }}
+                            style={{ background: BUTTON, color: IVORY, boxShadow: "0 6px 14px -8px color-mix(in srgb, #D0899A 70%, transparent)" }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background = BUTTON_HOVER
                             }}

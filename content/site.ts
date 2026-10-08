@@ -73,8 +73,8 @@ const COUPLE = {
 }
 
 // ── Date & times ────────────────────────────────────────────────────────────
-const WEDDING_DATE = "January 1, 2027" // e.g. "June 5, 2027"
-const WEDDING_DAY = "Friday"
+const WEDDING_DATE = "January 23, 2027" // e.g. "June 5, 2027"
+const WEDDING_DAY = "Saturday"
 const TIMES = {
   entourageCall: "1:00 PM", // entourage arrival
   guestArrival: "1:30 PM", // guests arrival (shown in Event Details + reminders)
@@ -240,7 +240,7 @@ const ATTIRE = {
 // NEXT_PUBLIC_SITE_URL (env) overrides this when set.
 const SITE_URL = "https://ellained-and-carl-rsvp.weddinginvitationrsvp.com/"
 // Image shown when the link is shared (Facebook, Messenger, Viber, X, …) — 1200×630 JPG in /public
-const LINK_PREVIEW_IMAGE = "/Details/LinkPreview.png"
+const LINK_PREVIEW_IMAGE = "/Details/linkPrevie.png"
 
 // Site address with env override applied and no trailing slash — no need to edit
 export const canonicalSiteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? SITE_URL).replace(/\/$/, "")
@@ -253,9 +253,9 @@ const DISPLAY_MODE = "plain" as "photos" | "plain"
 // ── Shared images ───────────────────────────────────────────────────────────
 const BRAND = {
   monogram: "/monogram/monogram-newpo.png",
-  coupleNameImage: "/Details/coupleName.png", // couple-name lettering (loader, envelope)
+  coupleNameImage: "/Details/namecouple.png", // couple-name lettering (loader, envelope)
   seal: "/monogram/monogram_new.png", // envelope wax seal
-  backgroundMusic: "/background_music/The BIGGEST Christian Wedding Entrance Mash Up Part 11!!.mp3",
+  backgroundMusic: "/background_music/Goodness Of God X Oceans X Gratitude (Wedding Entrance version).mp3",
 }
 
 // Couple photos reused across the site (gallery, loader, reminders, snap & share, closing)
@@ -308,6 +308,9 @@ const COUPLE_LABEL = `${COUPLE.groomNickname} & ${COUPLE.brideNickname}`
    SECTIONS — wording and per-section options. Values above are referenced here.
    ============================================================================ */
 
+// Principal sponsors Google Apps Script — used by the main page and /inviteone
+const SPONSORS_API = "https://script.google.com/macros/s/AKfycbw7FEGNwHGTxSy41k_cMZP3fzbQZFDG6Iq5Rs9K4Pwm8z1IglNj1Isl3d0rdhzVEuU1/exec"
+
 export const siteConfig = {
   siteUrl: SITE_URL,
   linkPreviewImage: LINK_PREVIEW_IMAGE,
@@ -321,8 +324,11 @@ export const siteConfig = {
     message: "https://script.google.com/macros/s/AKfycbxGujZOqAlCyFxztMaxIezUpylUODNgI4W4mmps6Ot0C1Ka8sPEKIr22ywMcpX2ItET/exec",  //done
     guestList: "https://script.google.com/macros/s/AKfycbzjNZHSIZw8ccDdWiZHD0uGl6cZJb1Fgqdq3Q2yGZPNWGzfhWT9ISJBJOpTEm5vQDEI/exec",  //done
     guestRequest: "https://script.google.com/macros/s/AKfycbwI0mx9ufWHIHYBSyzE9gORBOnM9IN4rm-9IsJd9J1NWhjueA8wlrpQ30TzplPSWCh4/exec",   //done
-    entourage: "https://script.google.com/macros/s/AKfycbzODfaLzIby874R00CNgsODHfoBvzxQOw64nGxdGgFURPpt2Xo70v7KYsB5eY8epnBJ/exec",  //done
-    sponsors: "https://script.google.com/macros/s/AKfycbw7FEGNwHGTxSy41k_cMZP3fzbQZFDG6Iq5Rs9K4Pwm8z1IglNj1Isl3d0rdhzVEuU1/exec",  //done 
+    entourage: "https://script.google.com/macros/s/AKfycbzI4PblFCc3axw_cICTywpXDx9ETQdL7COx30Mrvo8aFvNQJThBgC5X_tMI5jArRM4G/exec",  //done
+    sponsors: SPONSORS_API,  //done 
+    // Principal sponsors shown on /inviteone and /invitetwo (entourage section)
+    sponsorsInviteOne: SPONSORS_API, // same sheet as sponsors above
+    sponsorsInviteTwo: "https://script.google.com/macros/s/AKfycbzODfaLzIby874R00CNgsODHfoBvzxQOw64nGxdGgFURPpt2Xo70v7KYsB5eY8epnBJ/exec",
 ////google share 
     googleShare: "https://docs.google.com/spreadsheets/d/1tNrAdJJQDMQtVl9I6ncbw5wLpsiER5UA4ELCMDI4nfw/edit?usp=sharing",
     videoMessageForm:
@@ -333,8 +339,8 @@ export const siteConfig = {
     time: TIMES.ceremony,
     venue: CEREMONY_VENUE.name,
     tagline: "are getting married!!!!!",
-    theme: "Romantic Coastal Minimalist",
-    motif: "#FFCA8B, #FFB383, #F6CEC8, #E99997, #C8C29E",
+    theme: "Navy Blue & Blush Pink",
+    motif: "#16264A, #1F3460, #B4C2DC, #F6D3D8, #E3A3AE",
   },
   // Opening "Save the Date" loading screen (components/loader/LoadingScreen.tsx).
   // Couple names, wedding date and ceremony details come from couple / wedding / ceremony above.
@@ -519,14 +525,14 @@ export const siteConfig = {
       images: COUPLE_PHOTOS.slice(0, 4),
       // showPalette: shows the dress code palette after the first paragraph
       items: [
-        {
-          title: "Adults-Only Celebration",
-          variant: "accent" as "accent" | "soft",
-          showPalette: false,
-          paragraphs: [
-            "We kindly request that our wedding be an adults-only occasion. We hope this allows everyone to relax and fully enjoy the celebration with us.",
-          ],
-        },
+        // {
+        //   title: "Adults-Only Celebration",
+        //   variant: "accent" as "accent" | "soft",
+        //   showPalette: false,
+        //   paragraphs: [
+        //     "We kindly request that our wedding be an adults-only occasion. We hope this allows everyone to relax and fully enjoy the celebration with us.",
+        //   ],
+        // },
         {
           title: "Unplugged Ceremony",
           variant: "soft" as "accent" | "soft",
@@ -558,16 +564,6 @@ export const siteConfig = {
           showPalette: false,
           paragraphs: [
             "Please join us for early dinner, laughter, and dancing after the ceremony.",
-          ],
-        },
-        {
-          title: "Additional Note",
-          variant: "soft" as "accent" | "soft",
-          showPalette: false,
-          paragraphs: [
-            "Having you with us on our wedding day is already a precious blessing. If you wish to give, we humbly prefer a love gift rather than material presents. Your love, prayers, and generosity mean so much to us as we begin this new chapter together, trusting in God’s faithfulness.",
-            "With joyful hearts,",
-            "Ellaine and Carl",
           ],
         },
       ],
@@ -980,24 +976,24 @@ export const siteConfig = {
     subtitle: "with gratitude",
     description: "Your presence on our wedding day is the best gift we could ask for.",
     paragraphs: [
-      "Should you wish to bless us with a gift, we would be grateful for a monetary gift as we begin this new chapter together.",
-      "However, if you prefer to purchase a gift, please feel free to surprise us in your own special way.",
+      "Having you with us on our wedding day is already a precious blessing. If you wish to give, we humbly prefer a love gift rather than material presents. Your love, prayers, and generosity mean so much to us as we begin this new chapter together, trusting in God’s faithfulness.",
     ],
-    thankYou: "Thank you from the bottom of our hearts.",
-    signOff: "With love,",
+    thankYou: "", // "" hides the line
+    signOff: "With joyful hearts,",
+    signature: "Ellaine and Carl", // "" falls back to "{groom} & {bride}" nicknames
     // Colors — any CSS color or a palette token from app/globals.css (e.g. "var(--color-motif-accent)")
     colors: {
-      title: "#16828F",                                              // "Gift Guide", account names
-      script: "#16828F",                                             // drop cap, couple signature
-      eyebrow: "#16828F",                                            // small caps labels, icons
-      body: "#16828F",                                               // paragraphs
-      soft: "color-mix(in srgb, #16828F 70%, transparent)",          // "With love," and secondary text
+      title: "#1F3460",                                              // "Gift Guide", account names
+      script: "#1F3460",                                             // drop cap, couple signature
+      eyebrow: "#1F3460",                                            // small caps labels, icons
+      body: "#1F3460",                                               // paragraphs
+      soft: "color-mix(in srgb, #1F3460 70%, transparent)",          // "With love," and secondary text
       card: "var(--color-motif-soft)",                               // letter card (plain light)
       cardEdge: "var(--color-motif-soft)",                           // letter card (plain light)
-      accountCard: "color-mix(in srgb, #16828F 6%, var(--color-motif-soft))", // e-gift account cards
-      button: "#D96F70",                                             // gift seal, selected tab
-      line: "color-mix(in srgb, #16828F 45%, transparent)",          // dividers
-      glow: "color-mix(in srgb, #16828F 12%, transparent)",          // tab track / letter badge
+      accountCard: "color-mix(in srgb, #1F3460 6%, var(--color-motif-soft))", // e-gift account cards
+      button: "#D0899A",                                             // gift seal, selected tab
+      line: "color-mix(in srgb, #1F3460 45%, transparent)",          // dividers
+      glow: "color-mix(in srgb, #1F3460 12%, transparent)",          // tab track / letter badge
       background: "var(--color-motif-cream)",      // section background
     },
     // E-gift accounts — optional, as many as you like.
@@ -1341,7 +1337,7 @@ export const siteConfig = {
       title: "Guests",
       label: "Guests",
       description: "Casual attire: Whimsical Spring.",
-      image: "/Details/Guest.png",
+      image: "/Details/new-guest.png",
       palette: ["#FFCA8B", "#FFB383", "#F6CEC8", "#E99997", "#C8C29E"],
     },
     paletteNote:

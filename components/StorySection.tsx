@@ -18,7 +18,7 @@ const darkBg = "var(--color-welcome-green)"
 const revealEase = [0.22, 1, 0.36, 1] as const
 
 // Plain cards: flat palette colors — teal text on light cards, light text on teal cards
-const TEAL = "#16828F"
+const TEAL = "#1F3460"
 const ON_TEAL = "var(--color-motif-soft)"
 
 export type LoveStoryEucalyptusDecos = {
@@ -71,13 +71,13 @@ function PlainEucalyptusDecos({ decos }: { decos: LoveStoryEucalyptusDecos }) {
 function PlainChapterDivider({ dark }: { dark: boolean }) {
   const line = dark
     ? "color-mix(in srgb, var(--color-motif-soft) 45%, transparent)"
-    : "color-mix(in srgb, #16828F 35%, transparent)"
+    : "color-mix(in srgb, #1F3460 35%, transparent)"
   return (
     <div className="mb-4 flex items-center justify-center gap-1.5 sm:mb-5">
       <span className="h-px w-8 sm:w-12" style={{ background: line }} />
       <span
         className="h-1 w-1 rotate-45"
-        style={{ background: dark ? "var(--color-motif-blush)" : "#D96F70" }}
+        style={{ background: dark ? "var(--color-motif-blush)" : "#D0899A" }}
         aria-hidden
       />
       <span className="h-px w-8 sm:w-12" style={{ background: line }} />

@@ -299,25 +299,26 @@ const ROLE_CATEGORY_ORDER = [
   "Matron of Honor",
   "Best Man",
   "Maid of Honor",
-  "Groomsmen",
-  "Bridesmaids",
+  "Little Groom",
+  "Little Bride",
+  "Little Tiny Groom",
+  "Little Love Bearer",
+  "Little Promise Bearer",
+  // Secondary Sponsors block (see secondarySponsorGroups)
   "Candle Sponsors",
+  "Candle Bearer",
   "Veil Sponsors",
   "Cord Sponsors",
   "Ribbon Sponsors",
-  "Little Love Bearer",
-  "Candle Bearer",
-  "Little Groom",
-  "Little Bride",
+  "Groomsmen",
+  "Bridesmaids",
+  // Side-by-side pairs (see PAIRED_COLUMN_SECTIONS)
+  "Little Groomsmen",
+  "Little Bridesmaids",
   // Ring | Coin side by side, Bible centered below (see BEARER_BLOCK_CATEGORIES)
   "Ring Bearer",
   "Coin Bearer",
   "Bible Bearer",
-  // Side-by-side pairs (see PAIRED_COLUMN_SECTIONS)
-  "Little Tiny Groom",
-  "Little Promise Bearer",
-  "Little Groomsmen",
-  "Little Bridesmaids",
   "Flower Ladies",
 ]
 
@@ -325,7 +326,6 @@ const BEARER_BLOCK_CATEGORIES = ["Ring Bearer", "Coin Bearer", "Bible Bearer"] a
 
 // Two categories shown as left | right columns under their own titles
 const PAIRED_COLUMN_SECTIONS: { key: string; left: string; right: string }[] = [
-  { key: "LittleTinyGroomPromise", left: "Little Tiny Groom", right: "Little Promise Bearer" },
   { key: "LittleGroomsmenBridesmaids", left: "Little Groomsmen", right: "Little Bridesmaids" },
 ]
 
@@ -382,6 +382,7 @@ function normalizeRoleCategory(category: string): string {
   if (alias) return alias
   if (/^little love bearers?$/i.test(normalized)) return "Little Love Bearer"
   if (/^candle bearers?$/i.test(normalized)) return "Candle Bearer"
+  if (/^ch?ord sponsors?$/i.test(normalized)) return "Cord Sponsors"
   if (normalized.toLowerCase() === "peer sponsors") {
     return "Peer Sponsors"
   }
@@ -436,10 +437,16 @@ async function loadEntourageFromApi(signal?: AbortSignal, reload = false): Promi
   return toEntourageMembers(data)
 }
 
-async function loadSponsorsFromApi(signal?: AbortSignal, reload = false): Promise<PrincipalSponsor[]> {
+export type SponsorsList = "one" | "two"
+
+function sponsorsUrl(list?: SponsorsList) {
+  return list ? `/api/principal-sponsor?list=${list}` : "/api/principal-sponsor"
+}
+
+async function loadSponsorsFromApi(url: string, signal?: AbortSignal, reload = false): Promise<PrincipalSponsor[]> {
   // Sponsors are optional — never block the entourage on them
   try {
-    const data = await fetchInvitationList<Record<string, unknown>>("/api/principal-sponsor", { signal, reload })
+    const data = await fetchInvitationList<Record<string, unknown>>(url, { signal, reload })
     return toPrincipalSponsors(data)
   } catch (error) {
     if (isAbortError(error)) throw error
@@ -448,16 +455,17 @@ async function loadSponsorsFromApi(signal?: AbortSignal, reload = false): Promis
   }
 }
 
-function readCachedParty() {
+function readCachedParty(sponsorsPath: string) {
   const members = readCachedInvitationList<Record<string, unknown>>("/api/entourage")
-  const sponsors = readCachedInvitationList<Record<string, unknown>>("/api/principal-sponsor")
+  const sponsors = readCachedInvitationList<Record<string, unknown>>(sponsorsPath)
   return {
     members: members ? toEntourageMembers(members) : [],
     sponsors: sponsors ? toPrincipalSponsors(sponsors) : [],
   }
 }
 
-export function Entourage() {
+export function Entourage({ sponsorsList }: { sponsorsList?: SponsorsList } = {}) {
+  const sponsorsPath = sponsorsUrl(sponsorsList)
   const siteConfig = useSiteConfig()
   const content = siteConfig.entourage
   const { decos } = content
@@ -472,7 +480,7 @@ export function Entourage() {
   const sectionRef = useRef<HTMLDivElement>(null)
 
   const loadParty = async (signal?: AbortSignal, { reload = false } = {}) => {
-    const cached = readCachedParty()
+    const cached = readCachedParty(sponsorsPath)
     const hasCached = cached.members.length > 0
     if (hasCached) {
       // Show the last known list right away; refresh quietly in the background
@@ -495,7 +503,7 @@ export function Entourage() {
           maxDelayMs: 3000,
           onRetry: () => setIsRetrying(true),
         }),
-        loadSponsorsFromApi(signal, reload),
+        loadSponsorsFromApi(sponsorsPath, signal, reload),
       ])
       if (signal?.aborted) return
       setEntourage(members)
@@ -1478,11 +1486,10 @@ export function Entourage() {
                 // Secondary Sponsors block: render all groups under one heading
                 const secondarySponsorGroups = [
                   "Candle Sponsors",
+                  "Candle Bearer",
                   "Veil Sponsors",
                   "Cord Sponsors",
                   "Ribbon Sponsors",
-                  "Little Love Bearer",
-                  "Candle Bearer",
                 ] as const
                 if ((secondarySponsorGroups as readonly string[]).includes(category)) {
                   // Only render the full block once — when processing the first one that exists in order
@@ -1556,7 +1563,7 @@ export function Entourage() {
                     <TwoColumnLayout singleTitle={displayRoleCategory(category)} centerContent={true}>
                       {(() => {
                         // Special rule: paired sponsor roles with exactly 2 names should meet at center
-                        const PAIRED_SECTIONS = new Set(["Candle Sponsors", "Cord Sponsors", "Veil Sponsors"])
+                        const PAIRED_SECTIONS = new Set(["Candle Sponsors", "Cord Sponsors", "Veil Sponsors", "Little Love Bearer", "Little Promise Bearer"])
                         if (PAIRED_SECTIONS.has(category) && members.length === 2) {
                           const left = members[0]
                           const right = members[1]

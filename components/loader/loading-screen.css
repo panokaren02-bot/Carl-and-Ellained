@@ -332,8 +332,8 @@
   position: relative;
   z-index: 1;
   display: block;
-  width: min(88%, 24rem);
-  aspect-ratio: 2161 / 728;
+  width: min(94%, 30rem);
+  aspect-ratio: 2020 / 779;
   margin: 0 auto;
   background: linear-gradient(
     118deg,
@@ -1382,50 +1382,52 @@
   user-select: none;
   height: auto;
   z-index: 1;
-  opacity: 0.92;
+  opacity: 0.85;
 }
 
 .story-plain-card__euc--center {
   left: 50%;
   top: 0;
-  width: min(26vw, 92px);
-  max-width: 108px;
-  transform: translate(-50%, -48%);
+  width: min(22vw, 80px);
+  max-width: 92px;
+  transform: translate(-50%, -58%);
 }
 
+/* Side sprigs sit mostly outside the card so they frame the corners
+   instead of covering the chapter title / last lines of text */
 .story-plain-card__euc--left {
   left: 0;
   top: 0;
-  width: min(30vw, 112px);
-  max-width: 130px;
-  transform: translate(-28%, -12%);
+  width: min(22vw, 84px);
+  max-width: 96px;
+  transform: translate(-46%, -40%);
 }
 
 .story-plain-card__euc--right {
   right: 0;
   bottom: 0;
-  width: min(28vw, 108px);
-  max-width: 125px;
-  transform: translate(24%, 14%);
+  width: min(18vw, 70px);
+  max-width: 82px;
+  transform: translate(44%, 30%);
 }
 
 @media (min-width: 640px) {
   .story-plain-card__euc--center {
-    width: min(22vw, 102px);
-    max-width: 118px;
-    transform: translate(-50%, -50%);
+    width: min(18vw, 96px);
+    max-width: 108px;
+    transform: translate(-50%, -58%);
   }
 
   .story-plain-card__euc--left {
-    width: min(24vw, 138px);
-    max-width: 155px;
-    transform: translate(-32%, -14%);
+    width: min(20vw, 118px);
+    max-width: 130px;
+    transform: translate(-48%, -38%);
   }
 
   .story-plain-card__euc--right {
-    width: min(22vw, 132px);
-    max-width: 148px;
-    transform: translate(28%, 16%);
+    width: min(16vw, 96px);
+    max-width: 108px;
+    transform: translate(46%, 28%);
   }
 }
 
@@ -2059,9 +2061,11 @@
 /* Day: large gold-foil numeral with a gliding glint */
 .ls-silk-date__day {
   padding: 0 clamp(0.9rem, 4.5vw, 1.6rem);
-  font-family: var(--font-cinzel, "Cinzel", serif);
+  /* Playfair Display: high-contrast serif with elegant display numerals */
+  font-family: "Playfair Display", "Cormorant Garamond", Georgia, serif;
   font-size: clamp(3.4rem, 17vw, 5.4rem);
   font-weight: 500;
+  font-variant-numeric: lining-nums proportional-nums;
   line-height: 1;
   background: linear-gradient(
     100deg,
@@ -2260,7 +2264,7 @@
 }
 
 .loading-screen--plain .loading-screen__std-names {
-  width: min(84%, 21rem);
+  width: min(94%, 30rem);
   filter: drop-shadow(0 1px 0 rgb(255 255 255 / 70%));
 }
 
@@ -3187,26 +3191,26 @@
 }
 
 .love-story-plain-track::before {
-  background: color-mix(in srgb, #16828F 25%, transparent);
+  background: color-mix(in srgb, #1F3460 25%, transparent);
 }
 
 .love-story-plain-track--first::before,
 .love-story-plain-track--last::before {
-  background: color-mix(in srgb, #16828F 25%, transparent);
+  background: color-mix(in srgb, #1F3460 25%, transparent);
 }
 
 .story-plain-card {
-  border: 1px solid color-mix(in srgb, #16828F 20%, transparent);
+  border: 1px solid color-mix(in srgb, #1F3460 20%, transparent);
   background: var(--color-motif-soft);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  box-shadow: 0 14px 32px -18px color-mix(in srgb, #16828F 45%, transparent);
+  box-shadow: 0 14px 32px -18px color-mix(in srgb, #1F3460 45%, transparent);
 }
 
 .story-plain-card--dark {
-  border-color: #16828F;
-  background: #16828F;
-  box-shadow: 0 14px 32px -18px color-mix(in srgb, #16828F 70%, transparent);
+  border-color: #1F3460;
+  background: #1F3460;
+  box-shadow: 0 14px 32px -18px color-mix(in srgb, #1F3460 70%, transparent);
 }
 
 .story-plain-card__frost {
@@ -3214,7 +3218,7 @@
 }
 
 .story-plain-card .wedding-frame-inner {
-  border-color: color-mix(in srgb, #16828F 18%, transparent);
+  border-color: color-mix(in srgb, #1F3460 18%, transparent);
 }
 
 .story-plain-card--dark .wedding-frame-inner {
@@ -3222,7 +3226,7 @@
 }
 
 .story-plain-card__dot {
-  background: #D96F70;
+  background: #D0899A;
   box-shadow: 0 0 0 4px var(--color-motif-soft);
 }
 
@@ -3231,7 +3235,7 @@
 }
 
 .story-plain-chapter-label {
-  color: #D96F70;
+  color: #D0899A;
 }
 
 .story-plain-card--dark .story-plain-chapter-label {
@@ -3239,7 +3243,7 @@
 }
 
 .story-plain-chapter-line {
-  background: color-mix(in srgb, #16828F 22%, transparent);
+  background: color-mix(in srgb, #1F3460 22%, transparent);
 }
 
 .story-plain-chapter-line--dark {
@@ -3247,5 +3251,5 @@
 }
 
 .story-plain-chapter-connector__stem {
-  background: color-mix(in srgb, #16828F 30%, transparent);
+  background: color-mix(in srgb, #1F3460 30%, transparent);
 }

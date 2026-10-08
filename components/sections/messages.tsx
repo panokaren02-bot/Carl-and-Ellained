@@ -33,9 +33,9 @@ const aboveTheBeyond = localFont({
 // Form card: plain light with teal text; button is coral.
 const PAPER = "var(--color-motif-soft)"
 const IVORY = "var(--color-motif-soft)"
-const NAVY = "#16828F"
-const BODY = "#16828F"
-const ACCENT = "#16828F"
+const NAVY = "#1F3460"
+const BODY = "#1F3460"
+const ACCENT = "#1F3460"
 
 const palette = {
   body: BODY,
@@ -78,7 +78,7 @@ const cardStyle = {
   background: "var(--color-motif-soft)",
   borderWidth: "1px",
   borderStyle: "solid",
-  borderColor: "color-mix(in srgb, #16828F 25%, transparent)",
+  borderColor: "color-mix(in srgb, #1F3460 25%, transparent)",
   boxShadow:
     "0 22px 48px -24px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)",
 } as const
@@ -107,7 +107,7 @@ function CardOrnament() {
     <div className="mx-auto mb-3 flex items-center justify-center sm:mb-4" aria-hidden>
       <span
         className="h-px w-16 sm:w-24"
-        style={{ background: "linear-gradient(to right, transparent, color-mix(in srgb, #16828F 55%, transparent), transparent)" }}
+        style={{ background: "linear-gradient(to right, transparent, color-mix(in srgb, #1F3460 55%, transparent), transparent)" }}
       />
     </div>
   )
@@ -219,7 +219,7 @@ function MessageForm({ onSuccess, onMessageSent }: MessageFormProps) {
   const inputBorder = (field: string) =>
     focusedField === field
       ? palette.accent
-      : "color-mix(in srgb, #16828F 30%, transparent)"
+      : "color-mix(in srgb, #1F3460 30%, transparent)"
 
   const inputClass = (field: string) =>
     `message-form-input w-full rounded-lg border px-3 py-2 font-goudy-italic ${sectionType.text} transition-all duration-300 focus:ring-2 focus:ring-[color-mix(in_srgb,#16828F_22%,transparent)] sm:px-4 sm:py-2.5 md:py-3 ${
@@ -244,7 +244,7 @@ function MessageForm({ onSuccess, onMessageSent }: MessageFormProps) {
       >
         <div
           className="pointer-events-none absolute inset-2 rounded-[1.5rem] border sm:inset-2.5"
-          style={{ borderColor: "color-mix(in srgb, #16828F 22%, transparent)" }}
+          style={{ borderColor: "color-mix(in srgb, #1F3460 22%, transparent)" }}
           aria-hidden
         />
 
@@ -350,8 +350,8 @@ function MessageForm({ onSuccess, onMessageSent }: MessageFormProps) {
               disabled={isSubmitting || !nameValue.trim() || !messageValue.trim()}
               className={`${cinzel.className} group relative w-full rounded-full border px-5 py-2.5 ${sectionType.label} font-semibold uppercase tracking-[0.16em] shadow-[0_12px_24px_-10px_color-mix(in_srgb,var(--color-welcome-navy)_60%,transparent)] transition-all duration-300 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70 disabled:transform-none sm:py-3 sm:tracking-[0.18em]`}
               style={{
-                background: "#D96F70",
-                borderColor: "#D96F70",
+                background: "#D0899A",
+                borderColor: "#D0899A",
                 color: IVORY,
               }}
             >

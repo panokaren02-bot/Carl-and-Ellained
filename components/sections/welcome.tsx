@@ -30,7 +30,7 @@ function OrnamentalDivider({ compact = false }: { compact?: boolean }) {
         className={`h-px ${compact ? "w-6 sm:w-10" : "w-8 sm:w-12"}`}
         style={{
           background:
-            "linear-gradient(to right, transparent, color-mix(in srgb, #16828F 45%, transparent))",
+            "linear-gradient(to right, transparent, color-mix(in srgb, #1F3460 45%, transparent))",
         }}
       />
       <span className="h-0.5 w-0.5 rounded-full bg-motif-teal/55 sm:h-1 sm:w-1" aria-hidden />
@@ -38,7 +38,7 @@ function OrnamentalDivider({ compact = false }: { compact?: boolean }) {
         className={`h-px ${compact ? "w-6 sm:w-10" : "w-8 sm:w-12"}`}
         style={{
           background:
-            "linear-gradient(to left, transparent, color-mix(in srgb, #16828F 45%, transparent))",
+            "linear-gradient(to left, transparent, color-mix(in srgb, #1F3460 45%, transparent))",
         }}
       />
     </div>
@@ -61,7 +61,7 @@ function LayeredWelcomeTitle() {
         className={`${theSeasons.className} block uppercase leading-[0.78] tracking-[0.08em] min-[400px]:tracking-[0.11em] sm:tracking-[0.13em] md:tracking-[0.14em]`}
         style={{
           fontSize: "var(--welcome-size)",
-          color: "#16828F",
+          color: "#1F3460",
         }}
       >
         Welcome
@@ -72,7 +72,7 @@ function LayeredWelcomeTitle() {
         className={`${aboveTheBeyond.className} relative z-10 mx-auto block w-fit max-w-full px-1 leading-[0.88] sm:leading-[0.9]`}
         style={{
           fontSize: "var(--script-size)",
-          color: "#16828F",
+          color: "#1F3460",
         }}
       >
         to our love story
@@ -101,7 +101,7 @@ export function Welcome() {
           transition={{ duration: 0.65, ease: [0.22, 0.61, 0.36, 1] }}
           className="relative @container/welcome overflow-visible rounded-xl border px-5 py-8 sm:rounded-2xl sm:px-9 sm:py-10 md:px-11 md:py-12"
           style={{
-            borderColor: "color-mix(in srgb, #16828F 22%, transparent)",
+            borderColor: "color-mix(in srgb, #1F3460 22%, transparent)",
             background: "var(--color-motif-soft)",
             boxShadow:
               "0 10px 30px color-mix(in srgb, var(--color-welcome-navy) 18%, transparent)",
@@ -109,7 +109,7 @@ export function Welcome() {
         >
           <div
             className="wedding-frame-inner hidden min-[400px]:block"
-            style={{ borderColor: "color-mix(in srgb, #16828F 22%, transparent)" }}
+            style={{ borderColor: "color-mix(in srgb, #1F3460 22%, transparent)" }}
             aria-hidden
           />
 
@@ -132,14 +132,14 @@ export function Welcome() {
               <blockquote>
                 <p
                   className={`font-goudy-italic ${sectionType.textSnug}`}
-                  style={{ color: "#16828F" }}
+                  style={{ color: "#1F3460" }}
                 >
                   &ldquo;He has made everything beautiful in His time.&rdquo;
                 </p>
                 <figcaption className="mt-2 sm:mt-2.5">
                   <cite
                     className={`${cinzel.className} ${sectionType.label} not-italic uppercase tracking-[0.2em] sm:tracking-[0.24em]`}
-                    style={{ color: "#16828F" }}
+                    style={{ color: "#1F3460" }}
                   >
                     Ecclesiastes 3:11
                   </cite>
@@ -149,7 +149,7 @@ export function Welcome() {
 
             <div
               className={`font-goudy-italic mx-auto max-w-[36rem] space-y-3 text-center sm:space-y-3.5 md:space-y-4 ${sectionType.textRelaxed}`}
-              style={{ color: "#16828F" }}
+              style={{ color: "#1F3460" }}
             >
               <p>
                 Dear family and friends, we are overjoyed to begin this new chapter together and
@@ -169,18 +169,18 @@ export function Welcome() {
 
             <footer className="space-y-2 border-t pt-8 text-center sm:space-y-2.5 sm:pt-9 md:pt-10"
               style={{
-                borderColor: "color-mix(in srgb, #16828F 18%, transparent)",
+                borderColor: "color-mix(in srgb, #1F3460 18%, transparent)",
               }}
             >
               <p
                 className={`${aboveTheBeyond.className} ${sectionType.script}`}
-                style={{ color: "#16828F" }}
+                style={{ color: "#1F3460" }}
               >
                 With all our love,
               </p>
               <p
                 className={`${cinzel.className} ${sectionType.subheader} font-semibold tracking-[0.12em] sm:tracking-[0.16em] md:tracking-[0.18em]`}
-                style={{ color: "#16828F" }}
+                style={{ color: "#1F3460" }}
               >
                 {groomName} &amp; {brideName}
               </p>

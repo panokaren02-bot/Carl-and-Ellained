@@ -17,8 +17,8 @@ const cinzel = Cinzel({
 
 // Palette lives in globals.css → motif / welcome tokens.
 // Cards are plain light with teal text; buttons are coral with light text.
-const TEAL = "#16828F"
-const BUTTON = "#D96F70"
+const TEAL = "#1F3460"
+const BUTTON = "#D0899A"
 const PAPER = "var(--color-motif-soft)"
 const IVORY = "var(--color-motif-soft)"
 const NAVY = TEAL
@@ -36,16 +36,16 @@ const messageCardStyle = {
   background: PAPER,
   borderWidth: "1px",
   borderStyle: "solid",
-  borderColor: "color-mix(in srgb, #16828F 25%, transparent)",
+  borderColor: "color-mix(in srgb, #1F3460 25%, transparent)",
   boxShadow: "0 16px 34px -22px color-mix(in srgb, var(--color-welcome-navy) 55%, transparent)",
 } as const
 
-const HAIRLINE = "color-mix(in srgb, #16828F 22%, transparent)"
+const HAIRLINE = "color-mix(in srgb, #1F3460 22%, transparent)"
 
 const freshShadow =
   "0 18px 36px -18px color-mix(in srgb, var(--color-welcome-navy) 80%, transparent), inset 0 1px 0 rgb(255 255 255 / 80%)"
 
-const skeletonBg = "color-mix(in srgb, #16828F 12%, transparent)"
+const skeletonBg = "color-mix(in srgb, #1F3460 12%, transparent)"
 
 interface Message {
   timestamp: string
@@ -192,7 +192,7 @@ function MessageCard({
       <span
         aria-hidden
         className="font-goudy-italic pointer-events-none absolute bottom-[-0.35em] right-3 select-none text-[5.5rem] leading-none sm:text-[6.5rem]"
-        style={{ color: "color-mix(in srgb, #16828F 10%, transparent)" }}
+        style={{ color: "color-mix(in srgb, #1F3460 10%, transparent)" }}
       >
         &rdquo;
       </span>
@@ -271,7 +271,7 @@ function MessageCard({
                 <span
                   aria-hidden
                   className="absolute inset-0 origin-left scale-x-0 rounded-full transition-transform duration-500 ease-out group-hover/read:scale-x-100"
-                  style={{ background: "color-mix(in srgb, #D96F70 85%, black)" }}
+                  style={{ background: "color-mix(in srgb, #D0899A 85%, black)" }}
                 />
                 <span
                   aria-hidden

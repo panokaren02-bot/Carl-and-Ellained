@@ -18,11 +18,21 @@ export interface PrincipalSponsor {
   FemalePrincipalSponsor: string
 }
 
+// ?list=one | ?list=two → sponsor sheet for /inviteone or /invitetwo
+const SPONSOR_LISTS: Record<string, string> = {
+  one: siteConfig.googleAPI.sponsorsInviteOne,
+  two: siteConfig.googleAPI.sponsorsInviteTwo,
+}
+
 // GET: Fetch all principal sponsors
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const list = request.nextUrl.searchParams.get("list") ?? ""
+  const listUrl = SPONSOR_LISTS[list]
+  const scriptUrl = listUrl || PRINCIPAL_SPONSOR_SCRIPT_URL
+  const cacheKey = listUrl ? `${SHEETS_CACHE_KEYS.sponsors}:${list}` : SHEETS_CACHE_KEYS.sponsors
   try {
-    const data = await withSheetsCache(SHEETS_CACHE_KEYS.sponsors, async () => {
-      const payload = await fetchGoogleScriptJson(PRINCIPAL_SPONSOR_SCRIPT_URL)
+    const data = await withSheetsCache(cacheKey, async () => {
+      const payload = await fetchGoogleScriptJson(scriptUrl)
       const rows = asSheetRows(payload)
       if (!rows) {
         throw new Error("Failed to fetch principal sponsors")

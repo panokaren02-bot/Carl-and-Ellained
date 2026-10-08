@@ -361,14 +361,16 @@ export function Registry() {
 
             {/* Sign-off */}
             <motion.div variants={itemVariants} className="relative space-y-1.5">
-              <p className={`font-goudy-italic ${ct.body}`} style={{ color: c.body }}>
-                {content.thankYou}
-              </p>
+              {content.thankYou ? (
+                <p className={`font-goudy-italic ${ct.body}`} style={{ color: c.body }}>
+                  {content.thankYou}
+                </p>
+              ) : null}
               <p className={`font-goudy-italic ${ct.body}`} style={{ color: c.soft }}>
                 {content.signOff}
               </p>
               <p className={`${aboveTheBeyond.className} pt-1 text-2xl leading-tight sm:text-3xl`} style={{ color: c.script }}>
-                {groomNickname} &amp; {brideNickname}
+                {content.signature || `${groomNickname} & ${brideNickname}`}
               </p>
               <Heart className="mx-auto mt-2 h-3.5 w-3.5" style={{ color: c.eyebrow, fill: c.eyebrow }} aria-hidden />
             </motion.div>
