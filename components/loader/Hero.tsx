@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import Image from 'next/image';
+import localFont from 'next/font/local';
 import {
   motion,
   useReducedMotion,
@@ -19,9 +20,23 @@ import { siteConfig as defaultSiteConfig } from '@/content/site';
 import { parseWeddingDate } from '@/lib/wedding-date';
 import { InviteParticles } from '@/components/loader/InviteParticles';
 import { InvitePhotoBackdrop } from '@/components/loader/invite-photo-backdrop';
-import { PlainAtmosphere } from '@/components/loader/PlainAtmosphere';
-import { PlainBubbles } from '@/components/loader/PlainBubbles';
+import { SunsetSeaBackdrop } from '@/components/loader/SunsetSeaBackdrop';
+import { TintedDeco } from '@/components/tinted-deco';
 import './envelope-invite.css';
+
+const theSeasons = localFont({
+  src: '../../Font/Fontspring-DEMO-theseasons-reg.otf',
+  // Letters only: digits + punctuation fall through to Playfair ("Seasons Numerals", app/globals.css)
+  declarations: [{ prop: "unicode-range", value: "U+0020, U+0041-005A, U+0061-007A, U+00C0-00D6, U+00D8-00F6, U+00F8-00FF, U+0152-0153" }],
+  fallback: ["'Seasons Numerals'", "serif"],
+  adjustFontFallback: false,
+  display: 'swap',
+});
+
+const aboveTheBeyond = localFont({
+  src: '../../Font/above-the-beyond-script.otf',
+  display: 'swap',
+});
 
 interface HeroProps {
   onOpen: () => void;
@@ -32,19 +47,16 @@ interface HeroProps {
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-// Short joining words in the headline ("Save the Date") are set in script — matches the loading screen
+// Short joining words in the headline ("A Celebration of Love") are set in script — matches the loading screen
 const SCRIPT_WORDS = new Set(['the', 'of', 'and', '&', 'a']);
 
 function startOfDay(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
-const photoInteractEase: Transition = { duration: 0.38, ease: [0.22, 1, 0.36, 1] };
 const focusLiftEase: Transition = { duration: 1.15, ease: [0.22, 1, 0.36, 1] };
 const revealEntryEase: Transition = { duration: 0.9, ease: [0.22, 1, 0.36, 1] };
 const buttonEntryEase: Transition = { duration: 0.95, ease: [0.16, 1, 0.3, 1] };
-
-type PhotoSide = 'left' | 'center' | 'right' | 'right-inner';
 
 type EnvelopePhase =
   | 'idle'
@@ -52,11 +64,10 @@ type EnvelopePhase =
   | 'seal-break'
   | 'flap-open'
   | 'rising'
-  | 'photos'
   | 'revealed'
   | 'cta';
 
-function getFocusLiftPhase(phase: EnvelopePhase): 'idle' | 'opening' | 'photos' | 'revealed' | 'cta' {
+function getFocusLiftPhase(phase: EnvelopePhase): 'idle' | 'opening' | 'revealed' | 'cta' {
   if (phase === 'idle') return 'idle';
   if (
     phase === 'seal-press' ||
@@ -66,12 +77,10 @@ function getFocusLiftPhase(phase: EnvelopePhase): 'idle' | 'opening' | 'photos' 
   ) {
     return 'opening';
   }
-  if (phase === 'photos') return 'photos';
   if (phase === 'revealed') return 'revealed';
   return 'cta';
 }
 
-const photoEmergenceEase: Transition = { duration: 2.35, ease: [0.22, 1, 0.18, 1] };
 const letterEmergenceEase: Transition = { duration: 3.05, ease: [0.5, 0.02, 0.14, 1] };
 const flapEase: Transition = { duration: 1.1, ease: [0.65, 0, 0.35, 1] };
 const inviteExitEase: Transition = { duration: 1.65, ease: [0.22, 1, 0.36, 1], delay: 0.75 };
@@ -98,7 +107,6 @@ export const Hero: React.FC<HeroProps> = ({
   const [mounted, setMounted] = useState(false);
   const [phase, setPhase] = useState<EnvelopePhase>('idle');
   const [liveMessage, setLiveMessage] = useState('');
-  const [liftedPhoto, setLiftedPhoto] = useState<PhotoSide | null>(null);
   const [isExiting, setIsExiting] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
 
@@ -109,16 +117,17 @@ export const Hero: React.FC<HeroProps> = ({
   const letterDateNumeric = useMemo(() => {
     const parsed = parseWeddingDate(siteConfig.ceremony.date ?? siteConfig.wedding.date);
     const wedding = new Date(`${parsed.month} ${parsed.day}, ${parsed.year}`);
+    // Month as its short name ("Dec"), day and year as numbers
     if (Number.isNaN(wedding.getTime())) {
       const monthDate = new Date(`${parsed.month} 1, ${parsed.year}`);
       const month = Number.isNaN(monthDate.getTime())
-        ? '00'
-        : String(monthDate.getMonth() + 1).padStart(2, '0');
+        ? String(parsed.month).slice(0, 3)
+        : monthDate.toLocaleString('en-US', { month: 'short' });
       const day = String(parsed.day).padStart(2, '0');
       const year = String(parsed.year).slice(-2);
       return `${month} | ${day} | ${year}`;
     }
-    const month = String(wedding.getMonth() + 1).padStart(2, '0');
+    const month = wedding.toLocaleString('en-US', { month: 'short' });
     const day = String(wedding.getDate()).padStart(2, '0');
     const year = String(wedding.getFullYear()).slice(-2);
     return `${month} | ${day} | ${year}`;
@@ -135,24 +144,6 @@ export const Hero: React.FC<HeroProps> = ({
   );
   const showPhotoBackdrop = !isPlain && backgroundPhotos.length > 0;
 
-  const envelopePolaroids = useMemo(() => {
-    const photos = (content.photos ?? []).map((src) => encodeURI(src));
-    const pick = (index: number) => photos[index % photos.length];
-    if (!photos.length) return { mobile: [] as const, desktop: [] as const };
-    return {
-      mobile: [
-        { src: pick(0), side: 'left' as const },
-        { src: pick(1), side: 'right' as const },
-      ] as const,
-      desktop: [
-        { src: pick(0), side: 'left' as const },
-        { src: pick(1), side: 'center' as const },
-        { src: pick(2), side: 'right' as const },
-        { src: pick(3), side: 'right-inner' as const },
-      ] as const,
-    };
-  }, [content.photos]);
-
   const countdownText = useMemo(() => {
     const weddingDate = new Date(siteConfig.wedding.date);
     if (Number.isNaN(weddingDate.getTime())) return '';
@@ -167,23 +158,15 @@ export const Hero: React.FC<HeroProps> = ({
   const flapIsOpen =
     phase === 'flap-open' ||
     phase === 'rising' ||
-    phase === 'photos' ||
     phase === 'revealed' ||
     phase === 'cta';
 
   const contentsVisible =
     phase === 'rising' ||
-    phase === 'photos' ||
     phase === 'revealed' ||
     phase === 'cta';
 
-  const sealGone =
-    phase === 'seal-break' ||
-    phase === 'flap-open' ||
-    phase === 'rising' ||
-    phase === 'photos' ||
-    phase === 'revealed' ||
-    phase === 'cta';
+  const sealOpened = phase !== 'idle' && phase !== 'seal-press';
 
   useEffect(() => {
     setMounted(true);
@@ -202,7 +185,6 @@ export const Hero: React.FC<HeroProps> = ({
       openedRef.current = false;
       setPhase('idle');
       setLiveMessage('');
-      setLiftedPhoto(null);
       setIsExiting(false);
     }
   }, [visible]);
@@ -224,22 +206,6 @@ export const Hero: React.FC<HeroProps> = ({
       enterBtnRef.current?.focus({ preventScroll: true });
     }
   }, [phase]);
-
-  useEffect(() => {
-    if (
-      phase === 'idle' ||
-      phase === 'seal-press' ||
-      phase === 'seal-break' ||
-      phase === 'flap-open' ||
-      phase === 'rising'
-    ) {
-      setLiftedPhoto(null);
-    }
-  }, [phase]);
-
-  const toggleLiftedPhoto = useCallback((side: PhotoSide) => {
-    setLiftedPhoto((current) => (current === side ? null : side));
-  }, []);
 
   const handleEnterInvitation = useCallback(async () => {
     if (isExiting || phase !== 'cta') return;
@@ -270,7 +236,7 @@ export const Hero: React.FC<HeroProps> = ({
     setPhase('seal-press');
     await wait(180);
 
-    setLiveMessage('Breaking seal.');
+    setLiveMessage('Releasing seal.');
     setPhase('seal-break');
     await wait(320);
 
@@ -281,12 +247,6 @@ export const Hero: React.FC<HeroProps> = ({
     setLiveMessage('Invitation rising.');
     setPhase('rising');
     await wait(isPlain ? 2400 : 3200);
-
-    if (!isPlain) {
-      setLiveMessage('Photos revealing.');
-      setPhase('photos');
-      await wait(3600);
-    }
 
     setPhase('revealed');
     await wait(650);
@@ -311,10 +271,11 @@ export const Hero: React.FC<HeroProps> = ({
     open: { rotateX: 180 },
   };
 
+  // The seal never moves: a slight centered press, then it stays where it was pressed
   const sealVariants: Variants = {
-    idle: { scale: 1, opacity: 1, rotate: 0, y: 0 },
-    press: { scale: 0.94, opacity: 1, rotate: 0, y: 2 },
-    break: { scale: 0.2, opacity: 0, rotate: 12, y: -4 },
+    idle: { scale: 1, opacity: 1 },
+    press: { scale: 0.96, opacity: 1 },
+    held: { scale: 1, opacity: 1 },
   };
 
   /*
@@ -336,70 +297,17 @@ export const Hero: React.FC<HeroProps> = ({
         opacity: 1,
         rotate: 0,
       },
+      // Lifts and fades into the navy instead of zooming to fill the screen with paper
       exitPortal: {
-        y: '-118%',
-        scale: 3.35,
-        opacity: 1,
+        y: isMobileViewport ? '-40%' : '-6%',
+        scale: 1.12,
+        opacity: 0,
         rotate: 0,
         zIndex: 48,
       },
     }),
     [isMobileViewport],
   );
-
-  const photoLeftVariants: Variants = {
-    hidden: { y: '58%', x: '12%', rotate: -4, scale: 0.72, opacity: 0, zIndex: 12 },
-    emerge: { y: '0%', x: '0%', rotate: -7, scale: 1, opacity: 1, zIndex: 16 },
-    hover: { y: '-6%', x: '0%', rotate: -8, scale: 1.05, opacity: 1, zIndex: 26 },
-    press: { y: '-3%', x: '0%', rotate: -7.5, scale: 1.02, opacity: 1, zIndex: 24 },
-    lifted: { y: '-12%', x: '0%', rotate: -8, scale: 1.08, opacity: 1, zIndex: 30 },
-    exit: { y: '-18%', x: '-108%', rotate: -24, scale: 0.68, opacity: 0, zIndex: 10 },
-  };
-
-  const photoCenterVariants: Variants = {
-    hidden: { y: '62%', x: '0%', rotate: 0, scale: 0.7, opacity: 0, zIndex: 11 },
-    emerge: { y: '0%', x: '0%', rotate: 2, scale: 1, opacity: 1, zIndex: 15 },
-    hover: { y: '-6%', x: '0%', rotate: 2.5, scale: 1.05, opacity: 1, zIndex: 27 },
-    press: { y: '-3%', x: '0%', rotate: 2.2, scale: 1.02, opacity: 1, zIndex: 25 },
-    lifted: { y: '-12%', x: '0%', rotate: 3, scale: 1.08, opacity: 1, zIndex: 31 },
-    exit: { y: '-108%', x: '0%', rotate: 10, scale: 0.72, opacity: 0, zIndex: 10 },
-  };
-
-  const photoRightVariants: Variants = {
-    hidden: { y: '58%', x: '-12%', rotate: 4, scale: 0.72, opacity: 0, zIndex: 12 },
-    emerge: { y: '0%', x: '0%', rotate: 7, scale: 1, opacity: 1, zIndex: 16 },
-    hover: { y: '-6%', x: '0%', rotate: 8, scale: 1.05, opacity: 1, zIndex: 26 },
-    press: { y: '-3%', x: '0%', rotate: 7.5, scale: 1.02, opacity: 1, zIndex: 24 },
-    lifted: { y: '-12%', x: '0%', rotate: 8, scale: 1.08, opacity: 1, zIndex: 30 },
-    exit: { y: '-18%', x: '108%', rotate: 24, scale: 0.68, opacity: 0, zIndex: 10 },
-  };
-
-  const photoRightInnerVariants: Variants = {
-    hidden: { y: '62%', x: '-10%', rotate: 1, scale: 0.7, opacity: 0, zIndex: 11 },
-    emerge: { y: '0%', x: '0%', rotate: -2, scale: 1, opacity: 1, zIndex: 15 },
-    hover: { y: '-6%', x: '0%', rotate: -2.5, scale: 1.05, opacity: 1, zIndex: 27 },
-    press: { y: '-3%', x: '0%', rotate: -2.2, scale: 1.02, opacity: 1, zIndex: 25 },
-    lifted: { y: '-12%', x: '0%', rotate: -3, scale: 1.08, opacity: 1, zIndex: 31 },
-    exit: { y: '-18%', x: '108%', rotate: 16, scale: 0.72, opacity: 0, zIndex: 10 },
-  };
-
-  const mobileEnvelopePhotoLeftVariants: Variants = {
-    hidden: { y: '58%', x: '6%', rotate: -1, scale: 0.72, opacity: 0, zIndex: 12 },
-    emerge: { y: '0%', x: '-8%', rotate: -4, scale: 1, opacity: 1, zIndex: 16 },
-    hover: { y: '-6%', x: '-8%', rotate: -4.5, scale: 1.05, opacity: 1, zIndex: 26 },
-    press: { y: '-3%', x: '-8%', rotate: -4.2, scale: 1.02, opacity: 1, zIndex: 24 },
-    lifted: { y: '-12%', x: '-8%', rotate: -4.5, scale: 1.08, opacity: 1, zIndex: 30 },
-    exit: { y: '-18%', x: '-108%', rotate: -24, scale: 0.68, opacity: 0, zIndex: 10 },
-  };
-
-  const mobileEnvelopePhotoRightVariants: Variants = {
-    hidden: { y: '58%', x: '-6%', rotate: 1, scale: 0.72, opacity: 0, zIndex: 12 },
-    emerge: { y: '0%', x: '8%', rotate: 4, scale: 1, opacity: 1, zIndex: 16 },
-    hover: { y: '-6%', x: '8%', rotate: 4.5, scale: 1.05, opacity: 1, zIndex: 26 },
-    press: { y: '-3%', x: '8%', rotate: 4.2, scale: 1.02, opacity: 1, zIndex: 24 },
-    lifted: { y: '-12%', x: '8%', rotate: 4.5, scale: 1.08, opacity: 1, zIndex: 30 },
-    exit: { y: '-18%', x: '108%', rotate: 24, scale: 0.68, opacity: 0, zIndex: 10 },
-  };
 
   const revealCopyContainerVariants: Variants = {
     hidden: {},
@@ -448,7 +356,6 @@ export const Hero: React.FC<HeroProps> = ({
   const focusLiftVariants: Variants = {
     idle: { y: 0, scale: 1, opacity: 1 },
     opening: { y: 0, scale: 1, opacity: 1 },
-    photos: { y: 0, scale: 1, opacity: 1 },
     revealed: { y: 0, scale: 1, opacity: 1 },
     cta: { y: 0, scale: 1, opacity: 1 },
     exit: {
@@ -471,19 +378,13 @@ export const Hero: React.FC<HeroProps> = ({
         ? 'rising'
         : 'out';
 
-  const photoState =
-    phase === 'idle' ||
-    phase === 'seal-press' ||
-    phase === 'seal-break' ||
-    phase === 'flap-open' ||
-    phase === 'rising'
-      ? 'hidden'
-      : 'emerge';
+  const sealState = phase === 'idle' ? 'idle' : phase === 'seal-press' ? 'press' : 'held';
 
-  const photosInteractive = photoState === 'emerge';
-
-  const sealState =
-    phase === 'idle' ? 'idle' : phase === 'seal-press' ? 'press' : 'break';
+  // Envelope fold geometry in % of the envelope box — mirrors the CSS custom properties
+  // (--env-flap-h, and the open-state --pocket-v / --pocket-side) for each breakpoint
+  const foldGeo: FoldGeo = isMobileViewport
+    ? { flap: 58, pocketV: 54, pocketSide: 18, scale: 1 }
+    : { flap: 50, pocketV: 86, pocketSide: 78, scale: 0.4 };
 
   return (
     <motion.div
@@ -525,20 +426,18 @@ export const Hero: React.FC<HeroProps> = ({
 
       {isPlain && (
         <>
-          <PlainAtmosphere fixed baseColor={plainTheme.background} />
-          <PlainBubbles fixed />
+          <SunsetSeaBackdrop fixed />
           <div className="env-invite-plain-corners" aria-hidden="true">
             {(
               [
-                { src: cornerDecos.topLeft, className: 'left-0 top-0' },
-                { src: cornerDecos.topRight, className: 'right-0 top-0' },
-                { src: cornerDecos.bottomLeft, className: 'left-0 bottom-0' },
-                { src: cornerDecos.bottomRight, className: 'right-0 bottom-0' },
+                { src: cornerDecos.topLeft, pos: 'tl', className: 'left-0 top-0' },
+                { src: cornerDecos.topRight, pos: 'tr', className: 'right-0 top-0' },
+                { src: cornerDecos.bottomLeft, pos: 'bl', className: 'left-0 bottom-0' },
+                { src: cornerDecos.bottomRight, pos: 'br', className: 'right-0 bottom-0' },
               ] as const
-            ).map(({ src, className }) => (
-              <div key={src} className={`pointer-events-none absolute ${className}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" className="env-invite-plain-corner-img" />
+            ).filter(({ src }) => src).map(({ src, pos, className }) => (
+              <div key={pos} className={`pointer-events-none absolute ${className}`}>
+                <TintedDeco src={src} className="env-invite-plain-corner-img" />
               </div>
             ))}
           </div>
@@ -655,7 +554,18 @@ export const Hero: React.FC<HeroProps> = ({
               transition={flapEase}
               style={{ transformOrigin: 'top center' }}
               aria-hidden="true"
-            />
+            >
+              {isPlain && (
+                <>
+                  {/* Light catching the folded paper edge of the flap */}
+                  <svg className="env-invite-flap-edge" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <polyline points="0,0 50,100 100,0" />
+                  </svg>
+                  {/* Inside of the flap — shows once the flap has swung open */}
+                  <span className="env-invite-flap-liner" />
+                </>
+              )}
+            </motion.div>
 
             <div className="env-invite-envelope-body">
               {/* Back panel */}
@@ -687,114 +597,70 @@ export const Hero: React.FC<HeroProps> = ({
                     <div className="env-invite-letter-frame" aria-hidden="true" />
                     <div className="env-invite-letter-inner">
                       {isPlain && plainInvite.ornament && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={plainInvite.ornament}
-                          alt=""
-                          aria-hidden="true"
-                          className="env-invite-letter-ornament"
-                        />
+                        <TintedDeco src={plainInvite.ornament} className="env-invite-letter-ornament" />
                       )}
                       <span className="env-invite-letter-label" aria-label={content.headline}>
-                        {content.headline.split(/\s+/).filter(Boolean).map((word, i) => (
-                          <span
-                            key={i}
-                            aria-hidden="true"
-                            className={
-                              SCRIPT_WORDS.has(word.toLowerCase())
-                                ? 'env-invite-letter-label__script'
-                                : 'env-invite-letter-label__word'
-                            }
-                          >
-                            {word}
-                          </span>
-                        ))}
+                        {content.headline.split(/\s+/).filter(Boolean).map((word, i, words) => {
+                          const script = SCRIPT_WORDS.has(word.toLowerCase());
+                          // Longer titles break before a mid-title joining word ("A Celebration / of Love")
+                          const breakBefore = words.length >= 4 && script && i > 0 && i < words.length - 1;
+                          return (
+                            <React.Fragment key={i}>
+                              {breakBefore && <span className="env-invite-letter-label__break" aria-hidden="true" />}
+                              <span
+                                aria-hidden="true"
+                                className={script ? 'env-invite-letter-label__script' : 'env-invite-letter-label__word'}
+                              >
+                                {word}
+                              </span>
+                            </React.Fragment>
+                          );
+                        })}
                       </span>
                       <span className="env-invite-letter-date">{letterDateNumeric}</span>
                       <span className="env-invite-letter-invited">{content.eyebrow}</span>
-                      <div
-                        className="env-invite-letter-names couple-name-lockup"
-                        role="img"
-                        aria-label={coupleNames}
-                        style={{
-                          maskImage: `url("${content.coupleNameImage}")`,
-                          WebkitMaskImage: `url("${content.coupleNameImage}")`,
-                        }}
-                      />
+                      {content.eyebrowSub && (
+                        <span className="env-invite-letter-sub">{content.eyebrowSub}</span>
+                      )}
+                      <h2 className="env-invite-letter-names env-invite-letter-names--text" aria-label={coupleNames}>
+                        <span className={`${theSeasons.className} env-invite-names__nick`} aria-hidden="true">
+                          {groomName}
+                        </span>
+                        <span className={`${aboveTheBeyond.className} env-invite-names__and`} aria-hidden="true">
+                          and
+                        </span>
+                        <span className={`${theSeasons.className} env-invite-names__nick`} aria-hidden="true">
+                          {brideName}
+                        </span>
+                      </h2>
                     </div>
                   </motion.div>
-
-                  {!isPlain && (
-                  <div className="env-invite-photos-emerge">
-                    {isMobileViewport
-                      ? envelopePolaroids.mobile.map((photo, index) => (
-                          <PolaroidPhoto
-                            key={`mobile-${photo.side}-${photo.src}`}
-                            side={photo.side}
-                            src={photo.src}
-                            alt={photo.side === 'left' ? `${groomName} portrait` : `${brideName} portrait`}
-                            variants={
-                              photo.side === 'left'
-                                ? mobileEnvelopePhotoLeftVariants
-                                : mobileEnvelopePhotoRightVariants
-                            }
-                            photoState={photoState}
-                            liftedPhoto={liftedPhoto}
-                            onToggle={toggleLiftedPhoto}
-                            interactive={photosInteractive}
-                            emergenceDelay={index === 0 ? 0.55 : 1.0}
-                            reduceMotion={reduceMotion}
-                            isExiting={isExiting}
-                            envelopePair
-                          />
-                        ))
-                      : envelopePolaroids.desktop.map((photo, index) => {
-                          const delays = [0.55, 1.0, 1.45, 1.7] as const;
-                          const variantsBySide: Record<PhotoSide, Variants> = {
-                            left: photoLeftVariants,
-                            center: photoCenterVariants,
-                            right: photoRightVariants,
-                            'right-inner': photoRightInnerVariants,
-                          };
-                          return (
-                            <PolaroidPhoto
-                              key={`desktop-${photo.side}-${photo.src}`}
-                              side={photo.side}
-                              src={photo.src}
-                              alt={coupleNames}
-                              variants={variantsBySide[photo.side]}
-                              photoState={photoState}
-                              liftedPhoto={liftedPhoto}
-                              onToggle={toggleLiftedPhoto}
-                              interactive={photosInteractive}
-                              emergenceDelay={delays[index] ?? 1.7}
-                              reduceMotion={reduceMotion}
-                              isExiting={isExiting}
-                            />
-                          );
-                        })}
-                  </div>
-                  )}
                 </div>
               </div>
             </div>
 
             {/* 3. Closed front skin — solid cover, hides when open */}
             <div className="env-invite-front-closed" aria-hidden="true">
-              <div className="env-invite-fold env-invite-fold--tl" />
-              <div className="env-invite-fold env-invite-fold--bl" />
-              <div className="env-invite-fold env-invite-fold--br" />
-              <div className="env-invite-fold env-invite-fold--b" />
-              <svg
-                className="env-invite-creases"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-              >
-                <line x1="0" y1="0" x2="50" y2="50" />
-                <line x1="100" y1="0" x2="50" y2="50" />
-                <line x1="0" y1="100" x2="50" y2="50" />
-                <line x1="100" y1="100" x2="50" y2="50" />
-              </svg>
+              {isPlain ? (
+                <EnvelopeClosedFolds geo={foldGeo} />
+              ) : (
+                <>
+                  <div className="env-invite-fold env-invite-fold--tl" />
+                  <div className="env-invite-fold env-invite-fold--bl" />
+                  <div className="env-invite-fold env-invite-fold--br" />
+                  <div className="env-invite-fold env-invite-fold--b" />
+                  <svg
+                    className="env-invite-creases"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                  >
+                    <line x1="0" y1="0" x2="50" y2="50" />
+                    <line x1="100" y1="0" x2="50" y2="50" />
+                    <line x1="0" y1="100" x2="50" y2="50" />
+                    <line x1="100" y1="100" x2="50" y2="50" />
+                  </svg>
+                </>
+              )}
             </div>
 
             <div className="env-invite-hinge" aria-hidden="true" />
@@ -805,26 +671,18 @@ export const Hero: React.FC<HeroProps> = ({
               <div className="env-invite-pocket-front" />
               <div className="env-invite-pocket-left" />
               <div className="env-invite-pocket-right" />
+              {isPlain && <EnvelopePocketFolds geo={foldGeo} />}
             </div>
 
-            {/* Wax seal — centered on flap junction */}
-            <div
-              className="env-invite-seal-wrap"
-              style={{
-                display: sealGone && phase !== 'seal-break' ? 'none' : undefined,
-              }}
-            >
+            {/* Wax seal — centered on the flap tip; once opened it stays put, on top of the open envelope */}
+            <div className={`env-invite-seal-wrap${sealOpened ? ' is-opened' : ''}`}>
               <motion.button
                 type="button"
                 className="env-invite-seal-btn"
                 variants={sealVariants}
                 initial="idle"
                 animate={sealState}
-                transition={
-                  sealState === 'break'
-                    ? { duration: 0.28, ease: 'easeIn' }
-                    : { duration: 0.16, ease: 'easeOut' }
-                }
+                transition={{ duration: 0.16, ease: 'easeOut' }}
                 onClick={handleSealClick}
                 disabled={phase !== 'idle'}
                 aria-label="Break the wax seal to open the invitation"
@@ -840,31 +698,6 @@ export const Hero: React.FC<HeroProps> = ({
               </motion.button>
             </div>
 
-            {phase === 'seal-break' && !reduceMotion && (
-              <>
-                <motion.span
-                  className="env-invite-seal-shard"
-                  initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-                  animate={{ x: -28, y: -30, opacity: 0, scale: 0.35 }}
-                  transition={{ duration: 0.35, ease: 'easeOut' }}
-                  aria-hidden="true"
-                />
-                <motion.span
-                  className="env-invite-seal-shard"
-                  initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-                  animate={{ x: 30, y: 18, opacity: 0, scale: 0.3 }}
-                  transition={{ duration: 0.38, ease: 'easeOut' }}
-                  aria-hidden="true"
-                />
-                <motion.span
-                  className="env-invite-seal-shard"
-                  initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-                  animate={{ x: 14, y: -24, opacity: 0, scale: 0.4 }}
-                  transition={{ duration: 0.32, ease: 'easeOut' }}
-                  aria-hidden="true"
-                />
-              </>
-            )}
           </div>
         </motion.div>
 
@@ -937,90 +770,142 @@ function wait(ms: number) {
   });
 }
 
-interface PolaroidPhotoProps {
-  side: PhotoSide;
-  src: string;
-  alt: string;
-  variants: Variants;
-  photoState: 'hidden' | 'emerge';
-  liftedPhoto: PhotoSide | null;
-  onToggle: (side: PhotoSide) => void;
-  interactive: boolean;
-  emergenceDelay: number;
-  reduceMotion: boolean | null;
-  isExiting?: boolean;
-  envelopePair?: boolean;
-}
-
-const PHOTO_EXIT_DELAY: Record<PhotoSide, number> = {
-  left: 0.06,
-  center: 0.1,
-  right: 0.04,
-  'right-inner': 0.14,
+type FoldGeo = {
+  /** Top flap tip (--env-flap-h) */
+  flap: number;
+  /** Open pocket: V point (--pocket-v) and where the side flaps meet the edges (--pocket-side) */
+  pocketV: number;
+  pocketSide: number;
+  /** Shadow size multiplier — the desktop envelope fills the screen, so units are much larger */
+  scale: number;
 };
 
-function PolaroidPhoto({
-  side,
-  src,
-  alt,
-  variants,
-  photoState,
-  liftedPhoto,
-  onToggle,
-  interactive,
-  emergenceDelay,
-  reduceMotion,
-  isExiting = false,
-  envelopePair = false,
-}: PolaroidPhotoProps) {
-  const canInteract = interactive && !reduceMotion && !isExiting;
+// Deep navy-black so folds read as shadows on the dark envelope paper
+const FOLD_SHADE = '#050B18';
 
-  const animateState = isExiting
-    ? 'exit'
-    : photoState === 'hidden'
-      ? 'hidden'
-      : liftedPhoto === side
-        ? 'lifted'
-        : 'emerge';
-
+/** A paper fold: a crisp dark crease with light catching the edge just below it */
+function FoldCrease({ d }: { d: string }) {
   return (
-    <motion.button
-      type="button"
-      className={`env-invite-polaroid env-invite-polaroid--${side}${liftedPhoto === side ? ' is-lifted' : ''}${envelopePair ? ' env-invite-polaroid--envelope-pair' : ''}`}
-      variants={variants}
-      initial="hidden"
-      animate={animateState}
-      whileHover={canInteract && liftedPhoto !== side ? 'hover' : undefined}
-      whileTap={canInteract ? 'press' : undefined}
-      transition={
-        reduceMotion
-          ? { duration: 0.01 }
-          : isExiting
-            ? { duration: 0.92, ease: [0.4, 0, 0.2, 1], delay: PHOTO_EXIT_DELAY[side] }
-            : photoState === 'hidden'
-              ? { duration: 0.01 }
-              : animateState === 'emerge' && liftedPhoto === null
-                ? { ...photoEmergenceEase, delay: emergenceDelay }
-                : photoInteractEase
-      }
-      onClick={(e) => {
-        e.stopPropagation();
-        if (interactive) onToggle(side);
-      }}
-      disabled={!interactive}
-      aria-label={`View photo ${side}`}
-      aria-pressed={liftedPhoto === side}
-    >
-      <div className="env-invite-polaroid-photo">
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          className="object-cover env-invite-polaroid-img"
-          sizes={envelopePair ? '(max-width: 767px) 42vw, 140px' : '(min-width: 768px) 310px, 140px'}
-          priority
+    <>
+      <path className="env-invite-paper-folds__crease" d={d} />
+      <path className="env-invite-paper-folds__edge" d={d} transform="translate(0,0.6)" />
+    </>
+  );
+}
+
+/** Shared SVG defs: edge shading for side flaps, a lit bottom flap and a soft blur */
+function FoldDefs({ id, scale }: { id: string; scale: number }) {
+  return (
+    <defs>
+      <linearGradient id={`${id}-side-l`} x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stopColor={FOLD_SHADE} stopOpacity="0.26" />
+        <stop offset="1" stopColor={FOLD_SHADE} stopOpacity="0" />
+      </linearGradient>
+      <linearGradient id={`${id}-side-r`} x1="1" y1="0" x2="0" y2="0">
+        <stop offset="0" stopColor={FOLD_SHADE} stopOpacity="0.3" />
+        <stop offset="1" stopColor={FOLD_SHADE} stopOpacity="0" />
+      </linearGradient>
+      <linearGradient id={`${id}-bottom`} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#FFFFFF" stopOpacity="0.07" />
+        <stop offset="0.55" stopColor="#FFFFFF" stopOpacity="0.015" />
+        <stop offset="1" stopColor={FOLD_SHADE} stopOpacity="0.16" />
+      </linearGradient>
+      <filter id={`${id}-soft`} x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation={1.1 * scale} />
+      </filter>
+    </defs>
+  );
+}
+
+/**
+ * Closed envelope back: side flaps, the bottom flap lapped over them, and the soft
+ * shadows cast by the bottom flap and the closed top flap.
+ */
+function EnvelopeClosedFolds({ geo }: { geo: FoldGeo }) {
+  const { flap: f, scale: k } = geo;
+  const bottom = `M0,100 L43,${f + 1} Q50,${f - 5} 57,${f + 1} L100,100`;
+  return (
+    <svg className="env-invite-paper-folds" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <FoldDefs id="envc" scale={k} />
+      <defs>
+        <clipPath id="envc-above-bottom">
+          <path d={`M0,0 H100 V100 L57,${f + 1} Q50,${f - 5} 43,${f + 1} L0,100 Z`} />
+        </clipPath>
+        <clipPath id="envc-below-flap">
+          <path d={`M0,0 L50,${f} L100,0 V100 H0 Z`} />
+        </clipPath>
+      </defs>
+      <path d={`M0,0 L50,${f + 2} L0,100 Z`} fill="url(#envc-side-l)" />
+      <path d={`M100,0 L50,${f + 2} L100,100 Z`} fill="url(#envc-side-r)" />
+      <g clipPath="url(#envc-above-bottom)">
+        <path
+          className="env-invite-paper-folds__shadow"
+          d={bottom}
+          strokeWidth={2.4 * k}
+          filter="url(#envc-soft)"
+          transform={`translate(0,${-0.8 * k})`}
         />
-      </div>
-    </motion.button>
+      </g>
+      <path d={`${bottom} Z`} fill="url(#envc-bottom)" />
+      <FoldCrease d={bottom} />
+      <g clipPath="url(#envc-below-flap)">
+        <path
+          className="env-invite-paper-folds__shadow"
+          d={`M0,0 L50,${f} L100,0`}
+          strokeWidth={3 * k}
+          filter="url(#envc-soft)"
+          transform={`translate(0,${1.6 * k})`}
+        />
+      </g>
+      <path className="env-invite-paper-folds__crease" d={`M0,0 L50,${f} L100,0`} />
+    </svg>
+  );
+}
+
+/**
+ * Open envelope pocket — same paper shading as the closed back, plus the shadow the
+ * pocket lip casts onto the letter tucked inside. Drawn above the pocket panels
+ * (shapes match their clip-paths in envelope-invite.css).
+ */
+function EnvelopePocketFolds({ geo }: { geo: FoldGeo }) {
+  const { pocketV: v, pocketSide: sd, scale: k } = geo;
+  const sides = `M0,${sd} L50,${v} L100,${sd}`;
+  const bottom = `M0,100 L50,${v} L100,100`;
+  return (
+    <svg className="env-invite-paper-folds env-invite-paper-folds--pocket" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <FoldDefs id="envp" scale={k} />
+      <defs>
+        <clipPath id="envp-above-pocket">
+          <path d={`M0,0 H100 V${sd} L50,${v} L0,${sd} Z`} />
+        </clipPath>
+        <clipPath id="envp-above-bottom">
+          <path d={`M0,0 H100 V100 L50,${v} L0,100 Z`} />
+        </clipPath>
+      </defs>
+      {/* Shadow of the pocket lip on the letter */}
+      <g clipPath="url(#envp-above-pocket)">
+        <path
+          className="env-invite-paper-folds__shadow env-invite-paper-folds__shadow--contents"
+          d={sides}
+          strokeWidth={3.2 * k}
+          filter="url(#envp-soft)"
+          transform={`translate(0,${-1.2 * k})`}
+        />
+      </g>
+      <path d={`M0,${sd} L50,${v} L0,100 Z`} fill="url(#envp-side-l)" />
+      <path d={`M100,${sd} L50,${v} L100,100 Z`} fill="url(#envp-side-r)" />
+      <FoldCrease d={sides} />
+      <g clipPath="url(#envp-above-bottom)">
+        <path
+          className="env-invite-paper-folds__shadow"
+          d={bottom}
+          strokeWidth={2.4 * k}
+          filter="url(#envp-soft)"
+          transform={`translate(0,${-0.8 * k})`}
+        />
+      </g>
+      <path d={`${bottom} Z`} fill="url(#envp-bottom)" />
+      <FoldCrease d={bottom} />
+    </svg>
   );
 }

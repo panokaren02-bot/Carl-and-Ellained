@@ -18,7 +18,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { useSiteConfig } from "@/hooks/use-site-config"
-import { PlainBubbles } from "@/components/loader/PlainBubbles"
+import { NavyBackdrop } from "@/components/loader/NavyBackdrop"
 import { sectionType } from "@/lib/section-typography"
 import { Cinzel } from "next/font/google"
 
@@ -56,7 +56,7 @@ const palette = {
   accent: TEAL,
 } as const
 
-// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+// Section background = the hero's circle pattern (NavyBackdrop paints its own navy base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
 // Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
@@ -300,8 +300,8 @@ export function Footer() {
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
-      {/* Same circle pattern as the hero */}
-      <PlainBubbles />
+      {/* Same navy stationery background as the hero */}
+      <NavyBackdrop />
 
       {/* Corner decorations (from site.ts) */}
       <div className="pointer-events-none absolute left-0 top-0 z-10">

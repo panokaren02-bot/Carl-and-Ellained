@@ -7,7 +7,7 @@ import { StorySection } from "@/components/StorySection"
 import { layeredSectionTitleSize, sectionType } from "@/lib/section-typography"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { siteConfig as defaultSiteConfig } from "@/content/site"
-import { PlainBubbles } from "@/components/loader/PlainBubbles"
+import { NavyBackdrop } from "@/components/loader/NavyBackdrop"
 import "@/components/loader/loading-screen.css"
 
 const theSeasons = localFont({
@@ -24,7 +24,7 @@ const aboveTheBeyond = localFont({
 
 const revealEase = [0.22, 1, 0.36, 1] as const
 
-// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+// Section background = the hero's circle pattern (NavyBackdrop paints its own navy base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
 // Soft white halo so text stays readable over the circles (globals.css → --color-on-pattern-glow)
@@ -81,7 +81,7 @@ function LoveStoryTitle({
         className={`${theSeasons.className} block pb-1 uppercase leading-[0.78] tracking-[0.08em] min-[400px]:tracking-[0.11em] sm:tracking-[0.13em] md:tracking-[0.14em]`}
         style={{
           fontSize: "var(--title-size)",
-          color: "#1F3460",
+          color: "var(--color-on-pattern)",
           textShadow: onBgGlow,
         }}
       >
@@ -92,7 +92,7 @@ function LoveStoryTitle({
         className={`${aboveTheBeyond.className} mx-auto mt-2 block w-fit max-w-full px-1 leading-[0.88] sm:mt-2.5 sm:leading-[0.9] md:mt-3`}
         style={{
           fontSize: "var(--script-size)",
-          color: "#D0899A",
+          color: "var(--color-on-pattern-script)",
           textShadow: onBgGlow,
         }}
       >
@@ -193,8 +193,8 @@ export function LoveStory() {
       className={`love-story-root ${theSeasons.variable} ${aboveTheBeyond.variable} relative min-h-screen w-full overflow-x-hidden`}
       style={{ background: sectionBg }}
     >
-      {/* Same circle pattern as the other sections */}
-      <PlainBubbles />
+      {/* Same navy stationery background as the hero */}
+      <NavyBackdrop />
       <SectionCornerDecos cornerDecos={cornerDecos} />
 
       <header
@@ -243,13 +243,13 @@ export function LoveStory() {
           <blockquote className="mt-5 sm:mt-6">
             <p
               className={`font-goudy-italic ${sectionType.textRelaxed} italic leading-relaxed`}
-              style={{ color: "#1F3460", textShadow: onBgGlow }}
+              style={{ color: "var(--color-on-pattern)", textShadow: onBgGlow }}
             >
               &ldquo;{loveStory.closingQuote}&rdquo;
             </p>
             <footer
               className={`font-goudy-italic mt-2 sm:mt-3 ${sectionType.label} not-italic tracking-wide`}
-              style={{ color: "#D0899A", textShadow: onBgGlow }}
+              style={{ color: "var(--color-on-pattern-soft)", textShadow: onBgGlow }}
             >
               — {loveStory.closingCitation}
             </footer>

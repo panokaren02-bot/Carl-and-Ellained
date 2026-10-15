@@ -2,13 +2,28 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
+import localFont from 'next/font/local';
 import { useReducedMotion } from 'motion/react';
 import { useSiteConfig } from '@/hooks/use-site-config';
 import { siteConfig as defaultSiteConfig } from '@/content/site';
 import { PhotoMarquee } from '@/components/loader/invite-photo-backdrop';
-import { PlainAtmosphere } from '@/components/loader/PlainAtmosphere';
-import { PlainBubbles } from '@/components/loader/PlainBubbles';
+import { SunsetSeaBackdrop } from '@/components/loader/SunsetSeaBackdrop';
+import { TintedDeco } from '@/components/tinted-deco';
 import './loading-screen.css';
+
+const theSeasons = localFont({
+  src: '../../Font/Fontspring-DEMO-theseasons-reg.otf',
+  // Letters only: digits + punctuation fall through to Playfair ("Seasons Numerals", app/globals.css)
+  declarations: [{ prop: "unicode-range", value: "U+0020, U+0041-005A, U+0061-007A, U+00C0-00D6, U+00D8-00F6, U+00F8-00FF, U+0152-0153" }],
+  fallback: ["'Seasons Numerals'", "serif"],
+  adjustFontFallback: false,
+  display: 'swap',
+});
+
+const aboveTheBeyond = localFont({
+  src: '../../Font/above-the-beyond-script.otf',
+  display: 'swap',
+});
 
 interface LoadingScreenProps {
   onComplete: () => void;
@@ -238,8 +253,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
 
       {isPlain && (
         <>
-          <PlainAtmosphere baseColor={plainTheme.background} />
-          <PlainBubbles />
+          <SunsetSeaBackdrop />
           <div className="loading-screen__plain-corners" aria-hidden="true">
             {(
               [
@@ -248,13 +262,12 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
                 { src: cornerDecos.bottomLeft, className: 'left-0 bottom-0' },
                 { src: cornerDecos.bottomRight, className: 'right-0 bottom-0' },
               ] as const
-            ).map(({ src, className }) => (
+            ).filter(({ src }) => src).map(({ src, className }) => (
               <div
-                key={src}
+                key={className}
                 className={`loading-screen__plain-corner-slot pointer-events-none absolute ${className}`}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" className="loading-screen__plain-corner-img" />
+                <TintedDeco src={src} className="loading-screen__plain-corner-img" />
               </div>
             ))}
           </div>
@@ -285,13 +298,12 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
       )}
 
       <div className="loading-screen__save-date">
+        {/* Paper surface of the card: grain, fibres and light (plain mode) */}
+        {isPlain && <span className="loading-screen__paper" aria-hidden="true" />}
         <header className="flex flex-col items-center w-full pt-10 sm:pt-14 md:pt-16 px-4 sm:px-6 flex-shrink-0">
           {isPlain && plainInvite.ornament && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <TintedDeco
               src={plainInvite.ornament}
-              alt=""
-              aria-hidden="true"
               className="loading-screen__plain-ornament ls-ornament-in"
               style={{ '--ls-delay': '100ms' } as React.CSSProperties}
             />
@@ -350,15 +362,17 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
         )}
 
         <div className="loading-screen__std-names-slot ls-reveal" style={revealDelay(450, 400)}>
-          <div
-            className="loading-screen__std-names couple-name-lockup"
-            role="img"
-            aria-label={coupleNames}
-            style={{
-              maskImage: `url("${content.coupleNameImage}")`,
-              WebkitMaskImage: `url("${content.coupleNameImage}")`,
-            }}
-          />
+          <h2 className="loading-screen__std-names loading-screen__std-names--text" aria-label={coupleNames}>
+            <span className={`${theSeasons.className} ls-names__nick`} aria-hidden="true">
+              {siteConfig.couple.groomNickname}
+            </span>
+            <span className={`${aboveTheBeyond.className} ls-names__and`} aria-hidden="true">
+              and
+            </span>
+            <span className={`${theSeasons.className} ls-names__nick`} aria-hidden="true">
+              {siteConfig.couple.brideNickname}
+            </span>
+          </h2>
         </div>
 
         {isPlain && plainInvite.lineBelow && (

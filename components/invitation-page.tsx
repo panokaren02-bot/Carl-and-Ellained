@@ -163,7 +163,7 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
   }, [sponsorsList, showEntourage])
 
   return (
-      <div className={`relative min-h-screen bg-cloud text-charcoal selection:bg-birch selection:text-nut font-sans ${pageScrollLocked ? "overflow-hidden" : ""}`}>
+      <div className={`relative min-h-screen bg-[var(--color-bg-ocean-deep)] text-charcoal selection:bg-birch selection:text-nut font-sans ${pageScrollLocked ? "overflow-hidden" : ""}`}>
         {loadingOverlayVisible && !plainLoader && (
           <div
             className="invite-photo-backdrop-wrap invite-photo-backdrop-wrap--loading"
@@ -199,7 +199,7 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
           >
             {cinematicEntry && (
               <motion.div
-                className="fixed inset-0 z-[28] pointer-events-none bg-[#FAF4F4]"
+                className="fixed inset-0 z-[28] pointer-events-none bg-[var(--color-bg-ocean-floor)]"
                 aria-hidden="true"
                 initial={{ clipPath: "circle(0% at 50% 46%)", opacity: 0.98 }}
                 animate={{ clipPath: "circle(145% at 50% 46%)", opacity: 0 }}
@@ -217,7 +217,7 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
               >
                 <Suspense
                   fallback={
-                    <div className="h-full w-full bg-[var(--color-welcome-bg-soft)]" />
+                    <div className="h-full w-full bg-[var(--color-bg-ocean-deep)]" />
                   }
                 >
                   <Silk

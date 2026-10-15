@@ -8,7 +8,7 @@ import { Cinzel } from "next/font/google"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { layeredSectionTitleSize, sectionType } from "@/lib/section-typography"
 import { fetchInvitationList } from "@/lib/invitation-data"
-import { PlainBubbles } from "@/components/loader/PlainBubbles"
+import { NavyBackdrop } from "@/components/loader/NavyBackdrop"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -41,7 +41,7 @@ const TEAL_SOFT = "color-mix(in srgb, #1F3460 65%, transparent)"
 const DEEP_GRADIENT = BUTTON
 const SAGE_GRADIENT = TEAL
 
-// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+// Section background = the hero's circle pattern (NavyBackdrop paints its own navy base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
 // Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
@@ -158,6 +158,7 @@ function BookOfGuestsTitle({ title, subtitle }: { title: string; subtitle: strin
         style={{
           fontSize: "var(--script-size)",
           ...onBg,
+          color: "var(--color-on-pattern-script)",
         }}
       >
         {subtitle}
@@ -329,8 +330,8 @@ export function BookOfGuests() {
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative isolate z-10 overflow-hidden pt-12 pb-10 sm:pt-14 sm:pb-12 md:pt-16 md:pb-14 lg:pt-20 lg:pb-16`}
       style={{ background: sectionBg }}
     >
-      {/* Same circle pattern as the hero */}
-      <PlainBubbles />
+      {/* Same navy stationery background as the hero */}
+      <NavyBackdrop />
 
       {/* Corner decorations (from site.ts) */}
       <div className="pointer-events-none absolute left-0 top-0 z-10">

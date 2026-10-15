@@ -1,0 +1,149 @@
+/* Ocean background — home sections + love story. The same animated sea as the
+   envelope screen (sunset-sea-backdrop.css), in a deeper navy and with nothing
+   blended toward white. Scrolls with its section (nothing is pinned).
+   Colors: app/globals.css → "BACKGROUND — OCEAN". */
+
+.navy-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  /* lighter blue at the top deepening to navy — stops capped in rem so tall
+     sections keep the same light band at the top instead of a stretched fade */
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-ocean-top) 0,
+    var(--color-bg-ocean-mid) min(18rem, 34%),
+    var(--color-bg-ocean-deep) min(40rem, 68%),
+    var(--color-bg-ocean-floor) 100%
+  );
+}
+
+.navy-backdrop--fixed {
+  position: fixed;
+}
+
+/* Wave tiles (public/ocean). Each layer extends past the section on both sides
+   and sways within that margin, so an edge never shows. */
+.navy-backdrop__waves {
+  position: absolute;
+  top: -40px;
+  bottom: -40px;
+  left: -160px;
+  right: -160px;
+  will-change: transform;
+}
+
+/* Distant water: fine strokes, strongest at the top of the section */
+.navy-backdrop__waves--far {
+  background: url("/ocean/waves-far.svg") 0 0 / 640px 400px repeat;
+  -webkit-mask-image: linear-gradient(180deg, #000 0, #000 min(14rem, 25%), transparent min(34rem, 60%));
+  mask-image: linear-gradient(180deg, #000 0, #000 min(14rem, 25%), transparent min(34rem, 60%));
+  animation: nb-roll-far 23s ease-in-out infinite alternate;
+}
+
+/* Swells: bigger strokes taking over below */
+.navy-backdrop__waves--back {
+  background: url("/ocean/waves-back.svg") 0 0 / 800px 640px repeat;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 min(26rem, 45%));
+  mask-image: linear-gradient(180deg, transparent 0, #000 min(26rem, 45%));
+  animation: nb-roll-back 17s ease-in-out infinite alternate;
+}
+
+.navy-backdrop__waves--front {
+  background: url("/ocean/waves-front.svg") 0 0 / 640px 480px repeat;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 min(30rem, 55%));
+  mask-image: linear-gradient(180deg, transparent 0, #000 min(30rem, 55%));
+  animation: nb-roll-front 11s ease-in-out infinite alternate;
+}
+
+/* Swells roll side to side and rise gently, the layers out of step */
+@keyframes nb-roll-far {
+  0% { transform: translate3d(70px, 0, 0); }
+  100% { transform: translate3d(-70px, 4px, 0); }
+}
+
+@keyframes nb-roll-back {
+  0% { transform: translate3d(-110px, 0, 0); }
+  50% { transform: translate3d(0, 10px, 0); }
+  100% { transform: translate3d(110px, 0, 0); }
+}
+
+@keyframes nb-roll-front {
+  0% { transform: translate3d(130px, 6px, 0); }
+  50% { transform: translate3d(0, -6px, 0); }
+  100% { transform: translate3d(-130px, 6px, 0); }
+}
+
+/* Faint path of light down the middle where the glints gather — normal blend,
+   low opacity, so it tints the water rather than washing it out */
+.navy-backdrop__column {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 16% min(60rem, 70%) at 50% 0%,
+    var(--color-bg-ocean-path) 0%,
+    transparent 100%
+  );
+  animation: nb-path 8s ease-in-out infinite;
+}
+
+@keyframes nb-path {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Sun glints: short bright dashes that flicker and slide with the swell */
+.navy-backdrop__glints {
+  position: absolute;
+  inset: 0;
+}
+
+.navy-backdrop__glint {
+  position: absolute;
+  height: 2px;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-bg-ocean-glint) 25%,
+    var(--color-bg-ocean-glint-core) 50%,
+    var(--color-bg-ocean-glint) 75%,
+    transparent 100%
+  );
+  box-shadow: 0 0 5px color-mix(in srgb, var(--color-bg-ocean-glint) 45%, transparent);
+  opacity: 0;
+  animation: nb-glint var(--dur) ease-in-out var(--delay) infinite;
+}
+
+@keyframes nb-glint {
+  0%, 100% { opacity: 0; transform: translateX(-50%) scaleX(0.35); }
+  30% { opacity: 0.9; transform: translateX(-44%) scaleX(1); }
+  55% { opacity: 0.5; transform: translateX(-38%) scaleX(0.75); }
+  75% { opacity: 0.15; transform: translateX(-34%) scaleX(0.5); }
+}
+
+/* Darker edges keep the eye on the content */
+.navy-backdrop__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 85% 75% at 50% 45%,
+    transparent 55%,
+    color-mix(in srgb, var(--color-bg-ocean-floor) 70%, transparent) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navy-backdrop__waves,
+  .navy-backdrop__column {
+    animation: none;
+  }
+
+  .navy-backdrop__glint {
+    animation: none;
+    opacity: 0.5;
+  }
+}

@@ -8,7 +8,7 @@ import { Gift, Heart } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { layeredSectionTitleSize, sectionType } from "@/lib/section-typography"
-import { PlainBubbles } from "@/components/loader/PlainBubbles"
+import { NavyBackdrop } from "@/components/loader/NavyBackdrop"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -101,7 +101,7 @@ function RegistryTitle({ title, subtitle }: { title: string; subtitle: string })
       <span
         aria-hidden
         className={`${aboveTheBeyond.className} relative z-10 mx-auto mt-1.5 block w-fit max-w-full px-1 leading-[0.88] sm:mt-2 sm:leading-[0.9]`}
-        style={{ fontSize: "var(--script-size)", ...onBg }}
+        style={{ fontSize: "var(--script-size)", ...onBg, color: "var(--color-on-pattern-script)" }}
       >
         {subtitle}
       </span>
@@ -121,7 +121,7 @@ export function Registry() {
 
   const buttonBg = c.button
   const buttonText = "var(--color-motif-soft)"
-  // Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+  // Section background = the hero's circle pattern (NavyBackdrop paints its own navy base)
   const sectionBg = "var(--color-bg-pattern-base)"
   const cardStyle = {
     background: c.card,
@@ -140,8 +140,8 @@ export function Registry() {
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
-      {/* Same circle pattern as the hero */}
-      <PlainBubbles />
+      {/* Same navy stationery background as the hero */}
+      <NavyBackdrop />
       <section
         id="registry"
         className="relative z-10 overflow-hidden pt-14 pb-12 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20"

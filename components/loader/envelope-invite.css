@@ -2688,3 +2688,468 @@
 .env-invite-screen .env-invite-enter-btn:focus-visible {
   outline-color: #D0899A;
 }
+
+/* ---- Letter: couple names set in type, same lockup as the loading screen ----
+   nickname (The Seasons) · "and" (Above the Beyond) · nickname.
+   Replaces the image-mask lockup: drop its fixed aspect ratio, mask and box fill. */
+.env-invite-screen .env-invite-letter-names.env-invite-letter-names--text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: auto;
+  max-width: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+  margin: 0.15em 0 0.35em;
+  padding: 0.05em 0.3em;
+  -webkit-mask-image: none;
+  mask-image: none;
+  background: none;
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 70%));
+  text-align: center;
+  font-weight: 400;
+}
+
+/* Each nickname clips the navy gradient itself */
+.env-invite-names__nick {
+  display: block;
+  padding: 0 0.15em;
+  font-size: 2.75em;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  background: linear-gradient(
+    118deg,
+    var(--couple-name-fill, var(--color-welcome-navy)) 0%,
+    var(--couple-name-fill-mid, var(--color-motif-deep)) 48%,
+    var(--couple-name-fill-accent, var(--color-welcome-heading)) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Script "and" tucked between the names, in the coral accent of the headline */
+.env-invite-names__and {
+  display: block;
+  margin: -0.2em 0 -0.1em;
+  padding: 0 0.15em;
+  font-size: 1.5em;
+  line-height: 1.15;
+  color: var(--color-motif-accent);
+  -webkit-text-fill-color: var(--color-motif-accent);
+}
+
+/* Invitation line + lead-in to the names: longer copy, so slightly smaller and wrapping */
+.env-invite-screen .env-invite-letter-invited {
+  max-width: 92%;
+  font-size: 1.2em;
+}
+
+.env-invite-screen .env-invite-letter-sub {
+  max-width: 92%;
+  margin: -0.15em 0 0;
+  font-size: 0.74em;
+  line-height: 1.45;
+  /* keep the capital in "God's" (base style lowercases this line) */
+  text-transform: none;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--env-plain-ink, var(--env-text)) 80%, transparent);
+}
+
+/* ---- Seal: once broken it stays where it was, sitting on the outside of the
+   open envelope — above the pocket (z 40 on mobile) and the rising letter ---- */
+.env-invite-screen[data-phase="seal-break"] .env-invite-seal-wrap,
+.env-invite-screen[data-phase="flap-open"] .env-invite-seal-wrap,
+.env-invite-screen[data-phase="rising"] .env-invite-seal-wrap,
+.env-invite-screen[data-phase="revealed"] .env-invite-seal-wrap,
+.env-invite-screen[data-phase="cta"] .env-invite-seal-wrap {
+  z-index: 60;
+}
+
+/* Leaves with the envelope when the invitation zooms out */
+.env-invite-screen[data-phase="exiting"] .env-invite-seal-wrap {
+  z-index: 60;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+/* ==========================================================================
+   Realistic paper — grain, fibres and mottling, light from the top-left,
+   crisp creases with soft cast shadows, and a flap that throws a shadow.
+   Kept last so it layers over the flat envelope styles above.
+   ========================================================================== */
+.env-invite-envelope {
+  --paper-shade: #050b18;
+  border-radius: 3px;
+  filter:
+    drop-shadow(0 1px 1.5px rgba(8, 14, 30, 0.32))
+    drop-shadow(0 18px 32px rgba(8, 14, 30, 0.24));
+}
+
+.env-invite-back,
+.env-invite-front-closed {
+  border-radius: 3px;
+}
+
+/* Texture overlay shared by every paper surface */
+.env-invite-front-closed::before,
+.env-invite-back::before,
+.env-invite-flap::before,
+.env-invite-pocket-front::after,
+.env-invite-pocket-left::after,
+.env-invite-pocket-right::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 1;
+  pointer-events: none;
+  background:
+    var(--paper-grain) 0 0 / 180px 180px,
+    var(--paper-fibres-pale) 0 0 / 360px 240px,
+    var(--paper-mottle) 0 0 / 700px 700px;
+}
+
+/* Closed back of the envelope: even paper, a broad sheen and a faint falloff */
+.env-invite-front-closed {
+  background:
+    linear-gradient(122deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.025) 32%, transparent 55%, rgba(5, 11, 24, 0.14) 100%),
+    radial-gradient(140% 110% at 32% 18%, transparent 52%, rgba(5, 11, 24, 0.2) 100%),
+    linear-gradient(
+      172deg,
+      color-mix(in srgb, var(--env-base) 82%, var(--env-highlight)) 0%,
+      var(--env-base) 48%,
+      color-mix(in srgb, var(--env-base) 84%, var(--env-shadow)) 100%
+    );
+}
+
+/* Paper edge: lit top/left rim, shaded bottom/right rim — reads as card stock */
+.env-invite-front-closed::after,
+.env-invite-back::after {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  border: none;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 1px 0 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(5, 11, 24, 0.35),
+    inset -1px 0 0 rgba(5, 11, 24, 0.22);
+}
+
+/* Inside of the envelope (seen behind the letter): matte, deeper toward the pocket */
+.env-invite-screen[data-phase="flap-open"] .env-invite-back,
+.env-invite-screen[data-phase="rising"] .env-invite-back,
+.env-invite-screen[data-phase="photos"] .env-invite-back,
+.env-invite-screen[data-phase="revealed"] .env-invite-back,
+.env-invite-screen[data-phase="cta"] .env-invite-back {
+  background:
+    linear-gradient(180deg, rgba(5, 11, 24, 0.3) 0%, transparent 16%, transparent 55%, rgba(5, 11, 24, 0.32) 100%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--env-base) 88%, var(--env-highlight)) 0%,
+      color-mix(in srgb, var(--env-base) 86%, var(--env-shadow)) 100%
+    );
+}
+
+.env-invite-screen[data-phase="flap-open"] .env-invite-back::after,
+.env-invite-screen[data-phase="rising"] .env-invite-back::after,
+.env-invite-screen[data-phase="photos"] .env-invite-back::after,
+.env-invite-screen[data-phase="revealed"] .env-invite-back::after,
+.env-invite-screen[data-phase="cta"] .env-invite-back::after {
+  display: block;
+}
+
+/* ── Top flap ── */
+.env-invite-flap {
+  background:
+    linear-gradient(152deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 40%, transparent 62%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--env-base) 80%, var(--env-highlight)) 0%,
+      var(--env-base) 70%,
+      color-mix(in srgb, var(--env-base) 90%, var(--env-shadow)) 100%
+    );
+  box-shadow: none;
+}
+
+/* Slight darkening toward the tip, where the paper curls away from the light */
+.env-invite-flap::after {
+  background: linear-gradient(180deg, transparent 60%, rgba(5, 11, 24, 0.12) 100%);
+}
+
+/* Soft shadow the closed flap casts onto the envelope — blur on the parent so
+   the clipped triangle's edge stays feathered */
+.env-invite-flap-shadow {
+  clip-path: none;
+  background: none;
+  filter: blur(5px);
+  transform: translateY(5px);
+  opacity: 0.85;
+  transition: opacity 0.35s ease;
+}
+
+.env-invite-flap-shadow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: linear-gradient(180deg, rgba(5, 11, 24, 0.2) 0%, rgba(5, 11, 24, 0.55) 100%);
+}
+
+.env-invite-screen[data-phase="flap-open"] .env-invite-flap-shadow,
+.env-invite-screen[data-phase="rising"] .env-invite-flap-shadow,
+.env-invite-screen[data-phase="photos"] .env-invite-flap-shadow,
+.env-invite-screen[data-phase="revealed"] .env-invite-flap-shadow,
+.env-invite-screen[data-phase="cta"] .env-invite-flap-shadow {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Light catching the folded edge of the flap */
+.env-invite-flap-edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transition: opacity 0.1s linear 0.5s;
+}
+
+.env-invite-flap-edge polyline {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Inside face of the flap — swapped in as the flap passes edge-on (≈ halfway
+   through its 1.1s swing). The flap is mirrored when open, so 0% is the hinge. */
+.env-invite-flap-liner {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(5, 11, 24, 0.34) 0%, rgba(5, 11, 24, 0.08) 22%, transparent 45%),
+    var(--paper-grain) 0 0 / 180px 180px,
+    var(--paper-fibres-pale) 0 0 / 360px 240px,
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--env-base) 86%, var(--env-shadow)) 0%,
+      color-mix(in srgb, var(--env-base) 88%, var(--env-highlight)) 100%
+    );
+  transition: opacity 0.1s linear;
+}
+
+.env-invite-screen[data-phase="flap-open"] .env-invite-flap-liner,
+.env-invite-screen[data-phase="rising"] .env-invite-flap-liner,
+.env-invite-screen[data-phase="revealed"] .env-invite-flap-liner,
+.env-invite-screen[data-phase="cta"] .env-invite-flap-liner,
+.env-invite-screen[data-phase="exiting"] .env-invite-flap-liner {
+  opacity: 1;
+  transition: opacity 0.1s linear 0.5s;
+}
+
+.env-invite-screen[data-phase="flap-open"] .env-invite-flap-edge,
+.env-invite-screen[data-phase="rising"] .env-invite-flap-edge,
+.env-invite-screen[data-phase="revealed"] .env-invite-flap-edge,
+.env-invite-screen[data-phase="cta"] .env-invite-flap-edge,
+.env-invite-screen[data-phase="exiting"] .env-invite-flap-edge {
+  opacity: 0;
+}
+
+/* ── Open pocket ── */
+.env-invite-pocket-front {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, transparent 30%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--env-base) 82%, var(--env-highlight)) 0%,
+      var(--env-base) 55%,
+      color-mix(in srgb, var(--env-base) 86%, var(--env-shadow)) 100%
+    );
+  box-shadow: none;
+}
+
+.env-invite-pocket-left,
+.env-invite-pocket-right {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--env-base) 86%, var(--env-highlight)) 0%,
+    color-mix(in srgb, var(--env-base) 92%, var(--env-shadow)) 100%
+  );
+  box-shadow: none;
+}
+
+/* ── Fold layers drawn by EnvelopeClosedFolds / EnvelopePocketFolds ── */
+.env-invite-paper-folds {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.env-invite-pocket .env-invite-paper-folds {
+  z-index: 4;
+}
+
+/* Crisp, dark crease where one layer of paper ends */
+.env-invite-paper-folds__crease {
+  fill: none;
+  stroke: rgba(5, 11, 24, 0.55);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Light catching the rounded edge just past the crease */
+.env-invite-paper-folds__edge {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.13);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Soft shadow an overlapping flap casts on the layer beneath it */
+.env-invite-paper-folds__shadow {
+  fill: none;
+  stroke: rgba(5, 11, 24, 0.5);
+  stroke-linejoin: round;
+}
+
+/* Shadow of the pocket lip falling on the light letter */
+.env-invite-paper-folds__shadow--contents {
+  stroke: rgba(22, 38, 74, 0.32);
+}
+
+/* Wax seal — tight contact shadow plus a softer lift, tinted for the dark paper */
+.env-invite-seal-btn {
+  filter:
+    drop-shadow(0 1.5px 1.5px rgba(5, 11, 24, 0.45))
+    drop-shadow(0 7px 12px rgba(5, 11, 24, 0.32));
+}
+
+@keyframes env-seal-breathe {
+  0%,
+  100% {
+    filter:
+      drop-shadow(0 1.5px 1.5px rgba(5, 11, 24, 0.45))
+      drop-shadow(0 7px 12px rgba(5, 11, 24, 0.32));
+  }
+  50% {
+    filter:
+      drop-shadow(0 1.5px 1.5px rgba(5, 11, 24, 0.45))
+      drop-shadow(0 10px 18px rgba(5, 11, 24, 0.4));
+  }
+}
+
+.env-invite-ground-shadow {
+  background: radial-gradient(ellipse, rgba(16, 26, 52, 0.3) 0%, transparent 72%);
+}
+
+.env-invite-ground-contact {
+  background: radial-gradient(ellipse, rgba(16, 26, 52, 0.26) 0%, transparent 70%);
+}
+
+/* Desktop full-bleed: no outer shadow or rim, softer flap shadow at screen scale */
+@media (min-width: 768px) {
+  .env-invite-envelope,
+  .env-invite-back,
+  .env-invite-front-closed {
+    filter: none;
+    border-radius: 0;
+  }
+
+  .env-invite-front-closed::after,
+  .env-invite-back::after {
+    box-shadow: none;
+  }
+
+  .env-invite-flap-shadow {
+    filter: blur(12px);
+    transform: translateY(10px);
+  }
+}
+
+/* ---- Plain mode over the sunset-sea backdrop (components/loader/SunsetSeaBackdrop) ----
+   The hint and reveal copy sit over the navy sea: ivory type with a navy glow.
+   Bottom corner leaves are navy-tinted and would vanish into the water. */
+.env-invite-screen--plain {
+  --color-on-pattern: var(--color-motif-soft);
+  --color-on-pattern-glow: color-mix(in srgb, var(--color-coastal-deep) 72%, transparent);
+}
+
+.env-invite-screen--plain .env-invite-plain-corners > .bottom-0 {
+  display: none;
+}
+
+/* Desktop: once clicked, the seal lifts away (the full-bleed letter rises right
+   where it sits). The press still plays first; mobile keeps the seal in place. */
+@media (min-width: 768px) {
+  .env-invite-screen[data-phase="seal-break"] .env-invite-seal-wrap,
+  .env-invite-screen[data-phase="flap-open"] .env-invite-seal-wrap,
+  .env-invite-screen[data-phase="rising"] .env-invite-seal-wrap,
+  .env-invite-screen[data-phase="revealed"] .env-invite-seal-wrap,
+  .env-invite-screen[data-phase="cta"] .env-invite-seal-wrap,
+  .env-invite-screen[data-phase="exiting"] .env-invite-seal-wrap {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.85);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0s linear 0.4s;
+  }
+}
+
+/* Countdown ("100 more days to go") — pure white with a soft navy glow for contrast */
+.env-invite-screen .env-invite-days-to-go {
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  text-shadow:
+    0 1px 2px color-mix(in srgb, var(--color-coastal-deep) 70%, transparent),
+    0 2px 12px color-mix(in srgb, var(--color-coastal-deep) 55%, transparent);
+}
+
+/* ---- Exit to the site: navy all the way, no white flash ----
+   The bloom and screen glow were cream; they now deepen into the ocean navy the
+   sections open on, with only a faint blush light at the centre. */
+.env-invite-exit-bloom {
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      color-mix(in srgb, var(--color-motif-medium) 22%, var(--color-bg-ocean-mid)) 0%,
+      var(--color-bg-ocean-deep) 45%,
+      var(--color-bg-ocean-floor) 75%
+    );
+}
+
+.env-invite-exit-ring {
+  border-color: color-mix(in srgb, var(--color-motif-medium) 45%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-motif-medium) 20%, transparent),
+    0 0 80px color-mix(in srgb, var(--color-motif-medium) 25%, transparent),
+    inset 0 0 60px color-mix(in srgb, var(--color-bg-ocean-mid) 40%, transparent);
+}
+
+.env-invite-exit-curtain {
+  background: linear-gradient(105deg, var(--color-bg-ocean-deep) 0%, var(--color-bg-ocean-floor) 100%);
+}
+
+.env-invite-screen[data-phase="exiting"]::before {
+  background:
+    radial-gradient(980px 680px at 50% 38%, color-mix(in srgb, var(--color-bg-ocean-mid) 80%, transparent) 0, transparent 64%),
+    radial-gradient(720px 480px at 50% 92%, color-mix(in srgb, var(--color-bg-ocean-floor) 60%, transparent) 0, transparent 58%);
+}

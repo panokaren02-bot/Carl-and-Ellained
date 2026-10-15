@@ -104,11 +104,12 @@
   --sidebar-ring: #AFC8E6;
 
   /* Decoration tint: the botanical PNGs in /public/deco are painted in sage
-     (hue ≈ 92°). This recolors them to the motif navy (--color-motif-teal
-     #1F3460): grayscale + sepia flattens the sage, then hue-rotate/
-     saturate/brightness land it on navy while keeping the watercolor shading.
+     (hue ≈ 92°). This recolors them blush pink, keeping the watercolor
+     shading: grayscale flattens the sage, contrast + brightness lift it into
+     the light range, then sepia/hue-rotate/saturate land shadows on deep rose
+     (#CA929A), midtones on blush (#EEADB6) and highlights on pale pink (#FFDEEA).
      Set to "none" to show the original artwork. */
-  --deco-filter: grayscale(1) sepia(1) hue-rotate(185deg) saturate(2.8) brightness(0.5);
+  --deco-filter: grayscale(1) contrast(0.4) brightness(1.3) sepia(0.4) hue-rotate(302deg) saturate(2.4);
 
   /* QR codes (every QR on the site + dashboard): darkest motif color on white.
      Read at runtime by hooks/use-css-color, so any CSS color works here. */
@@ -387,40 +388,39 @@
 
 
  /* ==========================================
-  *  BACKGROUND — CIRCLE PATTERN
-  *  Used by every plain-mode section (loader,
-  *  envelope, hero, details, entourage, ...)
-  *  via components/loader/PlainBubbles.
-  *  Light + blush pink, flat colors (no gradients).
+  *  BACKGROUND — OCEAN
+  *  Used by every plain-mode section and the
+  *  love story via components/loader/NavyBackdrop.
+  *  Same deep-blue sea as the envelope screen
+  *  (components/loader/sunset-sea-backdrop.css).
   * ========================================== */
  
- /* Flat base painted behind the circles — light blush */
- --color-bg-pattern-base:
-     color-mix(
-         in srgb,
-         var(--color-romantic-blush) 30%,
-         var(--color-motif-cream)
-     );
+ /* Flat base (section backgrounds behind the backdrop) */
+ --color-bg-pattern-base: #142347;
  
- /* Main circles — blush pink family */
- --color-bg-circle-deep: color-mix(in srgb, var(--color-romantic-peach) 40%, transparent);
- --color-bg-circle-mid: color-mix(in srgb, var(--color-romantic-blush) 55%, transparent);
- --color-bg-circle-light: color-mix(in srgb, white 55%, transparent);
+ /* Sea gradient — the envelope's sea, taken a few steps darker */
+ --color-bg-ocean-top: #2c4170;
+ --color-bg-ocean-mid: #1c2e57;
+ --color-bg-ocean-deep: #142347;
+ --color-bg-ocean-floor: #0b1630;
  
- /* Accent circles — a touch of other palette colors */
- --color-bg-circle-accent-1: color-mix(in srgb, var(--color-romantic-coral) 30%, transparent);
- --color-bg-circle-accent-2: color-mix(in srgb, var(--color-coastal-light) 40%, transparent);
- --color-bg-circle-accent-3: color-mix(in srgb, var(--color-coastal-sand) 60%, transparent);
+ /* Wave strokes: shadowed troughs and moonlit crests */
+ --color-bg-ocean-stroke-dark: #0d1835;
+ --color-bg-ocean-stroke-deep: #08112a;
+ --color-bg-ocean-stroke-light: #6d84b3;
  
- /* Rose + soft peach circles scattered through the pattern */
- --color-bg-circle-rose: color-mix(in srgb, #D98A98 38%, transparent);
- --color-bg-circle-peach: color-mix(in srgb, #F6C3A5 50%, transparent);
+ /* Faint path of light down the middle + sun glints (warm, never pure white) */
+ --color-bg-ocean-path: color-mix(in srgb, #8fa3cf 16%, transparent);
+ --color-bg-ocean-glint: #f5d3c4;
+ --color-bg-ocean-glint-core: #fde9df;
  
- /* Text and divider lines sitting directly on the pattern */
- --color-on-pattern: var(--color-welcome-navy);
- --color-on-pattern-soft: var(--color-motif-teal);
- --color-on-pattern-glow: color-mix(in srgb, white 70%, transparent);
- --color-on-pattern-line: var(--color-romantic-coral);
+ /* Text and divider lines sitting directly on the navy */
+ --color-on-pattern: var(--color-motif-soft);
+ --color-on-pattern-soft: var(--color-motif-medium);
+ --color-on-pattern-glow: color-mix(in srgb, var(--color-coastal-deep) 60%, transparent);
+ --color-on-pattern-line: var(--color-motif-medium);
+ /* Script half of section titles — blush rose, like rose-gold lettering */
+ --color-on-pattern-script: var(--color-motif-medium);
  
  
  /* ==========================================
@@ -476,6 +476,7 @@
  
  /* Crease hairlines on the paper */
  --color-envelope-crease: color-mix(in srgb, var(--color-motif-soft) 22%, transparent);
+
 
 
  /* ==========================================
@@ -709,6 +710,20 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Paper texture — tileable overlays shared by the envelope (envelope-invite.css)
+   and the save-the-date card (loading-screen.css). Kept out of @theme so
+   Tailwind always emits them. */
+:root {
+  /* fine tooth of the paper */
+  --paper-grain: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 .075'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+  /* short pale fibres running with the grain (dark paper) */
+  --paper-fibres-pale: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='240'><filter id='f'><feTurbulence type='turbulence' baseFrequency='.012 .28' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .16 0 0 0 -.05'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+  /* soft cloudiness — real paper is never perfectly even */
+  --paper-mottle: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='700' height='700'><filter id='m'><feTurbulence type='fractalNoise' baseFrequency='.006' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .22 0 0 0 -.07'/></filter><rect width='100%' height='100%' filter='url(%23m)'/></svg>");
+  /* short warm-grey fibres (light paper) */
+  --paper-fibres-dark: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='240'><filter id='f'><feTurbulence type='turbulence' baseFrequency='.012 .28' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35 0 0 0 0 .3 0 0 0 0 .28 .14 0 0 0 -.045'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -744,6 +759,68 @@ html {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
+}
+
+/* Couple names as live text (groom first) — Beautiful Malera with the same
+   motif gradient as the lockup image. Used by the loader and envelope letter. */
+.couple-name-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  font-family: var(--font-beautiful-malera), cursive;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 0.95;
+  text-align: center;
+  white-space: nowrap;
+  -webkit-mask: none;
+  mask: none;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Generous padding: script swashes overflow the glyph box, and the gradient
+   fill (background-clip: text) only paints inside the element's box. */
+.couple-name-text__name {
+  display: block;
+  padding: 0.2em 0.5em 0.24em;
+  margin: -0.16em 0;
+}
+
+/* Ampersand: italic Cormorant flanked by hairlines */
+.couple-name-text__amp {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  position: relative;
+  z-index: 1;
+  margin: -0.1em 0;
+  padding: 0 0.2em;
+  font-family: "Cormorant Garamond", "Playfair Display", serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.42em;
+  line-height: 1.1;
+}
+
+.couple-name-text__amp::before,
+.couple-name-text__amp::after {
+  content: "";
+  width: 1.6em;
+  height: 1px;
+  background: linear-gradient(
+    to var(--amp-dir, right),
+    transparent,
+    var(--couple-name-fill-accent, var(--color-welcome-heading))
+  );
+  opacity: 0.55;
+}
+
+.couple-name-text__amp::after {
+  --amp-dir: left;
 }
 
 /* Botanical decorations follow the motif (see --deco-filter). Matches corner

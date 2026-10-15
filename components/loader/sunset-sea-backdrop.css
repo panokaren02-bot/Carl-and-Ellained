@@ -1,0 +1,280 @@
+/* Watercolor sunset over the sea — loader + envelope hero (plain mode).
+   Soft blush-pink sky, mauve mountains, navy sea (#1F3460 motif) with sun glints. */
+
+.sunset-sea {
+  --ss-horizon: 66%;
+  /* blush palette — dusty rose clouds fading to cream at the horizon */
+  --ss-rose: #e2a0b2;
+  --ss-coral: #edb3c2;
+  --ss-mauve: #c896b0;
+  --ss-peach: #f3c6d0;
+  --ss-light: #fdeef0;
+  --ss-mount-far: #a98aa6;
+  --ss-mount-near: #8c789c;
+  --ss-sea-top: #4b6290;
+  --ss-sea-mid: #2c4673;
+  --ss-sea-deep: var(--color-motif-teal, #1f3460);
+  --ss-sea-floor: var(--color-coastal-deep, #16264a);
+  --ss-glint: #ffe2c6;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    #ebb6c4 0%,
+    #f1c5cf 22%,
+    #f6d2d9 42%,
+    #fae0e3 56%,
+    #f6d3d3 var(--ss-horizon),
+    var(--ss-sea-top) var(--ss-horizon),
+    var(--ss-sea-floor) 100%
+  );
+}
+
+.sunset-sea--fixed {
+  position: fixed;
+}
+
+.sunset-sea__defs {
+  position: absolute;
+}
+
+/* ── Sky ── */
+.sunset-sea__sky {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--ss-horizon);
+}
+
+.sunset-sea__clouds {
+  position: absolute;
+  top: -4%;
+  left: -12%;
+  width: 124%;
+  height: 108%;
+  mix-blend-mode: multiply;
+  will-change: transform;
+}
+
+.sunset-sea__clouds--high {
+  animation: ss-drift-high 38s ease-in-out infinite alternate;
+}
+
+.sunset-sea__clouds--low {
+  animation: ss-drift-low 30s ease-in-out infinite alternate;
+}
+
+.ss-rose { fill: var(--ss-rose); opacity: 0.38; }
+.ss-coral { fill: var(--ss-coral); opacity: 0.34; }
+.ss-mauve { fill: var(--ss-mauve); opacity: 0.4; }
+.ss-peach { fill: var(--ss-peach); opacity: 0.45; }
+/* Pale bands where the paper shows through the wash */
+.ss-light { fill: var(--ss-light); opacity: 0.55; }
+
+/* Clouds glide slowly across the sky in opposite directions (the layer is 124% wide,
+   so ±8% never reveals an edge) */
+@keyframes ss-drift-high {
+  from { transform: translate3d(-8%, 0, 0); }
+  to { transform: translate3d(8%, 1.5%, 0); }
+}
+
+@keyframes ss-drift-low {
+  from { transform: translate3d(8%, 0, 0); }
+  to { transform: translate3d(-8%, -1.5%, 0); }
+}
+
+/* Warm glow where the sun has just set behind the horizon */
+.sunset-sea__sun {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: max(120vw, 70vh);
+  height: max(46vh, 40vw);
+  transform: translate(-50%, 50%);
+  background: radial-gradient(
+    ellipse 50% 50% at 50% 50%,
+    rgb(255 242 236 / 92%) 0%,
+    rgb(252 224 214 / 58%) 24%,
+    rgb(246 204 196 / 20%) 52%,
+    transparent 72%
+  );
+  mix-blend-mode: screen;
+  animation: ss-sun-breathe 9s ease-in-out infinite;
+}
+
+@keyframes ss-sun-breathe {
+  0%, 100% { opacity: 0.85; transform: translate(-50%, 50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, 50%) scale(1.06); }
+}
+
+.sunset-sea__mountains {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  width: 100%;
+  height: clamp(48px, 11vh, 120px);
+}
+
+.ss-mount-far { fill: var(--ss-mount-far); opacity: 0.62; }
+.ss-mount-near { fill: var(--ss-mount-near); opacity: 0.55; }
+
+/* ── Sea ── */
+.sunset-sea__sea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--ss-horizon);
+  bottom: 0;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    var(--ss-sea-top) 0%,
+    var(--ss-sea-mid) 26%,
+    var(--ss-sea-deep) 62%,
+    var(--ss-sea-floor) 100%
+  );
+}
+
+/* Peach light laid across the water right under the sky */
+.sunset-sea__sea::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 34% 14% at 50% 0%, rgb(246 206 196 / 50%) 0%, transparent 100%),
+    radial-gradient(ellipse 22% 60% at 50% 0%, rgb(246 206 196 / 16%) 0%, transparent 100%);
+  mix-blend-mode: screen;
+}
+
+.sunset-sea__waves {
+  position: absolute;
+  top: 0;
+  left: -8%;
+  width: 116%;
+  height: 100%;
+  will-change: transform;
+}
+
+.sunset-sea__waves--back {
+  animation: ss-roll-back 16s ease-in-out infinite alternate;
+}
+
+.sunset-sea__waves--front {
+  animation: ss-roll-front 11s ease-in-out infinite alternate;
+}
+
+.ss-wave-dark { fill: #18284d; opacity: 0.38; }
+.ss-wave-deep { fill: #101c3a; opacity: 0.32; }
+.ss-wave-light { fill: #7189b3; opacity: 0.28; }
+
+@keyframes ss-roll-back {
+  from { transform: translate3d(-2.5%, 0, 0) scaleY(1); }
+  to { transform: translate3d(2.5%, 0.6%, 0) scaleY(1.02); }
+}
+
+@keyframes ss-roll-front {
+  from { transform: translate3d(3%, 0.4%, 0); }
+  to { transform: translate3d(-3%, -0.4%, 0); }
+}
+
+/* Sun glints: short bright dashes that flicker and slide with the swell */
+.sunset-sea__glints {
+  position: absolute;
+  inset: 0;
+}
+
+.sunset-sea__glint {
+  position: absolute;
+  height: 2px;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--ss-glint) 22%,
+    #fff7ec 50%,
+    var(--ss-glint) 78%,
+    transparent 100%
+  );
+  box-shadow: 0 0 6px rgb(255 214 176 / 55%);
+  opacity: 0;
+  animation: ss-glint var(--dur) ease-in-out var(--delay) infinite;
+}
+
+@keyframes ss-glint {
+  0%, 100% { opacity: 0; transform: translateX(-50%) scaleX(0.4); }
+  35% { opacity: 0.95; transform: translateX(-42%) scaleX(1); }
+  60% { opacity: 0.55; transform: translateX(-36%) scaleX(0.8); }
+}
+
+.sunset-sea__swell {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: min(100%, 900px);
+  height: 62%;
+  transform-origin: bottom left;
+  animation: ss-swell 7s ease-in-out infinite;
+}
+
+.ss-swell { fill: #12203f; opacity: 0.55; }
+.ss-swell-crest {
+  fill: none;
+  stroke: #f6c3a3;
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+
+@keyframes ss-swell {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(1.5%, -3%, 0); }
+}
+
+/* Soft mist where sky meets sea */
+.sunset-sea__haze {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--ss-horizon) - 3%);
+  height: 6%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(250 222 214 / 35%) 45%,
+    rgb(120 130 170 / 18%) 60%,
+    transparent 100%
+  );
+  filter: blur(4px);
+}
+
+/* Cold-press paper tooth over everything (textures: globals.css → "Paper texture") */
+.sunset-sea__paper {
+  position: absolute;
+  inset: 0;
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+  background:
+    var(--paper-grain) 0 0 / 180px 180px,
+    var(--paper-fibres-dark) 0 0 / 360px 240px,
+    var(--paper-mottle) 0 0 / 700px 700px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sunset-sea__clouds,
+  .sunset-sea__sun,
+  .sunset-sea__waves,
+  .sunset-sea__swell {
+    animation: none;
+  }
+
+  .sunset-sea__glint {
+    animation: none;
+    opacity: 0.7;
+  }
+}

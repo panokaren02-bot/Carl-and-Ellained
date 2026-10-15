@@ -5,7 +5,7 @@ import localFont from "next/font/local"
 import Image from "next/image"
 import { motion, useReducedMotion, type Variants } from "motion/react"
 import { useSiteConfig } from "@/hooks/use-site-config"
-import { PlainBubbles } from "@/components/loader/PlainBubbles"
+import { NavyBackdrop } from "@/components/loader/NavyBackdrop"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -34,7 +34,7 @@ const photoTitleShadow =
 const CORNER_DECO_CLASS =
   "block h-auto w-auto max-w-[150px] sm:max-w-[230px] md:max-w-[300px] lg:max-w-[360px] select-none opacity-90"
 
-// Plain background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+// Plain background = the hero's circle pattern (NavyBackdrop paints its own navy base)
 const plainBg = "var(--color-bg-pattern-base)"
 
 // Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
@@ -93,8 +93,8 @@ function PlainSeeYouThere() {
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative isolate w-full overflow-hidden`}
       style={{ background: plainBg }}
     >
-      {/* Same circle pattern as the hero */}
-      <PlainBubbles />
+      {/* Same navy stationery background as the hero */}
+      <NavyBackdrop />
 
       {/* Corner decorations (from site.ts) */}
       <div className="pointer-events-none absolute left-0 top-0 z-10">

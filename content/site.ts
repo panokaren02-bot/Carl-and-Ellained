@@ -252,7 +252,7 @@ const DISPLAY_MODE = "plain" as "photos" | "plain"
 
 // ── Shared images ───────────────────────────────────────────────────────────
 const BRAND = {
-  monogram: "/monogram/monogram-newpo.png",
+  monogram: "/monogram/monogram.png",
   coupleNameImage: "/Details/newcoupelNames.png", // couple-name lettering (loader, envelope)
   seal: "/monogram/monogram_new.png", // envelope wax seal
   backgroundMusic: "/background_music/Goodness Of God X Oceans X Gratitude (Wedding Entrance version).mp3",
@@ -377,7 +377,9 @@ export const siteConfig = {
       lineBelow: "request the honour of your presence",
     },
     showCeremonyDetails: true,
-    eyebrow: "You are invited",
+    eyebrow: "With joyful hearts, we invite you",
+    // Small line under the eyebrow on the envelope letter, leading into the couple's names ("" to hide)
+    eyebrowSub: "to celebrate God's faithfulness in the union of",
     message: "We can't wait to celebrate with you",
     // Rotates under the progress bar while the invitation loads
     statusMessages: [

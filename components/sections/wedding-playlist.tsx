@@ -7,7 +7,7 @@ import { Cinzel } from "next/font/google"
 import localFont from "next/font/local"
 import { Music2, Disc3 } from "lucide-react"
 import { motion, useReducedMotion, type Variants } from "motion/react"
-import { PlainBubbles } from "@/components/loader/PlainBubbles"
+import { NavyBackdrop } from "@/components/loader/NavyBackdrop"
 
 interface SpotifyPlaybackUpdate {
   playingURI: string
@@ -110,7 +110,7 @@ const BODY = TEAL
 const ACCENT = TEAL
 const HAIRLINE = "color-mix(in srgb, #1F3460 22%, transparent)"
 
-// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+// Section background = the hero's circle pattern (NavyBackdrop paints its own navy base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
 // Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
@@ -200,7 +200,7 @@ function PlaylistTitle({ title, script }: { title: string; script: string }) {
           <span
             aria-hidden
             className={`${aboveTheBeyond.className} mx-auto mt-2 block w-fit max-w-full px-1 leading-[0.9] sm:mt-3`}
-            style={{ fontSize: "var(--script-size)", ...onBg }}
+            style={{ fontSize: "var(--script-size)", ...onBg, color: "var(--color-on-pattern-script)" }}
           >
             {script}
           </span>
@@ -297,8 +297,8 @@ export function WeddingPlaylist() {
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
-      {/* Same circle pattern as the hero */}
-      <PlainBubbles />
+      {/* Same navy stationery background as the hero */}
+      <NavyBackdrop />
       <section
         id="playlist"
         className="relative z-10 overflow-hidden pt-10 pb-9 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20"

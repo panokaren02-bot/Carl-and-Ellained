@@ -9,7 +9,7 @@ import { Cinzel } from "next/font/google"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { fetchUntilReady, isAbortError } from "@/lib/fetch-until-ready"
 import { fetchInvitationList, readCachedInvitationList } from "@/lib/invitation-data"
-import { PlainBubbles } from "@/components/loader/PlainBubbles"
+import { NavyBackdrop } from "@/components/loader/NavyBackdrop"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -36,7 +36,7 @@ const SCRIPT = "var(--color-welcome-script)"
 const BODY = "var(--color-welcome-text)"
 const HAIRLINE = "color-mix(in srgb, var(--color-motif-medium) 60%, transparent)"
 
-// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+// Section background = the hero's circle pattern (NavyBackdrop paints its own navy base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
 // Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
@@ -222,6 +222,7 @@ function EntourageTitle({ title, subtitle }: { title: string; subtitle: string }
         style={{
           fontSize: "var(--script-size)",
           ...onBg,
+          color: "var(--color-on-pattern-script)",
         }}
       >
         {subtitle}
@@ -752,8 +753,8 @@ export function Entourage({ sponsorsList }: { sponsorsList?: SponsorsList } = {}
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
-      {/* Same circle pattern as the hero */}
-      <PlainBubbles />
+      {/* Same navy stationery background as the hero */}
+      <NavyBackdrop />
       <Section
         id="entourage"
         className="relative z-10 overflow-hidden pt-8 pb-8 sm:pt-10 sm:pb-10 md:pt-12 md:pb-12 lg:pt-14 lg:pb-14"

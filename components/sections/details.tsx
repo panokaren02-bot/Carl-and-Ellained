@@ -11,7 +11,7 @@ import localFont from "next/font/local"
 import { Cinzel } from "next/font/google"
 import { Shirt, Copy, Check, Navigation, Heart, MapPin } from "lucide-react"
 import { motion, useReducedMotion, type Variants } from "motion/react"
-import { PlainBubbles } from "@/components/loader/PlainBubbles"
+import { NavyBackdrop } from "@/components/loader/NavyBackdrop"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -43,7 +43,7 @@ const C = {
   light: "var(--color-motif-soft)",
 } as const
 
-// Section background = the hero's circle pattern (PlainBubbles paints its own aqua base)
+// Section background = the hero's circle pattern (NavyBackdrop paints its own navy base)
 const sectionBg = "var(--color-bg-pattern-base)"
 
 // Text sitting directly on the circle pattern (colors: globals.css → --color-on-pattern*)
@@ -121,7 +121,7 @@ function DetailsTitle({ title, subtitle }: { title: string; subtitle: string }) 
       <span
         aria-hidden
         className={`${aboveTheBeyond.className} mx-auto block w-fit max-w-full px-1 leading-[0.88] sm:leading-[0.9] mt-2 sm:mt-2.5 md:mt-3`}
-        style={{ fontSize: "var(--script-size)", ...onBg }}
+        style={{ fontSize: "var(--script-size)", ...onBg, color: "var(--color-on-pattern-script)" }}
       >
         {subtitle}
       </span>
@@ -761,8 +761,8 @@ export function Details() {
       className={`${theSeasons.variable} ${aboveTheBeyond.variable} relative w-full overflow-hidden`}
       style={{ background: sectionBg }}
     >
-      {/* Same circle pattern as the hero */}
-      <PlainBubbles />
+      {/* Same navy stationery background as the hero */}
+      <NavyBackdrop />
       <Section
         id="details"
         className="relative z-10 pt-14 pb-12 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16 lg:pt-24 lg:pb-20 overflow-hidden"
