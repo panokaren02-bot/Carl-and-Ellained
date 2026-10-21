@@ -18,6 +18,16 @@ export const metadata: Metadata = {
     siteName: `${coupleNames} Wedding`,
     locale: "en_PH",
     type: "website",
+    // A page's openGraph replaces the root one, so repeat the preview image
+    images: [
+      {
+        url: `${canonicalSiteUrl}${siteConfig.linkPreviewImage}`,
+        width: 1200,
+        height: 630,
+        type: "image/jpeg",
+        alt: `${coupleNames} Wedding Invitation`,
+      },
+    ],
   },
 }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { rand } from '@/components/loader/SunsetSeaBackdrop';
+import { rand, r2 } from '@/components/loader/SunsetSeaBackdrop';
 import './navy-backdrop.css';
 
 type NavyBackdropProps = {
@@ -14,11 +14,11 @@ const GLINTS = Array.from({ length: 60 }, (_, i) => {
   const inColumn = rand(i + 550) < 0.62;
   const spread = inColumn ? 6 + depth * 16 : 46;
   return {
-    left: 50 + (rand(i + 600) - 0.5) * 2 * spread,
-    top: 1 + depth * 97,
-    width: 8 + depth * 40 + rand(i + 700) * 14,
-    dur: 2.4 + rand(i + 800) * 3.6,
-    delay: -rand(i + 900) * 6,
+    left: r2(50 + (rand(i + 600) - 0.5) * 2 * spread),
+    top: r2(1 + depth * 97),
+    width: r2(8 + depth * 40 + rand(i + 700) * 14),
+    dur: r2(2.4 + rand(i + 800) * 3.6),
+    delay: r2(-rand(i + 900) * 6),
   };
 });
 

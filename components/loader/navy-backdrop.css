@@ -147,3 +147,17 @@
     opacity: 0.5;
   }
 }
+
+/* Phones: every section has its own backdrop, and three section-sized animated
+   wave layers each were enough GPU memory to crash mobile Safari (the page
+   reloads and never finishes loading). Keep the waves still and thin the glints. */
+@media (max-width: 768px), (pointer: coarse) {
+  .navy-backdrop__waves {
+    animation: none;
+    will-change: auto;
+  }
+
+  .navy-backdrop__glint:nth-child(2n) {
+    display: none;
+  }
+}

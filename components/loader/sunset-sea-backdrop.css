@@ -278,3 +278,15 @@
     opacity: 0.7;
   }
 }
+
+/* Phones: moving the turbulence-filtered SVG layers re-runs the filter every
+   frame, which mobile Safari can't keep up with (and runs out of memory with
+   the loader + envelope both mounted). Hold them still; glints and sun still move. */
+@media (max-width: 768px), (pointer: coarse) {
+  .sunset-sea__clouds,
+  .sunset-sea__waves,
+  .sunset-sea__swell {
+    animation: none;
+    will-change: auto;
+  }
+}

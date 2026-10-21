@@ -10,10 +10,11 @@ import { LOADING_BG_PHOTOS } from "@/lib/loading-bg-photos"
 import { anastasiaScript } from "@/lib/fonts"
 
 const canonicalUrl = canonicalSiteUrl
-const desktopHero = siteConfig.linkPreviewImage
-const mobileHero = siteConfig.linkPreviewImage
-const eventImageUrl = `${canonicalUrl}${desktopHero}`
-const OG_IMAGE_FALLBACK = `${canonicalUrl}${desktopHero}`
+// Facebook/Messenger trust the declared size + type, so they must match the file
+// exactly (1200×630 JPG, small enough to scrape fast). Messenger caches by URL:
+// when the image changes, save it under a new filename so old shares refresh.
+const OG_IMAGE = `${canonicalUrl}${siteConfig.linkPreviewImage}`
+const OG_IMAGE_ALT = `${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname} Wedding Invitation - ${siteConfig.wedding.date}`
 
 const coupleNames = `${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname}`
 const eventTitle = `${coupleNames} - Wedding Invitation`
@@ -23,8 +24,8 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Event",
   name: `${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname} Wedding`,
-  startDate: "2026-04-18T14:00:00+08:00",
-  endDate: "2026-04-18T22:00:00+08:00",
+  startDate: "2027-01-23T14:00:00+08:00",
+  endDate: "2027-01-23T22:00:00+08:00",
   eventStatus: "https://schema.org/EventScheduled",
   eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
   location: [
@@ -51,7 +52,7 @@ const jsonLd = {
       },
     },
   ],
-  image: [OG_IMAGE_FALLBACK],
+  image: [OG_IMAGE],
   description:
     `You're invited to celebrate the wedding of ${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname}. Discover ceremony and reception details, RSVP, and explore their story.`,
   organizer: {
@@ -125,20 +126,12 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: OG_IMAGE_FALLBACK,
-        secureUrl: OG_IMAGE_FALLBACK,
+        url: OG_IMAGE,
+        secureUrl: OG_IMAGE,
         width: 1200,
         height: 630,
         type: "image/jpeg",
-        alt: `${coupleNames} Wedding Invitation - ${siteConfig.wedding.date}`,
-      },
-      {
-        url: OG_IMAGE_FALLBACK,
-        secureUrl: OG_IMAGE_FALLBACK,
-        width: 1200,
-        height: 630,
-        type: "image/png",
-        alt: `${coupleNames} Wedding Invitation - ${siteConfig.wedding.date}`,
+        alt: OG_IMAGE_ALT,
       },
     ],
   },
@@ -147,7 +140,7 @@ export const metadata: Metadata = {
     title: `${coupleNames} Wedding Invitation`,
     description:
       `You're invited to the wedding of ${siteConfig.couple.groomNickname} & ${siteConfig.couple.brideNickname} on ${siteConfig.wedding.date}. RSVP, explore their story, and get all the details for the big day! #${siteConfig.couple.groomNickname}And${siteConfig.couple.brideNickname}SayIDo`,
-    images: [OG_IMAGE_FALLBACK, eventImageUrl ],
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: OG_IMAGE_ALT }],
     creator: `@${siteConfig.couple.groomNickname}And${siteConfig.couple.brideNickname}`,
     site: `@${siteConfig.couple.groomNickname}And${siteConfig.couple.brideNickname}`,
   },
@@ -214,8 +207,6 @@ export default function RootLayout({
             {...(index === 0 ? { fetchPriority: "high" as const } : {})}
           />
         ))}
-        <link rel="preload" as="image" href={mobileHero} media="(max-width: 767px)" />
-        <link rel="preload" as="image" href={desktopHero} media="(min-width: 768px)" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body

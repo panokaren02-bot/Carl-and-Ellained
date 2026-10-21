@@ -12,6 +12,10 @@ export function rand(seed: number) {
   return x - Math.floor(x);
 }
 
+// Math.sin/Math.pow can differ in the last few bits between Node and the browser,
+// so round what we render — otherwise hydration sees "29.47781211891618" vs "…914816"
+export const r2 = (n: number) => Math.round(n * 100) / 100;
+
 export type Streak = { x: number; y: number; rx: number; ry: number; dark: boolean };
 
 // Wave streaks across the sea (viewBox 1000 × 340): rows bunch up near the
@@ -24,10 +28,10 @@ export function buildStreaks(seed: number, rows: number, perRow: number): Streak
     for (let i = 0; i < perRow; i++) {
       const s = seed + r * 31 + i * 7;
       out.push({
-        x: rand(s) * 1100 - 50,
-        y: y + (rand(s + 1) - 0.5) * 8 * t,
-        rx: (50 + rand(s + 2) * 170) * (0.5 + t),
-        ry: 1.5 + t * 7 + rand(s + 3) * 3,
+        x: r2(rand(s) * 1100 - 50),
+        y: r2(y + (rand(s + 1) - 0.5) * 8 * t),
+        rx: r2((50 + rand(s + 2) * 170) * (0.5 + t)),
+        ry: r2(1.5 + t * 7 + rand(s + 3) * 3),
         dark: rand(s + 4) > 0.42,
       });
     }
@@ -43,11 +47,11 @@ const GLINTS = Array.from({ length: 34 }, (_, i) => {
   const depth = Math.pow(rand(i + 500), 1.3); // 0 = horizon, 1 = foreground
   const spread = 10 + depth * 38;
   return {
-    left: 50 + (rand(i + 600) - 0.5) * 2 * spread,
-    top: 3 + depth * 82,
-    width: 10 + depth * 46 + rand(i + 700) * 18,
-    dur: 2.6 + rand(i + 800) * 3.4,
-    delay: -rand(i + 900) * 6,
+    left: r2(50 + (rand(i + 600) - 0.5) * 2 * spread),
+    top: r2(3 + depth * 82),
+    width: r2(10 + depth * 46 + rand(i + 700) * 18),
+    dur: r2(2.6 + rand(i + 800) * 3.4),
+    delay: r2(-rand(i + 900) * 6),
   };
 });
 
@@ -123,7 +127,7 @@ export function SunsetSeaBackdrop({ fixed = false }: SunsetSeaBackdropProps) {
         <svg className="sunset-sea__waves sunset-sea__waves--front" viewBox="0 0 1000 340" preserveAspectRatio="xMidYMid slice">
           <g filter={`url(#${id}-water)`}>
             {STREAKS_FRONT.map((s, i) => (
-              <ellipse key={i} cx={s.x} cy={s.y} rx={s.rx * 0.8} ry={s.ry} className={s.dark ? 'ss-wave-deep' : 'ss-wave-light'} />
+              <ellipse key={i} cx={s.x} cy={s.y} rx={r2(s.rx * 0.8)} ry={s.ry} className={s.dark ? 'ss-wave-deep' : 'ss-wave-light'} />
             ))}
           </g>
         </svg>
