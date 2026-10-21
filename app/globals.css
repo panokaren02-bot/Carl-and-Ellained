@@ -823,15 +823,11 @@ html {
   --amp-dir: left;
 }
 
-/* Botanical decorations follow the motif (see --deco-filter). Matches corner
-   decos and eucalyptus sprigs only — not the wax seal or couple illustration.
-   The encoded variants cover images served through next/image. */
-img[src*="-deco.png"],
-img[src*="/lovestorydeco/"],
-img[src*="-deco.png&"],
-img[src*="%2Flovestorydeco%2F"] {
-  filter: var(--deco-filter);
-}
+/* Botanical decorations (corner decos, eucalyptus sprigs) are pre-tinted with
+   --deco-filter: the PNGs in public/deco are baked from the untinted originals in
+   assets/deco-original. A live CSS filter on every sprig cost each one an
+   offscreen buffer in iOS Safari / in-app browsers. If --deco-filter changes,
+   re-bake from the originals. */
 
 /* Couple names only — Anastasia Script (public/fonts/AnastasiaScript.ttf). */
 .couple-anastasia,

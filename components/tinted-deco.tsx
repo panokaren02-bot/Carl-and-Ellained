@@ -7,9 +7,9 @@ interface TintedDecoProps {
 }
 
 /**
- * Botanical decoration image. Tinting comes from the global --deco-filter rule
- * in app/globals.css (matches "-deco.png" / "/lovestorydeco/" sources), so this
- * renders the <img> directly and keeps callers' sizing classes on it.
+ * Botanical decoration image. The files in public/deco are pre-tinted with
+ * --deco-filter (see app/globals.css), so this renders the <img> directly and
+ * keeps callers' sizing classes on it.
  */
 export function TintedDeco({ src, className = '', style }: TintedDecoProps) {
   if (!src) return null;

@@ -2520,7 +2520,7 @@
   }
 }
 
-/* Eucalyptus sprig above "SAVE the DATE" (tinted by --deco-filter in globals.css) */
+/* Eucalyptus sprig above "SAVE the DATE" (pre-tinted, see --deco-filter in globals.css) */
 .env-invite-letter-ornament {
   display: block;
   flex-shrink: 0;

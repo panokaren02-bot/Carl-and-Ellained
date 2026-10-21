@@ -109,7 +109,9 @@ const Silk = ({ speed = 5, scale = 1, color = "#E0B4B1", noiseIntensity = 0.5, r
   )
 
   return (
-    <Canvas dpr={[1, 2]} frameloop="always">
+    // A soft full-screen gradient: 1× resolution and no antialiasing look the same
+    // but take a fraction of the GPU memory (2× + MSAA was heavy in iOS WebViews)
+    <Canvas dpr={1} gl={{ antialias: false, powerPreference: "low-power" }} frameloop="always">
       <SilkPlane ref={meshRef} uniforms={uniforms} />
     </Canvas>
   )
