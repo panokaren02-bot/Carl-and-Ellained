@@ -569,7 +569,7 @@ function EventVenueCard({
                   {day}
                 </p>
                 <p className={`${cinzel.className} ${ct.month} font-semibold leading-none`} style={{ color: C.heading }}>
-                  {eventDate.toLocaleString("default", { month: "long" })}
+                  {eventDate.toLocaleString("en-US", { month: "long" })}
                 </p>
                 <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-5 py-1 sm:py-2">
                   <p className={`${cinzel.className} ${ct.dayNum} font-semibold leading-none`} style={{ color: C.accent }}>

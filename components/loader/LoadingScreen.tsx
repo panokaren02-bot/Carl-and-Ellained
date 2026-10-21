@@ -108,14 +108,16 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
   const [fadeOut, setFadeOut] = useState(false);
   const [visibleBoxes, setVisibleBoxes] = useState(0);
   const [statusIndex, setStatusIndex] = useState(0);
-  const [now, setNow] = useState(() => new Date());
+  // The page is prerendered at build time, so "today" is only known in the browser —
+  // counting days during SSR made the text differ on hydration (React #418)
+  const [now, setNow] = useState<Date | null>(null);
   const photoCopies = reduceMotion ? 1 : 2;
 
   const weddingDate = useMemo(() => new Date(siteConfig.wedding.date), [siteConfig.wedding.date]);
   const hasValidDate = !Number.isNaN(weddingDate.getTime());
 
   const countdownText = useMemo(() => {
-    if (!hasValidDate) return '';
+    if (!hasValidDate || !now) return '';
     const days = Math.round((startOfDay(weddingDate) - startOfDay(now)) / MS_PER_DAY);
     if (days < 0) return content.countdownPastText;
     if (days === 0) return content.countdownTodayText;
@@ -178,6 +180,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
   }, []);
 
   useEffect(() => {
+    setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(t);
   }, []);
@@ -348,9 +351,9 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete, onFade
               {content.headline}
             </h1>
           )}
-          {countdownText && (
+          {hasValidDate && (
             <p className="loading-screen__std-kicker ls-reveal" style={revealDelay(250, 0)}>
-              {countdownText}
+              {countdownText || '\u00a0'}
             </p>
           )}
         </header>

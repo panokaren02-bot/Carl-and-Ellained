@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState, useCallback, useEffect } from "react"
+import { Suspense, useState, useCallback, useEffect, useLayoutEffect } from "react"
 import { motion } from "motion/react"
 import dynamic from "next/dynamic"
 import { Hero as MainHero } from "@/components/sections/hero"
@@ -99,16 +99,9 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
   // Skip loading/landing only when returning from /gallery.
   // The flag is set by the "View Full Gallery" button and cleared immediately
   // here so a page refresh always replays the loading screen.
-  const [appState, setAppState] = useState<AppState>(() => {
-    if (typeof window !== "undefined") {
-      const returning = sessionStorage.getItem("returnFromGallery")
-      if (returning === "true") {
-        sessionStorage.removeItem("returnFromGallery")
-        return AppState.DETAILS
-      }
-    }
-    return AppState.LOADING
-  })
+  // Always start in LOADING so the first client render matches the server HTML;
+  // the gallery flag is read in a layout effect, before the browser paints.
+  const [appState, setAppState] = useState<AppState>(AppState.LOADING)
   const siteConfig = useSiteConfig()
   const plainLoader = siteConfig.loadingScreen?.display === "plain"
   const enableDecor = process.env.NEXT_PUBLIC_ENABLE_DECOR !== 'false'
@@ -118,6 +111,13 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
   )
   const [heroEnterFromLoading, setHeroEnterFromLoading] = useState(false)
   const [enteringFromInvite, setEnteringFromInvite] = useState(false)
+
+  useLayoutEffect(() => {
+    if (sessionStorage.getItem("returnFromGallery") !== "true") return
+    sessionStorage.removeItem("returnFromGallery")
+    setAppState(AppState.DETAILS)
+    setLoadingOverlayVisible(false)
+  }, [])
 
   // When returning from /gallery, scroll to the #gallery hash in the URL
   useEffect(() => {

@@ -195,7 +195,8 @@ export function BookOfGuests() {
   const [rsvpCount, setRsvpCount] = useState(0)
   const [confirmedGuests, setConfirmedGuests] = useState<Guest[]>([])
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
+  // null until the first fetch so the build-time clock never reaches the HTML
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [showIncrease, setShowIncrease] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   // Cards whose full companion list is open
@@ -484,7 +485,7 @@ export function BookOfGuests() {
                 className={`${cinzel.className} ${ct.meta} mt-3 sm:mt-4 uppercase tracking-[0.14em]`}
                 style={{ color: TEAL_SOFT }}
               >
-                {copy.updatedLabel} {formatLastUpdate(lastUpdate)}
+                {copy.updatedLabel} {lastUpdate ? formatLastUpdate(lastUpdate) : ""}
               </p>
             </div>
           </div>

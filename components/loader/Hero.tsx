@@ -146,14 +146,15 @@ export const Hero: React.FC<HeroProps> = ({
 
   const countdownText = useMemo(() => {
     const weddingDate = new Date(siteConfig.wedding.date);
-    if (Number.isNaN(weddingDate.getTime())) return '';
+    // Only count days in the browser — the page is prerendered at build time
+    if (!mounted || Number.isNaN(weddingDate.getTime())) return '';
     const now = new Date();
     const days = Math.round((startOfDay(weddingDate) - startOfDay(now)) / MS_PER_DAY);
     if (days < 0) return content.countdownPastText;
     if (days === 0) return content.countdownTodayText;
     if (days === 1) return content.countdownOneDayText;
     return content.countdownText.replace('{days}', days.toLocaleString());
-  }, [content, siteConfig.wedding.date]);
+  }, [content, mounted, siteConfig.wedding.date]);
 
   const flapIsOpen =
     phase === 'flap-open' ||

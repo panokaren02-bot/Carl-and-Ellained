@@ -7,6 +7,7 @@ import { Instagram, Facebook, Twitter, Share2, Copy, Download, Check } from "luc
 import { useQrColors } from "@/hooks/use-css-color"
 import { QRCodeCanvas } from "qrcode.react"
 import { useSiteConfig } from "@/hooks/use-site-config"
+import { canonicalSiteUrl } from "@/content/site"
 import { layeredSectionTitleSize, sectionType } from "@/lib/section-typography"
 import Image from "next/image"
 
@@ -181,7 +182,8 @@ export function SnapShare() {
   const coupleDisplayName = `${groomNickname} & ${brideNickname}`
   const fill = (text: string) => text.split("{couple}").join(coupleDisplayName)
 
-  const websiteUrl = typeof window !== "undefined" ? window.location.href : "https://example.com"
+  // Set after mount so the server and first client render agree (QR + share text)
+  const [websiteUrl, setWebsiteUrl] = useState(canonicalSiteUrl)
   const uploadLink = content.googleDriveLink
   const hashtags = content.hashtag
   const allHashtagsText = hashtags.join(" ")
@@ -193,6 +195,10 @@ export function SnapShare() {
   const isPlain = siteConfig.loadingScreen?.display === "plain"
   const showMoments = content.moments.show && !isPlain && content.moments.images.length > 0
   const [momentA, momentB, momentC] = content.moments.images
+
+  useEffect(() => {
+    setWebsiteUrl(window.location.href)
+  }, [])
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640)
