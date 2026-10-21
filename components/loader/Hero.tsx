@@ -83,11 +83,15 @@ function getFocusLiftPhase(phase: EnvelopePhase): 'idle' | 'opening' | 'revealed
 
 const letterEmergenceEase: Transition = { duration: 3.05, ease: [0.5, 0.02, 0.14, 1] };
 const flapEase: Transition = { duration: 1.1, ease: [0.65, 0, 0.35, 1] };
-const inviteExitEase: Transition = { duration: 1.65, ease: [0.22, 1, 0.36, 1], delay: 0.75 };
+// The main hero sits on the same sunset sea underneath, so the screen just dissolves
+// into it (no curtain) while the hero's own entry plays (components/sections/hero.tsx)
+const inviteExitEase: Transition = { duration: 0.4, ease: 'linear', delay: 0.7 };
 const inviteEnterEase: Transition = { duration: 1.2, ease: [0.22, 1, 0.36, 1] };
-const letterExitEase: Transition = { duration: 1.55, ease: [0.16, 1, 0.3, 1] };
-const inviteRevealLeadMs = 460;
-const INVITE_EXIT_MS = 2500;
+const letterExitEase: Transition = { duration: 0.75, ease: [0.4, 0, 0.2, 1] };
+// The main hero is revealed underneath almost at once; the envelope screen unmounts
+// as soon as it has faded so its SVG filters stop costing anything
+const inviteRevealLeadMs = 120;
+const INVITE_EXIT_MS = 1150;
 
 export const Hero: React.FC<HeroProps> = ({
   onOpen,
@@ -363,7 +367,7 @@ export const Hero: React.FC<HeroProps> = ({
       y: -18,
       scale: 0.94,
       opacity: 0,
-      transition: { duration: 1.15, delay: 0.52, ease: [0.4, 0, 0.2, 1] },
+      transition: { duration: 0.55, delay: 0.1, ease: [0.4, 0, 0.2, 1] },
     },
   };
 
@@ -427,7 +431,8 @@ export const Hero: React.FC<HeroProps> = ({
 
       {isPlain && (
         <>
-          <SunsetSeaBackdrop fixed />
+          {/* Not while hidden under the loading screen — the loader paints the same sea */}
+          {visible && <SunsetSeaBackdrop fixed />}
           <div className="env-invite-plain-corners" aria-hidden="true">
             {(
               [
@@ -437,7 +442,7 @@ export const Hero: React.FC<HeroProps> = ({
                 { src: cornerDecos.bottomRight, pos: 'br', className: 'right-0 bottom-0' },
               ] as const
             ).filter(({ src }) => src).map(({ src, pos, className }) => (
-              <div key={pos} className={`pointer-events-none absolute ${className}`}>
+              <div key={pos} className={`env-invite-plain-corner env-invite-plain-corner--${pos} pointer-events-none absolute ${className}`}>
                 <TintedDeco src={src} className="env-invite-plain-corner-img" />
               </div>
             ))}
@@ -463,51 +468,6 @@ export const Hero: React.FC<HeroProps> = ({
         <span className="env-invite-ghost-date-part">{weddingDateGhost.year}</span>
       </div>
 
-      {isExiting && !reduceMotion && (
-        <>
-          <motion.div
-            className="env-invite-exit-ring"
-            aria-hidden="true"
-            initial={{ scale: 0.4, opacity: 0 }}
-            animate={{ scale: 3.45, opacity: [0, 0.62, 0] }}
-            transition={{ duration: 1.65, ease: [0.22, 1, 0.36, 1], times: [0, 0.34, 1], delay: 0.06 }}
-          />
-          <motion.div
-            className="env-invite-exit-bloom"
-            aria-hidden="true"
-            initial={{ opacity: 0, scale: 0.28 }}
-            animate={{ opacity: [0, 0.96, 0.72, 0], scale: [0.28, 1.08, 1.52, 1.78] }}
-            transition={{
-              duration: 1.72,
-              ease: [0.22, 1, 0.36, 1],
-              times: [0, 0.26, 0.58, 1],
-              delay: 0.1,
-            }}
-          />
-          <motion.div
-            className="env-invite-exit-shimmer"
-            aria-hidden="true"
-            initial={{ x: '-130%', opacity: 0 }}
-            animate={{ x: '130%', opacity: [0, 0.85, 0] }}
-            transition={{ duration: 1.25, ease: 'easeInOut', delay: 0.22 }}
-          />
-          <motion.div
-            className="env-invite-exit-curtain env-invite-exit-curtain--left"
-            aria-hidden="true"
-            initial={{ x: '-105%' }}
-            animate={{ x: 0 }}
-            transition={{ duration: 0.95, delay: 1.15, ease: [0.65, 0, 0.35, 1] }}
-          />
-          <motion.div
-            className="env-invite-exit-curtain env-invite-exit-curtain--right"
-            aria-hidden="true"
-            initial={{ x: '105%' }}
-            animate={{ x: 0 }}
-            transition={{ duration: 0.95, delay: 1.15, ease: [0.65, 0, 0.35, 1] }}
-          />
-        </>
-      )}
-
       <p className="env-invite-live" aria-live="polite">
         {liveMessage}
       </p>
@@ -523,7 +483,7 @@ export const Hero: React.FC<HeroProps> = ({
               reduceMotion
                 ? { duration: 0.01 }
                 : isExiting
-                  ? { duration: 1.15, delay: 0.52, ease: [0.4, 0, 0.2, 1] }
+                  ? { duration: 0.55, delay: 0.1, ease: [0.4, 0, 0.2, 1] }
                   : focusLiftEase
             }
           >
@@ -537,7 +497,7 @@ export const Hero: React.FC<HeroProps> = ({
             }
             transition={
               isExiting
-                ? { duration: 1.1, delay: 0.68, ease: [0.4, 0, 0.2, 1] }
+                ? { duration: 0.5, delay: 0.15, ease: [0.4, 0, 0.2, 1] }
                 : { duration: 0.01 }
             }
           >
@@ -586,7 +546,7 @@ export const Hero: React.FC<HeroProps> = ({
                     animate={isExiting ? 'exitPortal' : letterState}
                     transition={
                       isExiting
-                        ? { ...letterExitEase, delay: 0.14 }
+                        ? letterExitEase
                         : letterState === 'rising'
                           ? {
                               ...letterEmergenceEase,

@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
 import { rand, r2 } from '@/components/loader/SunsetSeaBackdrop';
 import './navy-backdrop.css';
 
@@ -29,14 +31,33 @@ const GLINTS = Array.from({ length: 60 }, (_, i) => {
  *  waves are seamless tiles (public/ocean, from scripts/generate-ocean-tiles.py)
  *  so the look holds in short and very tall sections. Paints its own base. */
 export function NavyBackdrop({ fixed = false }: NavyBackdropProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  // Glints and wave motion only while the section is near the screen: nine
+  // backdrops × 60 animated glints were hundreds of GPU layers on phones
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), {
+      rootMargin: '200px 0px',
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className={`navy-backdrop${fixed ? ' navy-backdrop--fixed' : ''}`} aria-hidden="true">
+    <div
+      ref={ref}
+      className={`navy-backdrop${fixed ? ' navy-backdrop--fixed' : ''}${active ? ' is-active' : ''}`}
+      aria-hidden="true"
+    >
       <div className="navy-backdrop__waves navy-backdrop__waves--far" />
       <div className="navy-backdrop__waves navy-backdrop__waves--back" />
       <div className="navy-backdrop__waves navy-backdrop__waves--front" />
       <div className="navy-backdrop__column" />
       <div className="navy-backdrop__glints">
-        {GLINTS.map((g, i) => (
+        {active && GLINTS.map((g, i) => (
           <span
             key={i}
             className="navy-backdrop__glint"

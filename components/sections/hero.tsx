@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { motion, useReducedMotion } from "motion/react"
+import { motion, useReducedMotion, type Easing, type MotionProps, type TargetAndTransition } from "motion/react"
 import { Cinzel } from "next/font/google"
 import localFont from "next/font/local"
 import { useSiteConfig } from "@/hooks/use-site-config"
@@ -28,7 +28,7 @@ const aboveTheBeyond = localFont({
   variable: "--font-above-beyond",
 })
 
-const entryEase = [0.22, 1, 0.36, 1] as const
+const entryEase: Easing = [0.22, 1, 0.36, 1]
 const heroTitleSize = {
   main: "clamp(3.35rem, min(16vw, 18cqi), 8.25rem)",
   script: "clamp(2.55rem, min(12vw, 14cqi), 5.6rem)",
@@ -209,7 +209,22 @@ function HeroCountdown() {
   )
 }
 
-export function Hero() {
+type HeroProps = {
+  /** Start the entry choreography (false keeps everything hidden, e.g. under the envelope) */
+  play?: boolean
+  /** Seconds before the first piece moves — lets the envelope dissolve first */
+  delay?: number
+}
+
+// Corner sprays bloom out from their own corner, one after another
+const CORNERS = [
+  { key: "topLeft", className: "left-0 top-0", origin: "top left", order: 0 },
+  { key: "topRight", className: "right-0 top-0", origin: "top right", order: 1 },
+  { key: "bottomLeft", className: "left-0 bottom-0", origin: "bottom left", order: 2 },
+  { key: "bottomRight", className: "right-0 bottom-0", origin: "bottom right", order: 3 },
+] as const
+
+export function Hero({ play = true, delay = 0.1 }: HeroProps = {}) {
   const siteConfig = useSiteConfig()
   const loading = siteConfig.loadingScreen ?? defaultSiteConfig.loadingScreen
   const isPlain = loading.display === "plain"
@@ -217,12 +232,6 @@ export function Hero() {
     loading.cornerDecos ?? defaultSiteConfig.loadingScreen.cornerDecos
   const backgroundPhotos = loading.backgroundPhotos ?? []
   const reduceMotion = useReducedMotion()
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const id = window.setTimeout(() => setVisible(true), 40)
-    return () => window.clearTimeout(id)
-  }, [])
 
   const parsedDate = useMemo(
     () => parseWeddingDate(siteConfig.ceremony.date ?? siteConfig.wedding.date),
@@ -240,16 +249,24 @@ export function Hero() {
   const ceremonyName =
     siteConfig.ceremony.location || siteConfig.wedding.venue
 
-  const fadeUp = (delay: number) => {
-    if (reduceMotion) {
-      return { initial: false as const, animate: { opacity: 1, y: 0 } }
-    }
+  /** Hidden → shown motion props, timed from `delay` once `play` turns on */
+  const enter = (
+    hidden: TargetAndTransition,
+    shown: TargetAndTransition,
+    at: number,
+    duration = 1,
+    ease: Easing = entryEase,
+  ): MotionProps => {
+    if (reduceMotion) return { initial: false, animate: shown }
     return {
-      initial: { opacity: 0, y: 18 },
-      animate: visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 },
-      transition: { duration: 0.9, delay, ease: entryEase },
+      initial: hidden,
+      animate: play ? shown : hidden,
+      transition: { duration, delay: play ? delay + at : 0, ease },
     }
   }
+
+  // Opacity + transform only (no blur) so every step stays on the GPU on phones
+  const fadeUp = (at: number) => enter({ opacity: 0, y: 12 }, { opacity: 1, y: 0 }, at, 0.65)
 
   return (
     <section
@@ -258,22 +275,25 @@ export function Hero() {
     >
       {isPlain ? (
         <>
-          {/* Same watercolor sunset-over-the-sea as the envelope screen (components/loader/Hero.tsx) */}
-          <SunsetSeaBackdrop />
+          {/* Same watercolor sunset-over-the-sea as the envelope screen (components/loader/Hero.tsx).
+              Mounted only once the hero plays: its SVG filters are heavy on phones, and until
+              then the envelope's identical sea covers it anyway */}
+          {play && <SunsetSeaBackdrop />}
           <div className="home-hero-plain-corners" aria-hidden="true">
-            {(
-              [
-                { src: cornerDecos.topLeft, className: "left-0 top-0" },
-                { src: cornerDecos.topRight, className: "right-0 top-0" },
-                { src: cornerDecos.bottomLeft, className: "left-0 bottom-0" },
-                { src: cornerDecos.bottomRight, className: "right-0 bottom-0" },
-              ] as const
-            ).map(({ src, className }) => (
-              <img
-                key={src}
-                src={src}
+            {CORNERS.map((corner) => (
+              <motion.img
+                key={corner.key}
+                src={cornerDecos[corner.key]}
                 alt=""
-                className={`home-hero-plain-corner-img absolute ${className}`}
+                className={`home-hero-plain-corner-img absolute ${corner.className}`}
+                style={{ transformOrigin: corner.origin }}
+                {...enter(
+                  { opacity: 0, scale: 0.6, rotate: -4 },
+                  { opacity: 1, scale: 1, rotate: 0 },
+                  corner.order * 0.08,
+                  0.9,
+                  [0.16, 1, 0.3, 1],
+                )}
               />
             ))}
           </div>
@@ -303,15 +323,22 @@ export function Hero() {
               "--hero-script-overlap": heroTitleSize.overlap,
             } as React.CSSProperties
           }
-          {...fadeUp(0.08)}
         >
-          <span
+          <motion.span
             aria-hidden
-            className="home-hero-title-glow pointer-events-none absolute left-1/2 top-[42%] h-[min(18rem,58vw)] w-[min(36rem,96%)] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            {...enter({ opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1 }, 0, 1)}
+            style={{ x: "-50%", y: "-50%" }}
+            className="home-hero-title-glow pointer-events-none absolute left-1/2 top-[42%] h-[min(18rem,58vw)] w-[min(36rem,96%)] rounded-full"
           />
           <span className="sr-only">You&apos;re Invited!</span>
-          <span
+          <motion.span
             aria-hidden
+            {...enter(
+              { opacity: 0, y: 20, scale: 0.96 },
+              { opacity: 1, y: 0, scale: 1 },
+              0.05,
+              0.7,
+            )}
             className={`${theSeasons.className} home-hero-title-main relative block uppercase leading-[0.78] tracking-[0.06em] min-[400px]:tracking-[0.09em] sm:tracking-[0.11em] md:tracking-[0.12em]`}
             style={{ fontSize: "var(--hero-title-size)" }}
           >
@@ -322,9 +349,17 @@ export function Hero() {
               &rsquo;
             </span>
             re
-          </span>
-          <span
+          </motion.span>
+          {/* Script line is written on left to right, like a pen stroke */}
+          <motion.span
             aria-hidden
+            {...enter(
+              { clipPath: "inset(-30% 104% -30% -8%)", opacity: 0.2 },
+              { clipPath: "inset(-30% -8% -30% -8%)", opacity: 1 },
+              0.3,
+              0.85,
+              [0.45, 0.05, 0.25, 1],
+            )}
             className={`${aboveTheBeyond.className} home-hero-title-script relative z-10 mx-auto block w-fit max-w-full px-1 leading-[0.82] sm:leading-[0.84]`}
             style={{
               marginTop: "var(--hero-script-overlap)",
@@ -337,32 +372,40 @@ export function Hero() {
             >
               !
             </span>
-          </span>
+          </motion.span>
         </motion.h1>
 
         <motion.p
           className={`${cinzel.className} home-hero-eyebrow mt-4 max-w-[22rem] text-[clamp(0.68rem,2.8vw,0.86rem)] font-medium uppercase leading-[1.7] tracking-[0.18em] sm:mt-5 sm:max-w-none sm:tracking-[0.22em]`}
-          {...fadeUp(0.2)}
+          {...fadeUp(0.6)}
         >
           Save the date — we are getting married
         </motion.p>
 
         <motion.p
           className={`${theSeasons.className} home-hero-date mt-4 text-[clamp(1.85rem,8.5vw,3.65rem)] font-normal leading-none tracking-[0.08em] sm:mt-5`}
-          {...fadeUp(0.28)}
+          {...enter(
+            { opacity: 0, y: 12, scale: 0.95 },
+            { opacity: 1, y: 0, scale: 1 },
+            0.7,
+            0.7,
+          )}
         >
           {numericDate}
         </motion.p>
 
         <motion.p
           className={`${cinzel.className} home-hero-meta mt-4 text-[0.62rem] font-medium uppercase tracking-[0.18em] sm:text-[0.7rem] sm:tracking-[0.2em]`}
-          {...fadeUp(0.36)}
+          {...fadeUp(0.8)}
         >
           {ceremonyName} · {ceremonyTimePhrase}
         </motion.p>
       </div>
 
-      <motion.div className="home-hero-countdown-bar relative z-10 mt-auto w-full" {...fadeUp(0.42)}>
+      <motion.div
+        className="home-hero-countdown-bar relative z-10 mt-auto w-full"
+        {...enter({ opacity: 0, y: "100%" }, { opacity: 1, y: "0%" }, 0.85, 0.7, [0.16, 1, 0.3, 1])}
+      >
         <HeroCountdown />
       </motion.div>
     </section>

@@ -95,10 +95,13 @@ export const metadata: Metadata = {
   creator: coupleNames,
   publisher: coupleNames,
   category: "Event",
+  // iOS Safari otherwise wraps phone-like text in links before React hydrates,
+  // which only iPhones hit as a hydration error (React #418). Numbers that should
+  // be callable use explicit tel: links.
   formatDetection: {
     email: false,
     address: false,
-    telephone: true,
+    telephone: false,
   },
   alternates: {
     canonical: canonicalUrl,
@@ -181,7 +184,7 @@ export default function RootLayout({
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="color-scheme" content="light" />
         <meta name="theme-color" content="#D2A4A4" />
-        <meta name="format-detection" content="telephone=yes,email=no,address=no" />
+        <meta name="format-detection" content="telephone=no,date=no,email=no,address=no" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap" rel="stylesheet" />

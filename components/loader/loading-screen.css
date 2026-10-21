@@ -3478,10 +3478,9 @@
   color: var(--color-on-pattern-soft);
 }
 
-/* Horizon a little lower than on the envelope screen so the date and venue
-   lines stay over the sky; the countdown band takes the sea below */
+/* Horizon matches the envelope screen (sunset-sea-backdrop.css) so the hand-off
+   is seamless; the countdown band takes the sea below */
 .home-hero--plain .sunset-sea {
-  --ss-horizon: 72%;
   z-index: 0;
 }
 

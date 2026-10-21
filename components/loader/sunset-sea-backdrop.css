@@ -2,7 +2,9 @@
    Soft blush-pink sky, mauve mountains, navy sea (#1F3460 motif) with sun glints. */
 
 .sunset-sea {
-  --ss-horizon: 66%;
+  /* Same on the loader, envelope and main hero so the sky never shifts between
+     them (the hero's date/venue lines need the sky this low) */
+  --ss-horizon: 72%;
   /* blush palette — dusty rose clouds fading to cream at the horizon */
   --ss-rose: #e2a0b2;
   --ss-coral: #edb3c2;

@@ -55,35 +55,37 @@ const silkBackdropVariants = {
   },
 }
 
+// Navbar drops in last, once the hero title has landed
 const navbarRevealVariants = {
   hidden: { opacity: 0, y: -28 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.88, ease: mainEntryEase, delay: 0.72 },
+    transition: { duration: 0.6, ease: mainEntryEase, delay: 1.1 },
   },
 }
 
+// The hero shows at once beneath the dissolving envelope — the backgrounds match,
+// so moving or blurring the whole block would show; its text and corners animate
+// in by themselves (MainHero play/delay)
 const heroRevealVariants = {
-  hidden: { opacity: 0, y: 52, scale: 1.05, filter: "blur(12px)" },
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.01 } },
+}
+
+// Below the fold; no blur — a full-page filter is costly on phones
+const sectionsRevealVariants = {
+  hidden: { opacity: 0, y: 40 },
   show: {
     opacity: 1,
     y: 0,
-    scale: 1,
-    filter: "blur(0px)",
-    transition: { duration: 1.28, ease: mainEntryEase, delay: 0.58 },
+    transition: { duration: 0.7, ease: mainEntryEase, delay: 0.6 },
   },
 }
 
-const sectionsRevealVariants = {
-  hidden: { opacity: 0, y: 40, filter: "blur(8px)" },
-  show: {
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 1.08, ease: mainEntryEase, delay: 0.86 },
-  },
-}
+// Seconds after the hand-off starts before the hero's entry plays: by then the
+// letter and envelope are mostly gone (components/loader/Hero.tsx exit timings)
+const HERO_ENTRY_DELAY_S = 0.33
 
 /** WebGL Silk needs a hex color. */
 const SILK_COLOR = "#1F3460"
@@ -111,6 +113,10 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
   )
   const [heroEnterFromLoading, setHeroEnterFromLoading] = useState(false)
   const [enteringFromInvite, setEnteringFromInvite] = useState(false)
+  // The ~20,000px page below the hero is only built once the guest is in. Kept
+  // mounted (invisibly) under the loader and envelope it needed ~1.7GB of layer
+  // memory at iPhone resolution and Safari killed the tab (white screen).
+  const [sectionsMounted, setSectionsMounted] = useState(false)
 
   useLayoutEffect(() => {
     if (sessionStorage.getItem("returnFromGallery") !== "true") return
@@ -121,16 +127,20 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
 
   // When returning from /gallery, scroll to the #gallery hash in the URL
   useEffect(() => {
-    if (appState !== AppState.DETAILS) return
+    if (!sectionsMounted) return
     const hash = window.location.hash
     if (!hash) return
-    // Small delay lets the page paint before scrolling
-    const id = setTimeout(() => {
+    // Sections load as separate chunks — wait (up to ~3s) for the target to exist
+    let tries = 0
+    const id = setInterval(() => {
       const el = document.querySelector(hash)
-      if (el) el.scrollIntoView({ behavior: "smooth" })
+      if (el || ++tries > 30) {
+        clearInterval(id)
+        el?.scrollIntoView({ behavior: "smooth" })
+      }
     }, 100)
-    return () => clearTimeout(id)
-  }, [appState])
+    return () => clearInterval(id)
+  }, [sectionsMounted])
 
   const handleLoadingFadeStart = useCallback(() => {
     setShowInvitation(true)
@@ -157,6 +167,14 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
   const detailsVisible = appState === AppState.DETAILS
   const pageScrollLocked = appState !== AppState.DETAILS
   const cinematicEntry = enteringFromInvite && detailsVisible
+
+  // Coming from the envelope, wait until the hero's entry has mostly played so
+  // mounting the sections doesn't stutter it; from /gallery, mount straight away
+  useEffect(() => {
+    if (!detailsVisible || sectionsMounted) return
+    const id = window.setTimeout(() => setSectionsMounted(true), enteringFromInvite ? 1300 : 0)
+    return () => window.clearTimeout(id)
+  }, [detailsVisible, enteringFromInvite, sectionsMounted])
 
   useEffect(() => {
     prefetchInvitationData({ sponsorsList, entourage: showEntourage })
@@ -197,7 +215,7 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
             variants={detailsShellVariants}
             animate={detailsVisible ? "show" : "hidden"}
           >
-            {cinematicEntry && (
+            {cinematicEntry && !plainLoader && (
               <motion.div
                 className="fixed inset-0 z-[28] pointer-events-none bg-[var(--color-bg-ocean-floor)]"
                 aria-hidden="true"
@@ -207,7 +225,7 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
               />
             )}
 
-            {enableDecor && (
+            {enableDecor && detailsVisible && (
               <motion.div
                 className="fixed inset-0 z-0 pointer-events-none"
                 variants={silkBackdropVariants}
@@ -250,8 +268,9 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
                 animate={cinematicEntry ? "show" : detailsVisible ? "show" : "hidden"}
                 transition={cinematicEntry ? undefined : { duration: 0.01 }}
               >
-                <MainHero />
+                <MainHero play={detailsVisible} delay={cinematicEntry ? HERO_ENTRY_DELAY_S : 0.1} />
               </motion.div>
+              {sectionsMounted && (
               <motion.div
                 variants={sectionsRevealVariants}
                 initial={false}
@@ -278,6 +297,7 @@ export function InvitationPage({ sponsorsList, showEntourage = true }: Invitatio
               <SeeYouThere />
               <Footer />
               </motion.div>
+              )}
             </div>
           </motion.div>
         </main>

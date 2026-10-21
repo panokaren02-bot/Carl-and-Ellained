@@ -35,6 +35,13 @@
   will-change: transform;
 }
 
+/* Off screen (NavyBackdrop toggles .is-active): hold the swell still */
+.navy-backdrop:not(.is-active) .navy-backdrop__waves,
+.navy-backdrop:not(.is-active) .navy-backdrop__column {
+  animation-play-state: paused;
+  will-change: auto;
+}
+
 /* Distant water: fine strokes, strongest at the top of the section */
 .navy-backdrop__waves--far {
   background: url("/ocean/waves-far.svg") 0 0 / 640px 400px repeat;
